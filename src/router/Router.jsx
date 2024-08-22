@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { useContext } from "react"
 import { UserContext } from "../context/UserContext"
+import Login from "../pages/Login"
 
 
 const Router = () => {
@@ -9,7 +10,7 @@ const Router = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path=""/>
+        <Route path="/login" element={<Login/>}/>
       </Routes>
     </BrowserRouter>
   )

@@ -15,3 +15,18 @@
 * {
   font-family: "montserrat";
 }
+
+.custom-background {
+  background: radial-gradient(circle at top left,
+    #001483 150px,
+      transparent 150px),
+    radial-gradient(circle at top left,
+    #000c62 700px,
+      transparent 700px),
+    radial-gradient(circle at top left,
+    #000748 1200px,
+      transparent 1200px),
+    radial-gradient(circle at top left,
+    #000322 2400px,
+      transparent 2400px);
+}
