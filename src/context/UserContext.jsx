@@ -5,12 +5,13 @@ import customAxios from "../config/axios.config.js"
 export const UserContext = createContext()
 
 export const UserContextProvider = ({ children }) => {
-  const [user, setUser] = useState(CookiesJs.get("jwt") ? true : false)
+  const [user, setUser] = useState(localStorage.getItem("token") ? true : false)
   const [userData, setUserData] = useState(false)
-
+  
   useEffect(() => {
     if (user) {
-      customAxios.get(`/user/current`).then(res => {
+      customAxios.defaults.headers.common['Authorization'] = `${localStorage.getItem("token")}`
+      customAxios.get(`/auth/current`).then(res => {
         const userObj = res?.data?.payload
         setUserData(userObj)
       })

@@ -4,24 +4,34 @@ import Main from "../containers/Main"
 import Input from "../components/Input"
 import { useForm } from "react-hook-form"
 import customAxios from "../config/axios.config"
+import { useNavigate } from "react-router-dom"
+import Button from "../components/Button"
 
 const Login = () => {
   const {setUser} = useContext(UserContext)
   const [visible, setVisible] = useState(false)
   const [login, setLogin] = useState(true)
-  const {register, handleSubmit} = useForm()
+  const navigate = useNavigate()
+  const {register, handleSubmit, reset} = useForm()
   
   const onSubmit = handleSubmit(async data => {
-    if (!login) {
-      console.log(data)
-      await customAxios.post("/auth/register", data)
+    const result = await customAxios.post(`/auth/${!login ? "register" : "login"}`, data)
+    if (login) {
+      customAxios.defaults.headers.common['Authorization'] = `Bearer ${result?.data?.access_token}`;
+      localStorage.setItem('token', customAxios.defaults.headers.common['Authorization']);
+      setUser(true)
+      navigate("/")
+    } else {
+      reset()
+      setLogin(!login)
     }
   })
 
   return (
     <Main className={"grid grid-cols-2 items-center custom-background justify-items-center"}>
-      <section>
-        <h1 className="text-6xl text-white font-bold">Adminstracion<br/> de la fábrica</h1>
+      <section className="flex flex-col gap-y-8">
+       <img src="arcan.png" alt="" className="w-3/4"/>
+       <img src="cattown.png" alt="" className="w-3/4"/>
       </section>
       <section className="flex flex-col gap-y-12 text-white">
         <h2 className="text-4xl">{login ? "Iniciar sesion" : "Registrarse"}</h2>
@@ -32,7 +42,7 @@ const Login = () => {
           </Input>
           <div className="flex flex-col gap-y-2">
             <p className="duration-300 hover:text-important w-full cursor-pointer select-none" onClick={() => setLogin(!login)}>{login ? "No tienes una cuenta? Registrate" : "Ya tienes una cuenta? Inicia sesion"}</p>
-            <button className="bg-action p-2 rounded-lg text-2xl">Ingresar</button>
+            <Button>Ingresar</Button>
           </div>
         </form>
       </section>
