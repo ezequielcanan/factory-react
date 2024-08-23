@@ -1,20 +1,22 @@
 import Button from "./Button"
 import customAxios from "../config/axios.config"
 import { Link, NavLink } from "react-router-dom"
-import { FaBagShopping } from "react-icons/fa6"
+import { FaBagShopping, FaScissors } from "react-icons/fa6"
+import NavItem from "./NavItem"
+import { MdSell } from "react-icons/md"
 
 const Navbar = () => {
   return (
-    <header className="flex flex-col items-center p-4 gap-y-16 fixed z-20 !w-[10%] text-white bg-primary h-screen">
-      <p className="text-white text-2xl">Fabrica</p>
-      <nav className="w-full">
-        <ul className="flex flex-col items-center w-full gap-y-8">
-          <li className="w-full font-bold">
-            <NavLink to="/articles" className={({isActive}) => `!w-full rounded px-4 py-2 !h-full flex justify-between items-center border-2 border-white duration-300 ${!isActive ? "bg-primary text-white" : "bg-white text-primary"}`}>Stock <FaBagShopping/></NavLink>
-          </li>
+    <header className="flex items-center justify-between px-8 py-6 h-[100px] gap-x-16 fixed z-20 w-full text-white bg-black/80">
+      <NavLink to={"/"} className="text-white font-bold text-3xl">Fabrica</NavLink>
+      <nav className="h-full flex items-center gap-x-8">
+        <ul className="flex items-center w-full gap-x-8">
+          <NavItem path={"/articles"}>Stock <FaBagShopping /></NavItem>
+          <NavItem path={"/orders"}>Pedidos <MdSell /></NavItem>
+          <NavItem path={"/cuts"}>Cortes <FaScissors /></NavItem>
         </ul>
+        {/*<Button className={"bg-red-700 hover:bg-red-800 text-white text-sm rounded-md"} onClick={() => (customAxios.defaults.headers.common['Authorization'] = "", localStorage.setItem("token", ""))}>Cerrar sesion</Button>*/}
       </nav>
-      <Button className={"bg-red-700 hover:bg-red-800 text-white text-sm rounded-md w-full"} onClick={() => (customAxios.defaults.headers.common['Authorization'] = "", localStorage.setItem("token", ""))}>Cerrar sesion</Button>
     </header>
   )
 }

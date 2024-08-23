@@ -15,14 +15,17 @@ const Router = () => {
         <Navbar/>
       )}
       <Routes>
-        {!getUser() && (
+        {!getUser() ? (
           <>
           <Route path="/login" element={<Login/>}/>
           <Route path="*" element={<Navigate to={"/login"}/>}/>
           </>
+        ) : (
+          <>
+            <Route path="*" element={<NotFound/>}/>
+            <Route path="/" element={<Home/>}/>
+          </>
         )}
-        <Route path="*" element={<NotFound/>}/>
-        <Route path="/" element={<Home/>}/>
       </Routes>
     </BrowserRouter>
   )
