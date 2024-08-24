@@ -9,7 +9,6 @@ import Button from "../components/Button"
 
 const Login = () => {
   const {setUser} = useContext(UserContext)
-  const [visible, setVisible] = useState(false)
   const [login, setLogin] = useState(true)
   const navigate = useNavigate()
   const {register, handleSubmit, reset} = useForm()
@@ -38,8 +37,7 @@ const Login = () => {
         <form action="" className="flex flex-col gap-y-6" onSubmit={onSubmit}>
           {!login && <Input placeholder="Nombre" register={register("username")}/>}
           <Input placeholder="Email" register={register("email")}/>
-          <Input placeholder="Contraseña" register={register("password")} type="password">
-          </Input>
+          <Input placeholder="Contraseña" register={register("password")} type="password"/>
           <div className="flex flex-col gap-y-2">
             <p className="duration-300 hover:text-important w-full cursor-pointer select-none" onClick={() => setLogin(!login)}>{login ? "No tienes una cuenta? Registrate" : "Ya tienes una cuenta? Inicia sesion"}</p>
             <Button>Ingresar</Button>

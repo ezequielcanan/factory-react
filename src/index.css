@@ -30,3 +30,9 @@
     #000322 2400px,
       transparent 2400px);
 }
+
+select option:hover {
+  background-color: transparent !important; /* Elimina el color de fondo al hacer hover */
+  color: inherit !important; /* Mantiene el color del texto igual al estado normal */
+  cursor: default !important; /* Cambia el cursor a default, para que no aparezca la mano */
+}

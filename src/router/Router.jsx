@@ -5,6 +5,8 @@ import Login from "../pages/Login"
 import NotFound from "../pages/NotFound"
 import Navbar from "../components/Navbar"
 import Home from "../pages/Home"
+import Articles from "../pages/Articles"
+import NewArticle from "../pages/NewArticle"
 
 
 const Router = () => {
@@ -24,6 +26,8 @@ const Router = () => {
           <>
             <Route path="*" element={<NotFound/>}/>
             <Route path="/" element={<Home/>}/>
+            <Route path="/articles" element={<Articles/>}/>
+            <Route path="/articles/new" element={<NewArticle/>}/>
           </>
         )}
       </Routes>

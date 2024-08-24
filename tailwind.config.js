@@ -16,7 +16,8 @@ export default {
         third: "#000748",
         fourth: "#000322",
         action: "#0036a5",
-        important: "#00aaee"
+        important: "#00aaee",
+        nav: "#0077bb",
       }
     },
   },

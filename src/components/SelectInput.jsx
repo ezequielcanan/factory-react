@@ -1,0 +1,62 @@
+import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const SelectInput = ({options, selectedOption, setSelectedOption}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectRef = useRef(null);
+
+  const toggleOpen = () => setIsOpen(!isOpen);
+
+  const handleOptionClick = (option) => {
+    setSelectedOption(option);
+    setIsOpen(false);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (selectRef.current && !selectRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  return (
+    <div className="relative w-full">
+      <div 
+        className={`${selectedOption.bg || "bg-transparent"} ${selectedOption.transparent ? "text-transparent" : "text-white"} border border-white rounded-lg p-2 cursor-pointer`}
+        onClick={toggleOpen}
+        ref={selectRef}
+      >
+        {selectedOption.value}
+      </div>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className={"absolute bg-white border border-gray-300 rounded-lg mt-1 overflow-hidden w-full shadow-lg z-10"}
+          >
+            {options.map((option, index) => (
+              <div 
+                key={index} 
+                className={`p-2 ${option.bg ? option.bg + " hover:opacity-70" : "hover:bg-gray-100"} ${option?.transparent && "text-transparent"} cursor-pointer`}
+                onClick={() => handleOptionClick(option)}
+              >
+                {option.value}
+              </div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+export default SelectInput
