@@ -1,14 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const SelectInput = ({options, selectedOption, setSelectedOption}) => {
+const SelectInput = ({ options, selectedOption, setSelectedOption, firstNull, onChange = () => {} }) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef(null);
 
   const toggleOpen = () => setIsOpen(!isOpen);
 
   const handleOptionClick = (option) => {
-    setSelectedOption(option);
+    setSelectedOption({...option, all: option?.all ? true : false});
     setIsOpen(false);
   };
 
@@ -28,8 +28,8 @@ const SelectInput = ({options, selectedOption, setSelectedOption}) => {
 
   return (
     <div className="relative w-full">
-      <div 
-        className={`${selectedOption.bg || "bg-transparent"} ${selectedOption.transparent ? "text-transparent" : "text-white"} border border-white rounded-lg p-2 cursor-pointer`}
+      <div
+        className={`${selectedOption.bg || "bg-transparent"} ${selectedOption.transparent ? "text-transparent" : "text-white"} border border-2 border-white rounded-lg p-2 px-4 text-xl cursor-pointer`}
         onClick={toggleOpen}
         ref={selectRef}
       >
@@ -37,15 +37,15 @@ const SelectInput = ({options, selectedOption, setSelectedOption}) => {
       </div>
       <AnimatePresence>
         {isOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             className={"absolute bg-white border border-gray-300 rounded-lg mt-1 overflow-hidden w-full shadow-lg z-10"}
           >
             {options.map((option, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className={`p-2 ${option.bg ? option.bg + " hover:opacity-70" : "hover:bg-gray-100"} ${option?.transparent && "text-transparent"} cursor-pointer`}
                 onClick={() => handleOptionClick(option)}
               >

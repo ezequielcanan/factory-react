@@ -1,45 +1,23 @@
 import Input from "../components/Input"
 import Label from "../components/Label"
 import Main from "../containers/Main"
-import InputContainer from "../containers/InputContainer"
+import { colors, sizes, categories, societies } from "../utils/utils"
 import { useForm } from "react-hook-form"
 import SelectInput from "../components/SelectInput"
 import { useState } from "react"
 import { FaFileUpload } from "react-icons/fa"
 import Button from "../components/Button"
+import customAxios from "../config/axios.config"
+import { useNavigate } from "react-router-dom"
 
 const NewArticle = () => {
   const { register, handleSubmit } = useForm()
   const [file, setFile] = useState(null)
-  const colors = [
-    { value: "Rojo", bg: "bg-red-600", transparent: true },
-    { value: "Verde", bg: "bg-green-600", transparent: true },
-    { value: "Azul", bg: "bg-blue-600", transparent: true },
-    { value: "Amarillo", bg: "bg-yellow-400", transparent: true },
-    { value: "Rosa", bg: "bg-pink-600", transparent: true },
-    { value: "Violeta", bg: "bg-purple-600", transparent: true },
-    { value: "Celeste", bg: "bg-sky-600", transparent: true },
-    { value: "Marron", bg: "bg-pink-950", transparent: true },
-    { value: "Negro", bg: "bg-black", transparent: true },
-    { value: "Blanco", bg: "bg-white", transparent: true },
-  ]
-
-  const sizes = [{value: "XL"}, {value: "LG"}, {value: "M"}, {value: "SM"}, {value: "XS"}]
-  
-  const categories = [
-    {value: "Remeras"},
-    {value: "Pantalones"},
-    {value: "Camperas"},
-    {value: "Zapatillas"},
-    {value: "Fajas"},
-    {value: "Rascadores"},
-    {value: "Juguetes"},
-    {value: "Otros"}
-  ]
-
+  const navigate = useNavigate()
   const [color, setColor] = useState(colors[0])
   const [category, setCategory] = useState(categories[0])
   const [size, setSize] = useState(sizes[0])
+  const [society, setSociety] = useState(societies[0])
 
   const handleFileChange = (event) => {
     const uploadedFile = event.target.files[0]
@@ -50,12 +28,31 @@ const NewArticle = () => {
     reader.readAsDataURL(uploadedFile)
   }
 
-  const onSubmit = handleSubmit(data => {
+  const onSubmit = handleSubmit(async data => {
     data.category = category.value
     data.size = size.value
     data.color = color.value
+    data.society = society.value
+    
+    const result = await customAxios.post("/articles", data)
+    const id = result?.data?._id
 
-
+    if (file) {
+      const formData = new FormData();
+      const filePath = `/articles/${id}`
+      const sendFile = file[0]
+      let ext = sendFile.name?.split(".")
+      ext = ext[ext.length - 1]
+      formData.append('file', sendFile);
+      
+      const uploadFile = await customAxios.post(`/upload/single?path=${filePath}&name=${"thumbnail."+"png"}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+    }
+      
+    navigate("/articles")
   })
 
   return (
@@ -64,14 +61,17 @@ const NewArticle = () => {
         <Label>Descripcion</Label>
         <Input register={register("description", {required: true})} className={"!py-2"} />
 
-        <Label>Talle</Label>
-        <SelectInput selectedOption={size} setSelectedOption={setSize} options={sizes} className={"!py-2"} />
-
-        <Label>Color</Label>
-        <SelectInput selectedOption={color} setSelectedOption={setColor} options={colors} className={"!py-2"} />
+        <Label>Negocio</Label>
+        <SelectInput selectedOption={society} setSelectedOption={setSociety} options={societies} className={"!py-2"} />
 
         <Label>Categoria</Label>
         <SelectInput selectedOption={category} setSelectedOption={setCategory} options={categories} className={"!py-2"} />
+
+        <Label>Color</Label>
+        <SelectInput selectedOption={color} setSelectedOption={setColor} options={colors} className={"!py-2"} />
+        
+        <Label>Talle</Label>
+        <SelectInput selectedOption={size} setSelectedOption={setSize} options={sizes} className={"!py-2"} />
 
         <Label>Stock</Label>
         <Input register={register("stock", {required: true})} type="number" step="1" className={"!py-2"} />
