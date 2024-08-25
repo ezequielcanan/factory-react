@@ -9,6 +9,7 @@ import { FaFileUpload } from "react-icons/fa"
 import Button from "../components/Button"
 import customAxios from "../config/axios.config"
 import { useNavigate } from "react-router-dom"
+import ArticleForm from "../components/ArticleForm"
 
 const NewArticle = () => {
   const { register, handleSubmit } = useForm()
@@ -57,33 +58,21 @@ const NewArticle = () => {
   })
 
   return (
-    <Main className={"grid grid-cols-2 justify-items-center max-h-screen overflow-hidden"}>
-      <form action="" className={`grid grid-cols-2 items-start gap-y-8 h-max`} onSubmit={onSubmit}>
-        <Label>Descripcion</Label>
-        <Input register={register("description", {required: true})} className={"!py-2"} />
-
-        <Label>Negocio</Label>
-        <SelectInput selectedOption={society} setSelectedOption={setSociety} options={societies} className={"!py-2"} />
-
-        <Label>Categoria</Label>
-        <SelectInput selectedOption={category} setSelectedOption={setCategory} options={categories} className={"!py-2"} />
-
-        <Label>Color</Label>
-        <SelectInput selectedOption={color} setSelectedOption={setColor} options={colors} className={"!py-2"} />
-        
-        <Label>Talle</Label>
-        <SelectInput selectedOption={size} setSelectedOption={setSize} options={sizes} className={"!py-2"} />
-
-        <Label>Stock</Label>
-        <Input register={register("stock", {required: true})} type="number" step="1" className={"!py-2"} />
-
-        <Button className={"col-span-2"} type="submit">Confirmar</Button>
-      </form>
-
-      <Label htmlFor="file" className={`${file ? "w-full h-[650px] border-4 border-nav" : "w-full h-full border-dashed rounded-lg border-nav border-4"} flex items-center overflow-hidden justify-center `}>
-        {!file ? <FaFileUpload className="text-7xl"/> : <img src={file[1]} className="w-full h-full object-cover"/>}
-        <Input type="file" className="hidden" id="file" accept="image/*" name="file" onChange={handleFileChange} containerClassName={"hidden"}/>
-      </Label>
+    <Main className={"grid lg:grid-cols-2 gap-8 justify-items-center"}>
+      <ArticleForm
+        onSubmit={onSubmit}
+        register={register}
+        file={file}
+        handleFileChange={handleFileChange}
+        color={color}
+        setColor={setColor}
+        size={size}
+        setSize={setSize}
+        category={category}
+        setCategory={setCategory}
+        society={society}
+        setSociety={setSociety}
+      />
     </Main>
   )
 }

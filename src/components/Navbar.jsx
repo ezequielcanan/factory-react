@@ -1,24 +1,43 @@
-import Button from "./Button"
-import customAxios from "../config/axios.config"
+import { motion } from "framer-motion"
 import { Link, NavLink } from "react-router-dom"
 import { FaBagShopping, FaScissors } from "react-icons/fa6"
 import NavItem from "./NavItem"
 import { MdSell } from "react-icons/md"
 import { FaUsers } from "react-icons/fa"
+import { GiHamburgerMenu } from "react-icons/gi"
+import { useState } from "react"
 
 const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false)
+  const [width, setWidth] = useState(window.innerWidth)
+  const toggleOpen = () => setIsOpen(o => !o)
+
+  const navVariants = {
+    hidden: { opacity: 0, x: -100 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.5 } },
+  };
+
+  document.addEventListener("resize", () => {
+    setWidth(window.innerWidth)
+  })
+
+  const largeBreakpoint = width < 1024
+
   return (
-    <header className="flex items-center justify-between px-8 py-6 h-[100px] gap-x-16 fixed z-20 w-full text-white bg-black/80">
-      <NavLink to={"/"} className="text-white font-bold text-3xl">Fabrica</NavLink>
-      <nav className="h-full flex items-center gap-x-8">
-        <ul className="flex items-center w-full gap-x-8">
-          <NavItem path={"/articles"}>Stock <FaBagShopping /></NavItem>
-          <NavItem path={"/clients"}>Clientes <FaUsers /></NavItem>
-          <NavItem path={"/orders"}>Pedidos <MdSell /></NavItem>
-          <NavItem path={"/cuts"}>Cortes <FaScissors /></NavItem>
+    <header className={`flex items-center justify-between py-6 h-[100px] gap-x-16 fixed z-20 w-full text-white bg-black/80`}>
+      <NavLink to={"/"} className="text-white font-bold text-3xl px-8">Fabrica</NavLink>
+      <motion.nav animate={(!largeBreakpoint) ? "visible" : ((isOpen) ? "visible" : "hidden")} variants={navVariants} className={`h-full ${(!isOpen) ? "hidden" : "absolute top-[100px] h-screen w-screen bg-black/90 pt-[100px]"} px-8 lg:flex items-center gap-x-8`}>
+        <ul className={`${(!isOpen) ? "hidden" : "flex flex-col gap-y-16 items-center"} lg:flex items-center w-full gap-x-8`}>
+          <NavItem path={"/articles"} setIsOpen={setIsOpen}>Stock <FaBagShopping /></NavItem>
+          <NavItem path={"/clients"} setIsOpen={setIsOpen}>Clientes <FaUsers /></NavItem>
+          <NavItem path={"/orders"} setIsOpen={setIsOpen}>Pedidos <MdSell /></NavItem>
+          <NavItem path={"/cuts"} setIsOpen={setIsOpen}>Cortes <FaScissors /></NavItem>
         </ul>
         {/*<Button className={"bg-red-700 hover:bg-red-800 text-white text-sm rounded-md"} onClick={() => (customAxios.defaults.headers.common['Authorization'] = "", localStorage.setItem("token", ""))}>Cerrar sesion</Button>*/}
-      </nav>
+      </motion.nav>
+      <div className="inline-block lg:hidden text-4xl cursor-pointer px-8">
+        <GiHamburgerMenu onClick={toggleOpen}/>
+      </div>
     </header>
   )
 }

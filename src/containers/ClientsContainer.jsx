@@ -17,7 +17,7 @@ const ClientsContainer = ({ containerClassName }) => {
       {(clients) ? clients?.length ? clients.map((client) => {
         return <ClientCard client={client} key={client?._id}/>
       }) : (
-        <p className="text-white text-4xl col-span-4 text-center my-16">No hay articulos que coincidan con los filtros</p>
+        <p className="text-white text-4xl col-span-4 text-center my-16">No hay clientes</p>
       ) : (
         <Oval />
       )}
