@@ -27,8 +27,8 @@ const Login = () => {
   })
 
   return (
-    <Main className={"grid grid-cols-2 items-center custom-background justify-items-center"}>
-      <section className="flex flex-col gap-y-8">
+    <Main className={"grid md:grid-cols-2 items-center custom-background justify-items-center"}>
+      <section className="flex flex-col items-center gap-y-8">
        <img src="arcan.png" alt="" className="w-3/4"/>
        <img src="cattown.png" alt="" className="w-3/4"/>
       </section>

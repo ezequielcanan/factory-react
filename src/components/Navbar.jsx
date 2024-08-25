@@ -4,6 +4,7 @@ import { Link, NavLink } from "react-router-dom"
 import { FaBagShopping, FaScissors } from "react-icons/fa6"
 import NavItem from "./NavItem"
 import { MdSell } from "react-icons/md"
+import { FaUsers } from "react-icons/fa"
 
 const Navbar = () => {
   return (
@@ -12,6 +13,7 @@ const Navbar = () => {
       <nav className="h-full flex items-center gap-x-8">
         <ul className="flex items-center w-full gap-x-8">
           <NavItem path={"/articles"}>Stock <FaBagShopping /></NavItem>
+          <NavItem path={"/clients"}>Clientes <FaUsers /></NavItem>
           <NavItem path={"/orders"}>Pedidos <MdSell /></NavItem>
           <NavItem path={"/cuts"}>Cortes <FaScissors /></NavItem>
         </ul>

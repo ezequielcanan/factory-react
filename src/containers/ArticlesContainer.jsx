@@ -1,4 +1,4 @@
-import Article from "../components/Article"
+import ArticleCard from "../components/ArticleCard"
 import { Oval } from "react-loader-spinner"
 import customAxios from "../config/axios.config"
 import { useState, useEffect } from "react"
@@ -14,7 +14,8 @@ const ArticlesContainer = ({ containerClassName }) => {
   const [category, setCategory] = useState({value: "Todas las categorias", all: true})
   const [size, setSize] = useState({value: "Todos los tamaños", all: true})
   const [society, setSociety] = useState({value: "Ambos negocios", all: true})
-  
+  const [search, setSearch] = useState("")
+
   useEffect(() => {
     customAxios.get("/articles").then(res => {
       setArticles(res.data)
@@ -36,17 +37,21 @@ const ArticlesContainer = ({ containerClassName }) => {
       }
       if (!society.all) {
         newFilteredArticles = newFilteredArticles.filter(a => a.society == society.value)
-      } 
+      }
+
+      if (search.length) {
+        newFilteredArticles = newFilteredArticles.filter(a => a?.description?.toLowerCase()?.includes(search?.toLowerCase()))
+      }
       setFilteredArticles(newFilteredArticles)
     }
-  }, [society, color, size, category])
+  }, [society, color, size, category, search])
 
   return (
     <section className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 bg-third rounded-xl p-8 ${containerClassName}`}>
       <div className="md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col xl:flex-row items-center gap-8 justify-between">
         <FaFilter className="text-white text-3xl" />
         <div className="grid md:grid-cols-3 xl:grid-cols-5 items-center gap-8 text-xl w-full">
-          <Input placeholder="Buscar..." className={"w-full"} />
+          <Input placeholder="Buscar..." className={"w-full"} onChange={(e) => setSearch(e?.target?.value)}/>
           <SelectInput selectedOption={society} setSelectedOption={setSociety} options={[{value: "Ambos negocios", all: true}, ...societies]} className={"!py-"} />
           <SelectInput selectedOption={category} setSelectedOption={setCategory} options={[{value: "Todas las categorias", all: true}, ...categories]} className={"!py-2"} />
           <SelectInput selectedOption={color} setSelectedOption={setColor} options={[{value: "Todos los colores", all: true}, ...colors]} className={"!py-2"} />
@@ -54,7 +59,7 @@ const ArticlesContainer = ({ containerClassName }) => {
         </div>
       </div>
       {(articles && filteredArticles) ? filteredArticles?.length ? filteredArticles.map((article) => {
-        return <Article article={article} key={article?._id}/>
+        return <ArticleCard article={article} key={article?._id}/>
       }) : (
         <p className="text-white text-4xl col-span-4 text-center my-16">No hay articulos que coincidan con los filtros</p>
       ) : (
