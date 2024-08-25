@@ -33,7 +33,6 @@ const NewArticle = () => {
     data.category = category.value
     data.size = size.value
     data.color = color.value
-    console.log(data.category, category)
     data.society = society.value
     data.stock = Number(data.stock)
     const result = await customAxios.post("/articles", data)

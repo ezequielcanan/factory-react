@@ -10,6 +10,7 @@ import NewArticle from "../pages/NewArticle"
 import Clients from "../pages/Clients"
 import NewClient from "../pages/NewClient"
 import EditArticle from "../pages/EditArticle"
+import EditClient from "../pages/EditClient"
 
 
 const Router = () => {
@@ -34,6 +35,7 @@ const Router = () => {
             <Route path="/articles/:aid" element={<EditArticle/>}/>
             <Route path="/clients" element={<Clients/>}/>
             <Route path="/clients/new" element={<NewClient/>}/>
+            <Route path="/clients/:cid" element={<EditClient/>}/>
           </>
         )}
       </Routes>

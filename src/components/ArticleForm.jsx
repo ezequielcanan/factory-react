@@ -31,7 +31,7 @@ const ArticleForm = ({onSubmit, register, file, article, handleFileChange, color
       </form>
 
       <Label htmlFor="file" className={`${file ? "w-full h-[650px] border-4 border-nav" : "w-full h-full border-dashed rounded-lg border-nav border-4"} flex items-center overflow-hidden justify-center `}>
-        {!file ? <FaFileUpload className="text-7xl" /> : <img src={file[1]} className="w-full h-full object-cover" />}
+        {!file ? <FaFileUpload className="text-7xl" /> : <img src={file[1]} alt="Seleccionar imagen" className="w-full h-full object-cover" />}
         <Input type="file" className="hidden" id="file" accept="image/*" name="file" onChange={handleFileChange} containerClassName={"hidden"} />
       </Label>
     </>

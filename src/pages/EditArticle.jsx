@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import { colors, sizes, categories, societies } from "../utils/utils"
 import { useEffect, useState } from "react"
 import customAxios from "../config/axios.config"
+import { Oval } from "react-loader-spinner"
 
 const EditArticle = () => {
   const { register, handleSubmit } = useForm()
@@ -38,13 +39,36 @@ const EditArticle = () => {
     reader.readAsDataURL(uploadedFile)
   }
 
-  const onSubmit = () => {
+  const onSubmit = handleSubmit(async data => {
+    data.category = category.value
+    data.size = size.value
+    data.color = color.value
+    data.society = society.value
+    data.stock = Number(data.stock)
+    const result = await customAxios.put(`/articles/${aid}`, data)
+    const id = result?.data?._id
 
-  }
+    if (file[0]) {
+      const formData = new FormData();
+      const filePath = `/articles/${id}`
+      const sendFile = file[0]
+      let ext = sendFile.name?.split(".")
+      ext = ext[ext.length - 1]
+      formData.append('file', sendFile);
+      
+      const uploadFile = await customAxios.post(`/upload/single?path=${filePath}&name=${"thumbnail."+"png"}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+    }
+      
+    navigate("/articles")
+  })
 
   return (
     <Main className={"grid lg:grid-cols-2 gap-8 justify-items-center"}>
-      {article && <ArticleForm
+      {article ? <ArticleForm
         onSubmit={onSubmit}
         register={register}
         article={article}
@@ -58,7 +82,9 @@ const EditArticle = () => {
         setCategory={setCategory}
         society={society}
         setSociety={setSociety}
-      />}
+      /> : (
+        <Oval/>
+      )}
     </Main>
   )
 }
