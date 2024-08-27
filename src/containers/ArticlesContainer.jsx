@@ -8,7 +8,7 @@ import SelectInput from "../components/SelectInput"
 import Input from "../components/Input"
 import ItemsContainer from "./ItemsContainer"
 
-const ArticlesContainer = ({ containerClassName }) => {
+const ArticlesContainer = ({ containerClassName, onClickArticle=null, stockNoControl=false }) => {
   const [articles, setArticles] = useState(null)
   const [filteredArticles, setFilteredArticles] = useState(null)
   const [color, setColor] = useState({value: "Todos los colores", all: true})
@@ -60,7 +60,7 @@ const ArticlesContainer = ({ containerClassName }) => {
         </div>
       </div>
       {(articles && filteredArticles) ? filteredArticles?.length ? filteredArticles.map((article) => {
-        return <ArticleCard article={article} key={article?._id}/>
+        return <ArticleCard article={article} key={article?._id} onClickArticle={onClickArticle} stockNoControl={stockNoControl}/>
       }) : (
         <p className="text-white text-4xl col-span-4 text-center my-16">No hay articulos que coincidan con los filtros</p>
       ) : (

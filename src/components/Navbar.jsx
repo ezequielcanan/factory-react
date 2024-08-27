@@ -30,7 +30,7 @@ const Navbar = () => {
   const largeBreakpoint = width < 1024
 
   return (
-    <header className={`flex items-center justify-between py-6 h-[100px] gap-x-16 fixed z-20 w-full text-white bg-black`}>
+    <header className={`flex items-center justify-between py-6 h-[100px] sm:gap-x-16 fixed z-20 w-full text-white bg-black`}>
       <NavLink to={"/"} className="text-white font-bold text-3xl px-8">Fabrica</NavLink>
       <motion.nav animate={(!largeBreakpoint) ? "visible" : ((isOpen) ? "visible" : "hidden")} variants={navVariants} className={`h-full ${(!isOpen) ? "hidden" : "absolute top-[100px] h-screen w-screen bg-black/90 pt-[100px]"} px-8 lg:flex items-center gap-x-8`}>
         <ul className={`${(!isOpen) ? "hidden" : "flex flex-col gap-y-16 items-center"} lg:flex items-center w-full gap-x-8`}>
