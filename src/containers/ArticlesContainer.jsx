@@ -6,6 +6,7 @@ import { FaFilter } from "react-icons/fa6"
 import { colors, sizes, categories, societies } from "../utils/utils"
 import SelectInput from "../components/SelectInput"
 import Input from "../components/Input"
+import ItemsContainer from "./ItemsContainer"
 
 const ArticlesContainer = ({ containerClassName }) => {
   const [articles, setArticles] = useState(null)
@@ -47,7 +48,7 @@ const ArticlesContainer = ({ containerClassName }) => {
   }, [society, color, size, category, search])
 
   return (
-    <section className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 bg-third rounded-xl p-8 ${containerClassName}`}>
+    <ItemsContainer className={`${containerClassName}`}>
       <div className="md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col xl:flex-row items-center gap-8 justify-between">
         <FaFilter className="text-white text-3xl" />
         <div className="grid md:grid-cols-3 xl:grid-cols-5 items-center gap-8 text-xl w-full">
@@ -65,7 +66,7 @@ const ArticlesContainer = ({ containerClassName }) => {
       ) : (
         <Oval />
       )}
-    </section>
+    </ItemsContainer>
   )
 }
 

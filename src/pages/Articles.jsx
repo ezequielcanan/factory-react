@@ -12,7 +12,7 @@ const Articles = () => {
     <Main className={"grid gap-6 items-start"}>
       <section className="grid items-center justify-center gap-8 md:items-start md:grid-cols-2 md:justify-between">
         <Title text={"Articulos"} className={"text-center md:text-start"}/>
-        <Link to={"/articles/new"} className="justify-self-end"><Button className={"text-xl font-bold px-4 flex gap-x-4 items-center"}>Nuevo articulo <FaPlus/></Button></Link>
+        <Link to={"/articles/new"} className="justify-self-end"><Button className={"text-xl font-bold px-4 flex gap-x-4 items-center"}>Agregar articulo <FaPlus/></Button></Link>
       </section>
       <ArticlesContainer containerClassName={"w-full"}/>
     </Main>

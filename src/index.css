@@ -36,3 +36,7 @@ select option:hover {
   color: inherit !important; /* Mantiene el color del texto igual al estado normal */
   cursor: default !important; /* Cambia el cursor a default, para que no aparezca la mano */
 }
+
+::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
