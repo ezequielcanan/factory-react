@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form"
 import SelectInput from "../components/SelectInput"
 import { useState } from "react"
 import { FaFileUpload } from "react-icons/fa"
+import { uploadFile } from "../utils/utils.js"
 import Button from "../components/Button"
 import customAxios from "../config/axios.config"
 import { useNavigate } from "react-router-dom"
@@ -39,18 +40,12 @@ const NewArticle = () => {
     const id = result?.data?._id
 
     if (file) {
-      const formData = new FormData();
       const filePath = `/articles/${id}`
       const sendFile = file[0]
       let ext = sendFile.name?.split(".")
       ext = ext[ext.length - 1]
-      formData.append('file', sendFile);
       
-      const uploadFile = await customAxios.post(`/upload/single?path=${filePath}&name=${"thumbnail."+"png"}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      await uploadFile(sendFile, filePath, "thumbnail.png")
     }
       
     navigate("/articles")

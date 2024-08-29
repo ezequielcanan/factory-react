@@ -8,7 +8,7 @@ import SelectInput from "../components/SelectInput"
 import Input from "../components/Input"
 import ItemsContainer from "./ItemsContainer"
 
-const ArticlesContainer = ({ containerClassName, onClickArticle=null, stockNoControl=false }) => {
+const ArticlesContainer = ({ containerClassName, quantities = [], setQuantities = () => {}, onClickArticle=null, stockNoControl=false }) => {
   const [articles, setArticles] = useState(null)
   const [filteredArticles, setFilteredArticles] = useState(null)
   const [color, setColor] = useState({value: "Todos los colores", all: true})
@@ -19,6 +19,13 @@ const ArticlesContainer = ({ containerClassName, onClickArticle=null, stockNoCon
 
   useEffect(() => {
     customAxios.get("/articles").then(res => {
+      const updatedArticles = quantities.forEach(a => {
+        const articleIndex = res.data?.findIndex(article => article?._id == a?._id)
+        if (articleIndex != -1) {
+          res.data[articleIndex].quantity = a?.quantity
+        }
+      })
+
       setArticles(res.data)
       setFilteredArticles(res.data)
     })
@@ -60,7 +67,7 @@ const ArticlesContainer = ({ containerClassName, onClickArticle=null, stockNoCon
         </div>
       </div>
       {(articles && filteredArticles) ? filteredArticles?.length ? filteredArticles.map((article) => {
-        return <ArticleCard article={article} key={article?._id} onClickArticle={onClickArticle} stockNoControl={stockNoControl}/>
+        return <ArticleCard article={article} articles={quantities} setArticles={setQuantities} key={article?._id} onClickArticle={onClickArticle} stockNoControl={stockNoControl}/>
       }) : (
         <p className="text-white text-4xl col-span-4 text-center my-16">No hay articulos que coincidan con los filtros</p>
       ) : (

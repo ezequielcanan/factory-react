@@ -2,7 +2,8 @@ import Main from "../containers/Main"
 import ArticleForm from "../components/ArticleForm"
 import { useForm } from "react-hook-form"
 import { useNavigate, useParams } from "react-router-dom"
-import { colors, sizes, categories, societies } from "../utils/utils"
+import { colors, sizes, categories, societies, getArticleImg } from "../utils/utils"
+import { uploadFile } from "../utils/utils.js"
 import { useEffect, useState } from "react"
 import customAxios from "../config/axios.config"
 import { Oval } from "react-loader-spinner"
@@ -26,7 +27,7 @@ const EditArticle = () => {
       setCategory(categories.find(c => c.value == result?.category))
       setSize(sizes.find(s => s.value == result?.size))
       setSociety(societies.find(s => s.value == result?.society))
-      setFile([null, `${import.meta.env.VITE_REACT_API_URL}/files/articles/${result?._id}/thumbnail.${"png" || "jpg" || "jpeg" || "gif"}`])
+      setFile([null, getArticleImg(result?._id)])
     })
   }, [])
   
@@ -56,11 +57,7 @@ const EditArticle = () => {
       ext = ext[ext.length - 1]
       formData.append('file', sendFile);
       
-      const uploadFile = await customAxios.post(`/upload/single?path=${filePath}&name=${"thumbnail."+"png"}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      await uploadFile(sendFile, filePath, "thumbnail.png")
     }
       
     navigate("/articles")

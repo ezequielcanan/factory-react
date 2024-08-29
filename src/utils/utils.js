@@ -1,3 +1,5 @@
+import customAxios from "../config/axios.config.js"
+
 export const colors = [
   { value: "Rojo", bg: "bg-red-600", transparent: true },
   { value: "Verde", bg: "bg-green-600", transparent: true },
@@ -25,3 +27,18 @@ export const categories = [
   { value: "Juguetes" },
   { value: "Otros" }
 ]
+
+export const getArticleImg = (id) => {
+  return `${import.meta.env.VITE_REACT_API_URL}/files/articles/${id}/thumbnail.png`
+}
+
+export const uploadFile = async (sendFile, path, name) => {
+  const formData = new FormData();
+  formData.append('file', sendFile);
+
+  return await customAxios.post(`/upload/single?path=${path}&name=${name}`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+}
