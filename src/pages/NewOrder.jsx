@@ -84,14 +84,27 @@ const NewOrder = () => {
       return {detail: c.detail, quantity: c?.quantity}
     }))
     const uploadedCustomArticles = result?.data
+    const items = []
 
     await Promise.all(uploadedCustomArticles.map(async c => {
       const customArticle = finalCustomArticles.find(cs => cs?.detail == c?.detail)
+      items.push({booked: customArticle?.quantity, quantity: customArticle?.quantity, common: false, customArticle: c?._id})
       if (customArticle.file[0]) {
         const filePath = `/articles/custom/${c?._id}`
         await uploadFile(customArticle.file[0], filePath, "thumbnail.png")
       }
     }))
+
+
+    finalCustomArticles.forEach((c) => {
+      booked: number
+
+      quantity: number
+
+      common: boolean
+
+      customArticle: Types.ObjectId
+    })
   }
 
   return (
