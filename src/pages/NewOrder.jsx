@@ -213,7 +213,7 @@ const NewOrder = () => {
                     <h4 className={"text-xl sm:text-3xl font-semibold"}>Cliente: {client?.name}</h4>
                     <p className="text-xl">Direccion: {client?.address}</p>
                     <p className="text-xl">Instrucciones de entrega: {client?.detail}</p>
-                    <p className="text-xl">Fecha: {moment(date).format("DD-MM-YYYY")}</p>
+                    <p className="text-xl">Fecha de entrega: {moment(date).format("DD-MM-YYYY")}</p>
                   </> : (
                     <h4 className="text-3xl font-semibold text-red-600">Faltan datos iniciales</h4>
                   )}

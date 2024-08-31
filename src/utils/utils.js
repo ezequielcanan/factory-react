@@ -28,8 +28,8 @@ export const categories = [
   { value: "Otros" }
 ]
 
-export const getArticleImg = (id) => {
-  return `${import.meta.env.VITE_REACT_API_URL}/files/articles/${id}/thumbnail.png`
+export const getArticleImg = (id, custom = false) => {
+  return `${import.meta.env.VITE_REACT_API_URL}/files/articles/${custom ? "custom/" + id : id}/thumbnail.png`
 }
 
 export const uploadFile = async (sendFile, path, name) => {

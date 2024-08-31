@@ -20,7 +20,7 @@ const ClientForm = ({register, onSubmit, client, error, newClient = true}) => {
       <Label>Direccion</Label>
       <Input register={register("address", { required: true })} defaultValue={client?.address || ""} className={"!py-2 "} />
 
-      <Label>Instrucciones</Label>
+      <Label>Referencia</Label>
       <Input register={register("detail", { required: true })} defaultValue={client?.detail || ""} className={"!py-2 w-full resize-none !text-lg"} textarea/>
       {error && <p className="text-red-600">Un campo esta mal ingresado</p>}
       <Button className={"col-span-2"} type="submit">{newClient ? "Agregar" : "Editar"}</Button>
