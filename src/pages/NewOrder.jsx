@@ -121,7 +121,8 @@ const NewOrder = () => {
       const order = {
         articles: items,
         client: client?._id,
-        date: moment(date, "YYYY-MM-DD"),
+        deliveryDate: moment(date, "YYYY-MM-DD"),
+        date: moment(),
         finished: false,
         hasToBeCut: false
       }
@@ -150,6 +151,7 @@ const NewOrder = () => {
 
   const onConfirmCutOrder = async () => {
     await customAxios.put(`/orders/articles/${orderId}`)
+
     navigate("/orders")
   }
 
@@ -170,8 +172,8 @@ const NewOrder = () => {
                   <Button className={"px-4 sm:justify-self-end min-w-[150px]"} onClick={(e) => (e.preventDefault(), setSelectClients(s => !s))}>{client?.name || <FaChevronDown />}</Button>
                   {selectClients && <ClientsContainer containerClassName={"max-h-[20rem] overflow-y-auto mb-10 sm:col-span-2"} onClickClient={(c) => (setClient(c), setSelectClients(false))} />}
 
-                  <Label>Fecha</Label>
-                  <Input type="date" id={"date"} name={"date"} defaultValue={date} onChange={(e) => setDate(e?.target?.value)} className={"w-full"} containerClassName={"sm:justify-self-end"} />
+                  <Label>Fecha de entrega</Label>
+                  <Input type="date" id={"date"} name={"date"} defaultValue={date} onInput={(e) => setDate(e?.target?.value)} className={"w-full"} containerClassName={"sm:justify-self-end"} />
                 </div>
 
                 <Label htmlFor="file" className={`${file ? "border-4 border-nav max-w-[50%] max-h-[650px]" : "w-[50%] h-full border-dashed rounded-lg border-nav border-4 py-8"} min-h-[300px] col-span-2 flex items-center overflow-hidden self-center justify-self-center justify-center `}>
@@ -205,15 +207,15 @@ const NewOrder = () => {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-y-16 sm:px-16 gap-16 sm:p-8 self-start text-white">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-16 gap-4  sm:px-16 md:gap-16 md:p-8 self-start text-white">
                 <div className="flex flex-col gap-y-8">
-                  {client?._id ? <>
-                    <h4 className={"text-3xl font-semibold"}>Cliente: {client?.name}</h4>
+                  {(client?._id && date) ? <>
+                    <h4 className={"text-xl sm:text-3xl font-semibold"}>Cliente: {client?.name}</h4>
                     <p className="text-xl">Direccion: {client?.address}</p>
                     <p className="text-xl">Instrucciones de entrega: {client?.detail}</p>
-                    <p className="text-xl">Fecha: {date}</p>
+                    <p className="text-xl">Fecha: {moment(date).format("DD-MM-YYYY")}</p>
                   </> : (
-                    <h4 className="text-3xl font-semibold text-red-600">No hay un cliente seleccionado</h4>
+                    <h4 className="text-3xl font-semibold text-red-600">Faltan datos iniciales</h4>
                   )}
                 </div>
                 <img src={file && file[1]} className="max-h-[400px] w-full object-cover object-center border-4 border-important" alt="No hay imagen del pedido" />
@@ -237,7 +239,7 @@ const NewOrder = () => {
                     <p>No hay articulos personalizados</p>
                   )}
                 </div>
-                {client?._id && <Button className={"col-span-2 justify-self-end flex gap-4 items-center"} type={"submit"}>Confirmar Pedido <FaCheck /></Button>}
+                {client?._id && <Button className={"md:col-span-2 justify-self-end flex gap-4 items-center"} type={"submit"}>Confirmar Pedido <FaCheck /></Button>}
               </div>
             )}
           </form>

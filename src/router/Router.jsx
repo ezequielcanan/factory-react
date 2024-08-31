@@ -13,6 +13,7 @@ import EditArticle from "../pages/EditArticle"
 import EditClient from "../pages/EditClient"
 import Orders from "../pages/Orders"
 import NewOrder from "../pages/NewOrder"
+import Order from "../pages/Order"
 
 
 const Router = () => {
@@ -39,6 +40,7 @@ const Router = () => {
             <Route path="/clients/new" element={<NewClient/>}/>
             <Route path="/clients/:cid" element={<EditClient/>}/>
             <Route path="/orders" element={<Orders/>}/>
+            <Route path="/orders/:oid" element={<Order/>}/>
             <Route path="/orders/new" element={<NewOrder/>}/>
           </>
         )}

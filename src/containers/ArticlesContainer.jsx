@@ -25,7 +25,6 @@ const ArticlesContainer = ({ containerClassName, quantities = [], setQuantities 
           res.data[articleIndex].quantity = a?.quantity
         }
       })
-
       setArticles(res.data)
       setFilteredArticles(res.data)
     })

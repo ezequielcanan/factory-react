@@ -2,7 +2,7 @@ import Label from "./Label"
 import Input from "./Input"
 import Button from "./Button"
 
-const ClientForm = ({register, onSubmit, client, error}) => {
+const ClientForm = ({register, onSubmit, client, error, newClient = true}) => {
   return (
     <form className={`grid grid-cols-2 items-start gap-y-10`} onSubmit={onSubmit}>
       <Label>Nombre</Label>
@@ -23,7 +23,7 @@ const ClientForm = ({register, onSubmit, client, error}) => {
       <Label>Instrucciones</Label>
       <Input register={register("detail", { required: true })} defaultValue={client?.detail || ""} className={"!py-2 w-full resize-none !text-lg"} textarea/>
       {error && <p className="text-red-600">Un campo esta mal ingresado</p>}
-      <Button className={"col-span-2"} type="submit">Agregar</Button>
+      <Button className={"col-span-2"} type="submit">{newClient ? "Agregar" : "Editar"}</Button>
     </form>
   )
 }

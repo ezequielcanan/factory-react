@@ -26,7 +26,7 @@ const EditClient = () => {
   return (
     <Main className={"flex items-center justify-center"}>
       {client ? (
-        <ClientForm register={register} onSubmit={onSubmit} client={client}/>
+        <ClientForm newClient={false} register={register} onSubmit={onSubmit} client={client}/>
       ) : (
         <Oval/>
       )}

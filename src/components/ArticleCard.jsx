@@ -40,6 +40,7 @@ const ArticleCard = ({article, articles = [], setArticles = () => {}, onClickArt
             null
           )}
         </div>
+        <p>Reservado: {articleCard.booked || 0}</p>
         {articleCard?.quantity ? <div className="flex gap-2 sm:gap-8 flex-col sm:flex-row sm:items-center">
           <p>Cantidad: {articleCard?.quantity}</p>
           <div className="flex gap-4">
