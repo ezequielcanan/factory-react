@@ -42,7 +42,11 @@ const ArticleCard = ({ article, articles = [], setArticles = () => { }, onClickA
                 null
               )}
             </div>
-            <p>Reservado en pedidos: {articleCard.booked || 0}</p>
+            {!bookedQuantity && 
+              <>
+                <p>Reservado en pedidos: {articleCard.booked || 0}</p>
+                <p>Disponibles: {(articleCard.stock - articleCard?.booked) || 0}</p>
+              </>}
           </>}
         {(bookedQuantity && !customArticle) && <p>Reservado en este pedido: {articleCard.bookedQuantity || 0}</p>}
         {articleCard?.quantity ? <div className="flex gap-2 sm:gap-8 flex-col sm:flex-row sm:items-center">

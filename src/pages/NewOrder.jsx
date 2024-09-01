@@ -12,6 +12,7 @@ import customAxios from "../config/axios.config"
 import { uploadFile } from "../utils/utils"
 import moment from "moment"
 import { useNavigate } from "react-router-dom"
+import { useForm } from "react-hook-form"
 
 const NewOrder = () => {
   const [client, setClient] = useState(null)
@@ -23,6 +24,7 @@ const NewOrder = () => {
   const [date, setDate] = useState("")
   const [file, setFile] = useState(null)
   const [step, setStep] = useState(1)
+  const { register, handleSubmit, getValues } = useForm()
   const navigate = useNavigate()
 
   const sections = ["Datos iniciales", "Seleccion de articulos", "Resumen"]
@@ -83,7 +85,7 @@ const NewOrder = () => {
   const nextStep = () => setStep(step + 1)
   const prevStep = () => setStep(step - 1)
 
-  const onSubmit = async () => {
+  const onSubmit = handleSubmit(async data => {
     if (client?._id) {
       const finalCustomArticles = customArticles.filter(c => c.quantity > 0)
       const result = await customAxios.post("/articles/custom", finalCustomArticles?.map(c => {
@@ -121,10 +123,11 @@ const NewOrder = () => {
       const order = {
         articles: items,
         client: client?._id,
-        deliveryDate: moment(date, "YYYY-MM-DD"),
+        deliveryDate: moment(data.date, "YYYY-MM-DD"),
         date: moment(),
         finished: false,
-        hasToBeCut: false
+        hasToBeCut: false,
+        extraInfo: data?.extraInfo
       }
 
       let count = 0
@@ -147,7 +150,7 @@ const NewOrder = () => {
         navigate("/orders")
       }
     }
-  }
+  })
 
   const onConfirmCutOrder = async () => {
     await customAxios.put(`/orders/articles/${orderId}`)
@@ -166,20 +169,23 @@ const NewOrder = () => {
           </div>
           <form action="" className="grid" onSubmit={(e) => (e.preventDefault(), onSubmit())}>
             {step == 1 ? (
-              <div className="grid grid-cols-2 justify-start gap-8 items-start sm:p-8">
-                <div className="grid grid-cols-1 sm:grid-cols-2 justify-start content-start gap-8 items-center col-span-2">
-                  <Label>Cliente</Label>
-                  <Button className={"px-4 sm:justify-self-end min-w-[150px]"} onClick={(e) => (e.preventDefault(), setSelectClients(s => !s))}>{client?.name || <FaChevronDown />}</Button>
-                  {selectClients && <ClientsContainer containerClassName={"max-h-[20rem] overflow-y-auto mb-10 sm:col-span-2"} onClickClient={(c) => (setClient(c), setSelectClients(false))} />}
+              <div className="grid grid-cols-2 justify-start gap-8 gap-x-10 items-start sm:p-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 justify-start content-start gap-8 items-center col-span-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 justify-start content-start gap-8 items-center self-start">
+                    <Label>Fecha de entrega</Label>
+                    <Input type="date" register={register("date", { required: true })} className={"w-full"} containerClassName={"sm:justify-self-end"} />
 
-                  <Label>Fecha de entrega</Label>
-                  <Input type="date" id={"date"} name={"date"} defaultValue={date} onInput={(e) => setDate(e?.target?.value)} className={"w-full"} containerClassName={"sm:justify-self-end"} />
+                    <Label className={"self-start"}>Informacion extra / Anotaciones</Label>
+                    <Input textarea cols="50" rows="5" register={register("extraInfo")} className={"w-full"} containerClassName={"sm:justify-self-end"} />
+                  </div>
+                  <div className="flex flex-col gap-8 self-start">
+                    <div className="flex gap-x-2 sm:gap-x-8 justify-between items-center">
+                      <Label>Cliente</Label>
+                      <Button className={"px-2 sm:px-4 sm:justify-self-end text-lg sm:text-2xl sm:min-w-[150px]"} onClick={(e) => (e.preventDefault(), setSelectClients(s => !s))}>{client?.name || <FaChevronDown />}</Button>
+                    </div>
+                    {selectClients && <ClientsContainer containerClassName={"max-h-[30rem] overflow-y-auto md:!grid-cols-2"} onClickClient={(c) => (setClient(c), setSelectClients(false))} />}
+                  </div>
                 </div>
-
-                <Label htmlFor="file" className={`${file ? "border-4 border-nav max-w-[50%] max-h-[650px]" : "w-[50%] h-full border-dashed rounded-lg border-nav border-4 py-8"} min-h-[300px] col-span-2 flex items-center overflow-hidden self-center justify-self-center justify-center `}>
-                  {!file ? <FaFileUpload className="text-7xl" /> : <img src={file[1]} alt="Seleccionar imagen" className="w-full h-full object-cover" />}
-                  <Input type="file" className="hidden" id="file" accept="image/*" name="file" onChange={handleFileChange} containerClassName={"hidden"} />
-                </Label>
               </div>
             ) : (step == 2) ? (
               <div className="grid gap-16 sm:p-8">
@@ -209,16 +215,16 @@ const NewOrder = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-y-16 gap-4  sm:px-16 md:gap-16 md:p-8 self-start text-white">
                 <div className="flex flex-col gap-y-8">
-                  {(client?._id && date) ? <>
+                  {(client?._id && getValues("date")) ? <>
                     <h4 className={"text-xl sm:text-3xl font-semibold"}>Cliente: {client?.name}</h4>
                     <p className="text-xl">Direccion: {client?.address}</p>
                     <p className="text-xl">Instrucciones de entrega: {client?.detail}</p>
-                    <p className="text-xl">Fecha de entrega: {moment(date).format("DD-MM-YYYY")}</p>
+                    <p className="text-xl">Fecha de entrega: {moment(getValues("date")).format("DD-MM-YYYY")}</p>
                   </> : (
                     <h4 className="text-3xl font-semibold text-red-600">Faltan datos iniciales</h4>
                   )}
                 </div>
-                <img src={file && file[1]} className="max-h-[400px] w-full object-cover object-center border-4 border-important" alt="No hay imagen del pedido" />
+                <p className="text-2xl">Informacion extra / Anotaciones: {getValues("extraInfo")}</p>
                 <div className="flex flex-col gap-4 text-white">
                   <h4 className="text-2xl font-semibold">Articulos</h4>
                   {articles?.length ? articles.map(article => {

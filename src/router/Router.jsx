@@ -14,6 +14,7 @@ import EditClient from "../pages/EditClient"
 import Orders from "../pages/Orders"
 import NewOrder from "../pages/NewOrder"
 import Order from "../pages/Order"
+import Cuts from "../pages/Cuts"
 
 
 const Router = () => {
@@ -42,6 +43,7 @@ const Router = () => {
             <Route path="/orders" element={<Orders/>}/>
             <Route path="/orders/:oid" element={<Order/>}/>
             <Route path="/orders/new" element={<NewOrder/>}/>
+            <Route path="/cuts" element={<Cuts/>}/>
           </>
         )}
       </Routes>
