@@ -32,7 +32,7 @@ const Orders = () => {
             return <OrderCard key={o?._id} order={o}/>
           })
         ) : (
-          <p className="text-white text-2xl">No hay ordenes</p>
+          <p className="text-white text-2xl">No hay pedidos</p>
         )}
       </section>
     </Main>

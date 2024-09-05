@@ -15,6 +15,7 @@ import Orders from "../pages/Orders"
 import NewOrder from "../pages/NewOrder"
 import Order from "../pages/Order"
 import Cuts from "../pages/Cuts"
+import Cut from "../pages/Cut"
 
 
 const Router = () => {
@@ -44,6 +45,7 @@ const Router = () => {
             <Route path="/orders/:oid" element={<Order/>}/>
             <Route path="/orders/new" element={<NewOrder/>}/>
             <Route path="/cuts" element={<Cuts/>}/>
+            <Route path="/cuts/:cid" element={<Cut/>}/>
           </>
         )}
       </Routes>

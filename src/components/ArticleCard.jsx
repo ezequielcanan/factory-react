@@ -6,7 +6,7 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { getArticleImg } from "../utils/utils"
 
-const ArticleCard = ({ article, articles = [], setArticles = () => { }, onClickArticle, stockNoControl, quantityNoControl, hoverEffect = true, customArticle = false, bookedQuantity = false }) => {
+const ArticleCard = ({ article, articles = [], setArticles = () => { }, onClickArticle, stockNoShow = false, forCut = false, stockNoControl, quantityNoControl, hoverEffect = true, customArticle = false, bookedQuantity = false }) => {
   const [articleCard, setArticleCard] = useState(article)
   const navigate = useNavigate()
 
@@ -34,7 +34,7 @@ const ArticleCard = ({ article, articles = [], setArticles = () => { }, onClickA
         {!customArticle &&
           <>
             <div className="flex gap-8 items-center">
-              <p>Stock: {articleCard.stock}</p>
+              {!stockNoShow && <p>Stock: {articleCard.stock}</p>}
               {!stockNoControl ? <div className="flex gap-4">
                 <FaPlusCircle onClick={(e) => (e.stopPropagation(), onClickStockButton(1))} />
                 <FaMinusCircle onClick={(e) => (e.stopPropagation(), onClickStockButton(-1))} />
@@ -48,7 +48,7 @@ const ArticleCard = ({ article, articles = [], setArticles = () => { }, onClickA
                 <p>Disponibles: {(articleCard.stock - articleCard?.booked) || 0}</p>
               </>}
           </>}
-        {(bookedQuantity && !customArticle) && <p>Reservado en este pedido: {articleCard.bookedQuantity || 0}</p>}
+        {(bookedQuantity && !customArticle && !forCut) && <p>Reservado en este pedido: {articleCard.bookedQuantity || 0}</p>}
         {articleCard?.quantity ? <div className="flex gap-2 sm:gap-8 flex-col sm:flex-row sm:items-center">
           <p>Cantidad: {articleCard?.quantity}</p>
           {!quantityNoControl && <div className="flex gap-4">
