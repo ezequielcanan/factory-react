@@ -17,7 +17,6 @@ const Order = () => {
   useEffect(() => {
     customAxios.get(`/orders/${oid}`).then((res) => {
       setOrder({...res?.data?.order, articles: res?.data?.order?.articles?.map(art => {
-        console.log(art.article)
         return {bookedQuantity: art.booked, custom: art?.customArticle ? true : false, ...art, ...art?.article, ...art?.customArticle}
       })})
       setCut(res?.data?.cut)
@@ -35,11 +34,17 @@ const Order = () => {
     }
   }
 
+  const onClickHasToBeCut = async (article) => {
+    await customAxios.put(`/orders/cut-state/${oid}/${article?._id}${article?.custom ? "?custom=true" : ""}`)
+    setReload(!reload)
+    
+  }
+
   const tableFields = [
     {value: "description"},
     {value: "quantity", controls: true, onClickControls: onClickControls},
     {value: "bookedQuantity", controls: true, onClickControls: onClickControls},
-    {value: "hasToBeCut", showsFunc: true, shows: (val) => val ? "Si" : "No"},
+    {value: "hasToBeCut", showsFunc: true, shows: (val) => val ? "Si" : "No", clickeable: true, onClick: onClickHasToBeCut},
     {value: "unitPrice"},
     {value: "price"},
   ]

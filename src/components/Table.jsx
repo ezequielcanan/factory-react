@@ -23,7 +23,7 @@ const Table = ({ headers, rows, fields }) => {
               <tr key={"row" + i}>
                 {fields.map((f, j) => {
                   return (
-                    <td className={`py-2 px-4 whitespace-nowrap ${i % 2 ? "bg-secondary" : "bg-third"}`} key={f.value+i+j}>
+                    <td className={`py-2 px-4 whitespace-nowrap ${i % 2 ? "bg-secondary" : "bg-third"} ${f.clickeable ? "cursor-pointer" : ""}`} onClick={() => f.clickeable ? f.onClick(row) : {}} key={f.value+i+j}>
                       <div className="flex items-center gap-x-2">
                         {!f.showsFunc ? (f.value == "description" ? (row[f?.value] || row["detail"]) : row[f?.value]) : f?.shows(row[f?.value])}
                         {f.controls && (
