@@ -55,7 +55,7 @@ const ArticlesContainer = ({ containerClassName, quantities = [], setQuantities 
 
   return (
     <ItemsContainer className={`${containerClassName}`}>
-      <div className="md:col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col xl:flex-row items-center gap-8 justify-between">
+      <div className="md:col-span-2 lg:col-span-3 xl:col-span-5 flex flex-col xl:flex-row items-center gap-8 justify-between">
         <FaFilter className="text-white text-3xl" />
         <div className="grid md:grid-cols-3 xl:grid-cols-5 items-center gap-8 text-xl w-full">
           <Input placeholder="Buscar..." className={"w-full"} onChange={(e) => setSearch(e?.target?.value)}/>

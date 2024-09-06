@@ -13,9 +13,22 @@ export const colors = [
   { value: "Blanco", bg: "bg-white", transparent: true },
 ]
 
-export const sizes = [{ value: "XL" }, { value: "LG" }, { value: "M" }, { value: "SM" }, { value: "XS" }]
+export const sizes = [
+  { value: "5XL" },
+  { value: "4XL" },
+  { value: "XXXL" },
+  { value: "XXL" },
+  { value: "XL" },
+  { value: "L" },
+  { value: "M" },
+  { value: "S" },
+  { value: "XS" }]
 
-export const societies = [{ value: "Arcan" }, { value: "Cattown" }]
+export const societies = [
+  { value: "Arcan" },
+  { value: "Cattown" },
+  { value: "Cattown Home" }
+]
 
 export const categories = [
   { value: "Remeras" },

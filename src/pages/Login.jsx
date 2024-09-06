@@ -29,8 +29,9 @@ const Login = () => {
   return (
     <Main className={"grid md:grid-cols-2 items-center custom-background justify-items-center"}>
       <section className="flex flex-col items-center gap-y-8">
-       <img src="arcan.png" alt="" className="w-3/4"/>
-       <img src="cattown.png" alt="" className="w-3/4"/>
+       <img src="arcan.png" alt="" className="h-[170px]"/>
+       <img src="cattown.png" alt="" className="h-[170px] mt-16"/>
+       <img src="cattown_home.png" alt="" className="h-[300px]"/>
       </section>
       <section className="flex flex-col gap-y-12 text-white">
         <h2 className="text-4xl">{login ? "Iniciar sesion" : "Registrarse"}</h2>
