@@ -29,11 +29,11 @@ const SelectInput = ({ options, selectedOption, setSelectedOption, firstNull, on
   return (
     <div className="relative w-full">
       <div
-        className={`${selectedOption.bg || "bg-transparent"} ${selectedOption.transparent ? "text-transparent" : "text-white"} border border-2 border-white rounded-lg p-2 px-4 text-xl cursor-pointer`}
+        className={`${selectedOption?.bg || "bg-transparent"} ${selectedOption?.transparent ? "text-transparent" : "text-white"} border border-2 border-white rounded-lg p-2 px-4 text-xl cursor-pointer`}
         onClick={toggleOpen}
         ref={selectRef}
       >
-        {selectedOption.value}
+        {selectedOption?.value}
       </div>
       <AnimatePresence>
         {isOpen && (

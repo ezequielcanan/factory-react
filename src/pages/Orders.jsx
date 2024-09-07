@@ -26,7 +26,7 @@ const Orders = () => {
         <Title text={"Pedidos"} className={"text-center md:text-start"}/>
         <Link to={"/orders/new"} className="justify-self-end"><Button className={"text-xl font-bold px-4 flex gap-x-4 items-center"}>Nuevo Pedido <FaCartPlus /></Button></Link>
       </section>
-      <section className="grid grid-cols-4 gap-6 auto-rows-auto">
+      <section className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-auto">
         {orders?.length ? (
           orders.map(o => {
             return <OrderCard key={o?._id} order={o}/>
