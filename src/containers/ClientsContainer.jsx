@@ -18,7 +18,7 @@ const ClientsContainer = ({ containerClassName, onClickClient }) => {
       {(clients) ? clients?.length ? clients.map((client) => {
         return <ClientCard client={client} key={client?._id} onClickClient={onClickClient}/>
       }) : (
-        <p className="text-white text-4xl col-span-4 text-center my-16">No hay clientes</p>
+        <p className="text-white text-4xl col-span-5 text-center my-16">No hay clientes</p>
       ) : (
         <Oval />
       )}

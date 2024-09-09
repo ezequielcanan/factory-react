@@ -10,6 +10,7 @@ import { BiLogOut } from "react-icons/bi"
 import Button from "../components/Button"
 import customAxios from "../config/axios.config.js"
 import { UserContext } from "../context/UserContext.jsx"
+import { GrUserWorker } from "react-icons/gr"
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -38,6 +39,7 @@ const Navbar = () => {
           <NavItem path={"/clients"} setIsOpen={setIsOpen}>Clientes <FaUsers /></NavItem>
           <NavItem path={"/orders"} setIsOpen={setIsOpen}>Pedidos <MdSell /></NavItem>
           <NavItem path={"/cuts"} setIsOpen={setIsOpen}>Cortes <FaScissors /></NavItem>
+          <NavItem path={"/workshops"} setIsOpen={setIsOpen}>Talleres <GrUserWorker /></NavItem>
           <Button className={"bg-red-700 hover:bg-red-800 !text-2xl text-white text-sm rounded-md"} onClick={() => (setUser(false), customAxios.defaults.headers.common['Authorization'] = "", localStorage.setItem("token", ""), navigate("/"))}><BiLogOut/></Button>
         </ul>
       </motion.nav>
