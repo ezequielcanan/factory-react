@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom"
 import { useContext } from "react"
 import { UserContext } from "../context/UserContext"
 import Login from "../pages/Login"
@@ -17,12 +17,14 @@ import Order from "../pages/Order"
 import Cuts from "../pages/Cuts"
 import Cut from "../pages/Cut"
 import Workshops from "../pages/Workshops"
+import NewWorkshop from "../pages/NewWorkshop"
+import EditWorkshop from "../pages/EditWorkshop"
 
 
 const Router = () => {
   const {getUser, setUser} = useContext(UserContext)
   return (
-    <BrowserRouter>
+    <HashRouter>
       {getUser() && (
         <Navbar/>
       )}
@@ -45,13 +47,15 @@ const Router = () => {
             <Route path="/orders" element={<Orders/>}/>
             <Route path="/orders/:oid" element={<Order/>}/>
             <Route path="/orders/new" element={<NewOrder/>}/>
-            <Route path="/workshops" element={<Workshops/>}/>
             <Route path="/cuts" element={<Cuts/>}/>
             <Route path="/cuts/:cid" element={<Cut/>}/>
+            <Route path="/workshops" element={<Workshops/>}/>
+            <Route path="/workshops/new" element={<NewWorkshop/>}/>
+            <Route path="/workshops/:wid" element={<EditWorkshop/>}/>
           </>
         )}
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
 

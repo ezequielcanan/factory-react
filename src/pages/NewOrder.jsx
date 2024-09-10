@@ -13,9 +13,12 @@ import { uploadFile } from "../utils/utils"
 import moment from "moment"
 import { useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
+import SelectInput from "../components/SelectInput"
 
 const NewOrder = () => {
   const [client, setClient] = useState(null)
+  const societies = [{ value: "Arcan" }, { value: "Cattown" }]
+  const [society, setSociety] = useState(societies[0])
   const [selectClients, setSelectClients] = useState(true)
   const [articles, setArticles] = useState([])
   const [customArticles, setCustomArticles] = useState([])
@@ -127,7 +130,8 @@ const NewOrder = () => {
         date: moment(),
         finished: false,
         hasToBeCut: false,
-        extraInfo: data?.extraInfo
+        extraInfo: data?.extraInfo,
+        society: society?.value
       }
 
       let count = 0
@@ -172,6 +176,9 @@ const NewOrder = () => {
               <div className="grid grid-cols-2 justify-start gap-8 gap-x-10 items-start sm:p-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 justify-start content-start gap-8 items-center col-span-2">
                   <div className="grid grid-cols-1 sm:grid-cols-2 justify-start content-start gap-8 items-center self-start">
+                    <Label>Negocio</Label>
+                    <SelectInput selectedOption={society} setSelectedOption={setSociety} options={societies} className={"!py-2"} />
+                    
                     <Label>Fecha de entrega</Label>
                     <Input type="date" register={register("date", { required: true })} className={"w-full"} containerClassName={"sm:justify-self-end"} />
 
@@ -219,6 +226,8 @@ const NewOrder = () => {
                     <h4 className={"text-xl sm:text-3xl font-semibold"}>Cliente: {client?.name}</h4>
                     <p className="text-xl">Direccion: {client?.address}</p>
                     <p className="text-xl">Instrucciones de entrega: {client?.detail}</p>
+                    <p className="text-xl">Expreso: {client?.expreso}</p>
+                    <p className="text-xl">Direccion de expreso: {client?.expresoAddress}</p>
                     <p className="text-xl">Fecha de entrega: {moment(getValues("date")).format("DD-MM-YYYY")}</p>
                   </> : (
                     <h4 className="text-3xl font-semibold text-red-600">Faltan datos iniciales</h4>

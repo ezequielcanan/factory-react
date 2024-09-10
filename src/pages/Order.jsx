@@ -62,6 +62,8 @@ const Order = () => {
               <p className="text-xl">Cuit: {order?.client?.cuit}</p>
               <p className="text-xl">Direccion: {order?.client?.address}</p>
               <p className="text-xl">Referencia: {order?.client?.detail}</p>
+              <p className="text-xl">Expreso: {order?.client?.expreso}</p>
+              <p className="text-xl">Direccion de expreso: {order?.client?.expresoAddress}</p>
             </div>
             <p className="text-xl max-w-full text-wrap">Informacion extra / Anotaciones: {order?.extraInfo}</p>
             <div className="grid gap-8 max-w-full">

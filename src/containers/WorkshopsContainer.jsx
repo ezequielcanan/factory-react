@@ -3,20 +3,21 @@ import { Oval } from "react-loader-spinner"
 import ItemsContainer from "./ItemsContainer"
 import customAxios from "../config/axios.config"
 import ClientCard from "../components/ClientCard"
+import WorkshopCard from "../components/WorkshopCard"
 
 const WorkshopsContainer = ({ containerClassName, onClickClient }) => {
   const [workshops, setWorkshops] = useState(null)
 
   useEffect(() => {
     customAxios.get("/workshops").then(res => {
-      setClients(res?.data)
+      setWorkshops(res?.data)
     }).catch(e => setWorkshops([]))
   }, [])
 
   return (
     <ItemsContainer className={`${containerClassName}`}>
-      {(workshops) ? workshops?.length ? workshops.map((client) => {
-        return <ClientCard />
+      {(workshops) ? workshops?.length ? workshops.map((workshop) => {
+        return <WorkshopCard workshop={workshop}/>
       }) : (
         <p className="text-white text-4xl col-span-5 text-center my-16">No hay talleres</p>
       ) : (
