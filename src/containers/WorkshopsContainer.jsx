@@ -5,7 +5,7 @@ import customAxios from "../config/axios.config"
 import ClientCard from "../components/ClientCard"
 import WorkshopCard from "../components/WorkshopCard"
 
-const WorkshopsContainer = ({ containerClassName, onClickClient }) => {
+const WorkshopsContainer = ({ containerClassName, onClickWorkshop }) => {
   const [workshops, setWorkshops] = useState(null)
 
   useEffect(() => {
@@ -17,7 +17,7 @@ const WorkshopsContainer = ({ containerClassName, onClickClient }) => {
   return (
     <ItemsContainer className={`${containerClassName}`}>
       {(workshops) ? workshops?.length ? workshops.map((workshop) => {
-        return <WorkshopCard workshop={workshop}/>
+        return <WorkshopCard workshop={workshop} onClickWorkshop={onClickWorkshop}/>
       }) : (
         <p className="text-white text-4xl col-span-5 text-center my-16">No hay talleres</p>
       ) : (

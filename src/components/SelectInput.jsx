@@ -2,8 +2,10 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const SelectInput = ({ options, selectedOption, setSelectedOption, firstNull, onChange = () => {} }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const selectRef = useRef(null);
+  const [isOpen, setIsOpen] = useState(false)
+  const [isOverflowing, setIsOverflowing] = useState(false)
+  const selectRef = useRef(null)
+  const dropdownRef = useRef(null)
 
   const toggleOpen = () => setIsOpen(!isOpen);
 
@@ -14,7 +16,7 @@ const SelectInput = ({ options, selectedOption, setSelectedOption, firstNull, on
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (selectRef.current && !selectRef.current.contains(event.target)) {
+      if (selectRef.current && !selectRef.current.contains(event.target) && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
       }
     };
@@ -25,6 +27,14 @@ const SelectInput = ({ options, selectedOption, setSelectedOption, firstNull, on
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    if (isOpen && dropdownRef.current) {
+      const dropdownRect = dropdownRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      setIsOverflowing(dropdownRect.bottom > windowHeight);
+    }
+  }, [isOpen]);
 
   return (
     <div className="relative w-full">
@@ -41,7 +51,8 @@ const SelectInput = ({ options, selectedOption, setSelectedOption, firstNull, on
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className={"absolute bg-white border border-gray-300 rounded-lg mt-1 overflow-hidden w-full shadow-lg z-10"}
+            className={`absolute bg-white border border-gray-300 rounded-lg mt-1 overflow-hidden w-full shadow-lg z-10 ${isOverflowing ? "overflow-y-auto max-h-[200px]" : ""}`}
+            ref={dropdownRef}
           >
             {options.map((option, index) => (
               <div

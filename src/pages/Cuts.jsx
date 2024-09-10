@@ -23,7 +23,7 @@ const Cuts = () => {
       {cuts?.length ? cuts.map(cut => {
         return <Link to={`/cuts/${cut?._id}`}>
           <div className="flex flex-col gap-8 bg-secondary text-white p-6 rounded" key={cut?._id}>
-            <h3 className="text-2xl font-bold">PEDIDO N° {cut?.order?.orderNumber}: {cut?.order?.client?.name}</h3>
+            <h3 className="text-2xl font-bold">CORTE N° {cut?.order?.orderNumber}</h3>
             <p className="text-xl">Articulos de linea: {cut?.order?.articles?.filter(a => a.common && a.booked < a.quantity)?.length}</p>
             <p className="text-xl">Articulos personalizados: {cut?.order?.articles?.filter(a => !a.common && a.booked < a.quantity)?.length}</p>
             <p className="text-xl">Fecha de pedido: {moment.utc(cut?.order?.date).format("DD-MM-YYYY")}</p>

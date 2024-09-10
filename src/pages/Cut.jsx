@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react"
 import Main from "../containers/Main"
 import customAxios from "../config/axios.config"
-import { useParams } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 import { Oval } from "react-loader-spinner"
 import ArticleCard from "../components/ArticleCard"
 import Title from "../components/Title"
+import Button from "../components/Button"
+import { BiTransferAlt } from "react-icons/bi"
 
 const Cut = () => {
   const [cut, setCut] = useState(null)
@@ -19,8 +21,9 @@ const Cut = () => {
   return (
     <Main>
       {cut ? (
-        <section className="grid xl:grid-cols-2 gap-8">
-          <Title text={"Orden de corte"} className={"xl:col-span-2"}/>
+        <section className="grid xl:grid-cols-2 gap-y-16 gap-8">
+          <Title text={"Orden de corte"} className={""}/>
+          <Link to={`/cuts/${cid}/workshop`} className="justify-self-end"><Button className={"flex items-center gap-2"}>Pasar a un taller <BiTransferAlt/></Button></Link>
           <div className="grid md:grid-cols-2 gap-4 content-start text-white">
             <h3 className="md:col-span-2 text-2xl text-white">Articulos de linea</h3>
             {cut?.articles?.filter(a => a.common)?.length ? cut?.articles?.filter(a => a.common)?.map(article => {

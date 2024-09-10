@@ -19,6 +19,7 @@ import Cut from "../pages/Cut"
 import Workshops from "../pages/Workshops"
 import NewWorkshop from "../pages/NewWorkshop"
 import EditWorkshop from "../pages/EditWorkshop"
+import CutToWorkshop from "../pages/CutToWorkshop"
 
 
 const Router = () => {
@@ -49,6 +50,7 @@ const Router = () => {
             <Route path="/orders/new" element={<NewOrder/>}/>
             <Route path="/cuts" element={<Cuts/>}/>
             <Route path="/cuts/:cid" element={<Cut/>}/>
+            <Route path="/cuts/:cid/workshop" element={<CutToWorkshop/>}/>
             <Route path="/workshops" element={<Workshops/>}/>
             <Route path="/workshops/new" element={<NewWorkshop/>}/>
             <Route path="/workshops/:wid" element={<EditWorkshop/>}/>
