@@ -3,7 +3,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom"
 import { FaBagShopping, FaScissors } from "react-icons/fa6"
 import NavItem from "./NavItem"
 import { MdSell } from "react-icons/md"
-import { FaUsers } from "react-icons/fa"
+import { FaHammer, FaUsers } from "react-icons/fa"
 import { GiHamburgerMenu } from "react-icons/gi"
 import { useContext, useState } from "react"
 import { BiLogOut } from "react-icons/bi"
@@ -40,6 +40,7 @@ const Navbar = () => {
           <NavItem path={"/orders"} setIsOpen={setIsOpen}>Pedidos <MdSell /></NavItem>
           <NavItem path={"/cuts"} setIsOpen={setIsOpen}>Cortes <FaScissors /></NavItem>
           <NavItem path={"/workshops"} setIsOpen={setIsOpen}>Talleres <GrUserWorker /></NavItem>
+          <NavItem path={"/workshop-orders"} className={"text-nowrap"} setIsOpen={setIsOpen}>En Taller <FaHammer/></NavItem>
           <Button className={"bg-red-700 hover:bg-red-800 !text-2xl text-white text-sm rounded-md"} onClick={() => (setUser(false), customAxios.defaults.headers.common['Authorization'] = "", localStorage.setItem("token", ""), navigate("/"))}><BiLogOut/></Button>
         </ul>
       </motion.nav>

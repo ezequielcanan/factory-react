@@ -7,44 +7,72 @@ import ArticleCard from "../components/ArticleCard"
 import Title from "../components/Title"
 import Button from "../components/Button"
 import { BiTransferAlt } from "react-icons/bi"
+import WorkshopsContainer from "../containers/WorkshopsContainer"
+import moment from "moment"
 
 const Cut = () => {
   const [cut, setCut] = useState(null)
-  const {cid} = useParams()
+  const [workshop, setWorkshop] = useState(null)
+  const [passToWorkshop, setPassToWorkshop] = useState(false)
+  const [reload, setReload] = useState(false)
+  const { cid } = useParams()
 
   useEffect(() => {
     customAxios.get(`/cuts/${cid}`).then(res => {
-      setCut({...res?.data, articles: res?.data?.order?.articles?.filter(a => a.hasToBeCut && a.quantity > a.booked)})
+      setCut({ ...res?.data, articles: res?.data?.order?.articles?.filter(a => a.hasToBeCut && a.quantity > a.booked) })
     })
-  }, [])
-  
+  }, [reload])
+
+  const cutToWorkshop = async () => {
+    await customAxios.post("/workshop-order", {workshop: workshop?._id, cut: cid, date: moment()})
+    setPassToWorkshop(false)
+    setWorkshop(false)
+    setReload(!reload)
+  }
+
   return (
     <Main>
       {cut ? (
-        <section className="grid xl:grid-cols-2 gap-y-16 gap-8">
-          <Title text={"Orden de corte"} className={""}/>
-          <Link to={`/cuts/${cid}/workshop`} className="justify-self-end"><Button className={"flex items-center gap-2"}>Pasar a un taller <BiTransferAlt/></Button></Link>
+        <section className="grid grid-cols-1 xl:grid-cols-2 gap-y-16 gap-8">
+          <Title text={"Orden de corte"} className={`text-center xl:text-start`} />
+          {!cut?.workshopOrder ? (
+            <Button className={"flex items-center justify-between gap-2 justify-self-center xl:justify-self-end"} onClick={() => setPassToWorkshop(a => !a)}>Pasar a un taller <BiTransferAlt /></Button>
+          ) : (
+            <Link to={`/workshop-orders/${cut?.workshopOrder?._id}`} className="justify-self-center xl:justify-self-end"><Button>En taller</Button></Link>
+          )}
+          {workshop ? (
+            <div className="grid xl:grid-cols-4 gap-4 items-center w-full text-xl justify-items-center xl:justify-items-start xl:col-span-2">
+              <p className="text-white text-center text-2xl">Taller: {workshop?.name}</p>
+              <p className="text-white text-center text-2xl">Telefono: {workshop?.phone}</p>
+              <p className="text-white text-center text-2xl">Direccion: {workshop?.address}</p>
+              <div className="xl:justify-self-end flex justify-center gap-4 flex-wrap">
+                <Button className={"bg-red-600 hover:bg-red-700"} onClick={() => (setWorkshop(null), setPassToWorkshop(false))}>Cancelar</Button>
+                <Button className={""} onClick={cutToWorkshop}>Confirmar</Button>
+              </div>
+            </div>
+          ) : null}
+          {passToWorkshop && <WorkshopsContainer containerClassName={"max-h-[30rem] h-full overflow-y-auto auto-rows-auto xl:col-span-2"} onClickWorkshop={(c) => (setWorkshop(c), setPassToWorkshop(false))} />}
           <div className="grid md:grid-cols-2 gap-4 content-start text-white">
             <h3 className="md:col-span-2 text-2xl text-white">Articulos de linea</h3>
             {cut?.articles?.filter(a => a.common)?.length ? cut?.articles?.filter(a => a.common)?.map(article => {
-              let articleCard = {...article}
+              let articleCard = { ...article }
               articleCard.quantity = Number(articleCard.quantity) - Number(articleCard.booked)
-              articleCard = {...articleCard, ...articleCard.article}
+              articleCard = { ...articleCard, ...articleCard.article }
               return <ArticleCard article={articleCard} stockNoShow stockNoControl quantityNoControl forCut bookedQuantity hoverEffect={false} />
             }) : <p>No hay articulos de linea</p>}
           </div>
           <div className="grid md:grid-cols-2 gap-4 content-start text-white">
             <h3 className="md:col-span-2 text-2xl text-white">Articulos personalizados</h3>
             {cut?.articles?.filter(a => !a.common)?.length ? cut?.articles?.filter(a => !a.common)?.map(article => {
-              let articleCard = {...article}
+              let articleCard = { ...article }
               articleCard.quantity = Number(articleCard.quantity) - Number(articleCard.booked)
-              articleCard = {...articleCard, ...articleCard.customArticle}
+              articleCard = { ...articleCard, ...articleCard.customArticle }
               return <ArticleCard article={articleCard} stockNoShow stockNoControl quantityNoControl forCut bookedQuantity customArticle hoverEffect={false} />
             }) : <p>No hay articulos personalizados</p>}
           </div>
         </section>
       ) : (
-        <Oval/>
+        <Oval />
       )}
     </Main>
   )

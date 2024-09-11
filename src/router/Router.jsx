@@ -20,6 +20,8 @@ import Workshops from "../pages/Workshops"
 import NewWorkshop from "../pages/NewWorkshop"
 import EditWorkshop from "../pages/EditWorkshop"
 import CutToWorkshop from "../pages/CutToWorkshop"
+import WorkshopOrders from "../pages/WorkshopOrders"
+import WorkshopOrder from "../pages/WorkshopOrder"
 
 
 const Router = () => {
@@ -54,6 +56,8 @@ const Router = () => {
             <Route path="/workshops" element={<Workshops/>}/>
             <Route path="/workshops/new" element={<NewWorkshop/>}/>
             <Route path="/workshops/:wid" element={<EditWorkshop/>}/>
+            <Route path="/workshop-orders" element={<WorkshopOrders/>}/>
+            <Route path="/workshop-orders/:oid" element={<WorkshopOrder/>}/>
           </>
         )}
       </Routes>
