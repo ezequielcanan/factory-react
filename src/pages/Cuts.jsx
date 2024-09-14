@@ -5,6 +5,7 @@ import Button from "../components/Button"
 import { useEffect, useState } from "react"
 import customAxios from "../config/axios.config"
 import moment from "moment"
+import OrderCard from "../components/OrderCard"
 
 const Cuts = () => {
   const [cuts, setCuts] = useState(null)
@@ -21,16 +22,7 @@ const Cuts = () => {
     </section>
     <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-auto">
       {cuts?.length ? cuts.map(cut => {
-        return <Link to={`/cuts/${cut?._id}`}>
-          <div className="flex flex-col gap-8 bg-secondary text-white p-6 rounded" key={cut?._id}>
-            <h3 className="text-2xl font-bold">CORTE N° {cut?.order?.orderNumber}</h3>
-            <p className="text-xl">Articulos de linea: {cut?.order?.articles?.filter(a => a.common && a.booked < a.quantity)?.length}</p>
-            <p className="text-xl">Articulos personalizados: {cut?.order?.articles?.filter(a => !a.common && a.booked < a.quantity)?.length}</p>
-            <p className="text-xl">Fecha de pedido: {moment.utc(cut?.order?.date).format("DD-MM-YYYY")}</p>
-            <p className="text-xl">Fecha de entrega: {cut?.order?.deliveryDate ? moment.utc(cut?.order?.deliveryDate).format("DD-MM-YYYY") : ""}</p>
-            {cut?.order?.remainingDays > 0 && <p className="text-xl">Dias restantes: {cut?.order.remainingDays}</p>}
-          </div>
-        </Link>
+        return <OrderCard name={false} order={cut.order} link={`/cuts/${cut?._id}`} text="CORTE N°"/>
       }) : (
         <p className="text-white text-2xl">No hay ordenes de corte</p>
       )}

@@ -1,11 +1,11 @@
 import moment from "moment"
 import { Link } from "react-router-dom"
 
-const OrderCard = ({ order }) => {
+const OrderCard = ({ order, text = "N°", name = true, link = `/orders/${order?._id}` }) => {
   return (
-    <Link to={`/orders/${order?._id}`}>
+    <Link to={link}>
       <div className="flex flex-col gap-8 bg-secondary text-white p-6 rounded">
-        <h3 className="text-2xl font-bold">N° {order?.orderNumber}: {order?.client?.name}</h3>
+        <h3 className="text-2xl font-bold">{text} {order?.orderNumber}{name && `: ${order?.client?.name}`}</h3>
         <p className="text-xl">Articulos de linea: {order?.articles?.filter(a => a.common)?.length}</p>
         <p className="text-xl">Articulos personalizados: {order?.articles?.filter(a => !a.common)?.length}</p>
         <p className="text-xl">Fecha de pedido: {moment.utc(order?.date).format("DD-MM-YYYY")}</p>
