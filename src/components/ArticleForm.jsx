@@ -10,7 +10,7 @@ const ArticleForm = ({onSubmit, register, file, article, handleFileChange, color
     <>
       <form action="" className={`grid grid-cols-2 items-start gap-y-8 h-max`} onSubmit={onSubmit}>
         <Label>Descripcion</Label>
-        <Input register={register("description", { required: true })} defaultValue={article?.description || ""} className={"!py-2"} />
+        <Input register={register("description", { required: true })} defaultValue={article?.description || ""} className={"!py-2 w-full"} />
 
         <Label>Negocio</Label>
         <SelectInput selectedOption={society} setSelectedOption={setSociety} options={societies} className={"!py-2"} />
@@ -22,10 +22,10 @@ const ArticleForm = ({onSubmit, register, file, article, handleFileChange, color
         <SelectInput selectedOption={color} setSelectedOption={setColor} options={colors} className={"!py-2"} />
 
         <Label>Talle</Label>
-        <SelectInput selectedOption={size} setSelectedOption={setSize} options={sizes} className={"!py-2"} />
+        <SelectInput selectedOption={size} setSelectedOption={setSize} text options={sizes} className={"!py-2"} />
 
         <Label>Stock</Label>
-        <Input register={register("stock", { required: true })} defaultValue={article?.stock || ""} type="number" step="1" className={"!py-2"} />
+        <Input register={register("stock", { required: true })} defaultValue={article?.stock || ""} type="number" step="1" className={"!py-2 w-full"} />
 
         <Button className={"col-span-2"} type="submit">Confirmar</Button>
       </form>

@@ -55,20 +55,20 @@ const ArticlesContainer = ({ containerClassName, quantities = [], setQuantities 
 
   return (
     <ItemsContainer className={`${containerClassName}`}>
-      <div className="md:col-span-2 lg:col-span-3 xl:col-span-5 flex flex-col xl:flex-row items-center gap-8 justify-between">
+      <div className="md:col-span-2 lg:col-span-3 xl:col-span-6 flex flex-col xl:flex-row items-center gap-8 justify-between">
         <FaFilter className="text-white text-3xl" />
         <div className="grid md:grid-cols-3 xl:grid-cols-5 items-center gap-8 text-xl w-full">
           <Input placeholder="Buscar..." className={"w-full"} onChange={(e) => setSearch(e?.target?.value)}/>
           <SelectInput selectedOption={society} setSelectedOption={setSociety} options={[{value: "Ambos negocios", all: true}, ...societies]} className={"!py-"} />
           <SelectInput selectedOption={category} setSelectedOption={setCategory} options={[{value: "Todas las categorias", all: true}, ...categories]} className={"!py-2"} />
           <SelectInput selectedOption={color} setSelectedOption={setColor} options={[{value: "Todos los colores", all: true}, ...colors]} className={"!py-2"} />
-          <SelectInput selectedOption={size} setSelectedOption={setSize} options={[{value: "Todos los tamaños", all: true}, ...sizes]} className={"!py-2"} />
+          <SelectInput selectedOption={size} setSelectedOption={setSize} options={[{value: "Todos los tamaños", all: true}, ...sizes]} text className={"!py-2"} />
         </div>
       </div>
       {(articles && filteredArticles) ? filteredArticles?.length ? filteredArticles.map((article) => {
         return <ArticleCard article={article} articles={quantities} setArticles={setQuantities} key={article?._id} onClickArticle={onClickArticle} stockNoControl={stockNoControl}/>
       }) : (
-        <p className="text-white text-4xl col-span-4 text-center my-16">No hay articulos que coincidan con los filtros</p>
+        <p className="text-white text-4xl col-span-6 text-center my-16">No hay articulos que coincidan con los filtros</p>
       ) : (
         <Oval />
       )}

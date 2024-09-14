@@ -25,7 +25,7 @@ const EditArticle = () => {
       setArticle(result)
       setColor(colors.find(c => c.value == result?.color))
       setCategory(categories.find(c => c.value == result?.category))
-      setSize(sizes.find(s => s.value == result?.size))
+      setSize(sizes.find(s => s.value == result?.size) || {value: res?.data?.size})
       setSociety(societies.find(s => s.value == result?.society))
       setFile([null, getArticleImg(result?._id)])
     })

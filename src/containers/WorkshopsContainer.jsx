@@ -19,7 +19,7 @@ const WorkshopsContainer = ({ containerClassName, onClickWorkshop }) => {
       {(workshops) ? workshops?.length ? workshops.map((workshop) => {
         return <WorkshopCard workshop={workshop} onClickWorkshop={onClickWorkshop}/>
       }) : (
-        <p className="text-white text-4xl col-span-5 text-center my-16">No hay talleres</p>
+        <p className="text-white text-4xl col-span-6 text-center my-16">No hay talleres</p>
       ) : (
         <Oval />
       )}

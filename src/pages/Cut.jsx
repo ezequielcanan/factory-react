@@ -19,7 +19,8 @@ const Cut = () => {
 
   useEffect(() => {
     customAxios.get(`/cuts/${cid}`).then(res => {
-      setCut({ ...res?.data, articles: res?.data?.order?.articles?.filter(a => a.hasToBeCut && a.quantity > a.booked) })
+      const articles = (res?.data?.items?.length ? res?.data?.items : res?.data?.order?.articles)?.filter(a => a.hasToBeCut && a.quantity > a.booked)
+      setCut({ ...res?.data, articles })
     })
   }, [reload])
 
@@ -38,7 +39,7 @@ const Cut = () => {
           {!cut?.workshopOrder ? (
             <Button className={"flex items-center justify-between gap-2 justify-self-center xl:justify-self-end"} onClick={() => setPassToWorkshop(a => !a)}>Pasar a un taller <BiTransferAlt /></Button>
           ) : (
-            <Link to={`/workshop-orders/${cut?.workshopOrder?._id}`} className="justify-self-center xl:justify-self-end"><Button>En taller</Button></Link>
+            <Link to={`/workshop-orders/${cut?.workshopOrder?._id}`} className="justify-self-center xl:justify-self-end"><Button>{cut?.workshopOrder?.deliveryDate ? `Recibido: ${moment(cut?.workshopOrder?.deliveryDate)?.format("DD-MM-YYYY")}` : `En taller`}</Button></Link>
           )}
           {workshop ? (
             <div className="grid xl:grid-cols-4 gap-4 items-center w-full text-xl justify-items-center xl:justify-items-start xl:col-span-2">

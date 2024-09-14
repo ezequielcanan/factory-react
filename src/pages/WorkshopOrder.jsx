@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import Main from "../containers/Main"
 import { useEffect, useState } from "react"
 import customAxios from "../config/axios.config"
@@ -12,6 +12,7 @@ import { Oval } from "react-loader-spinner"
 
 const WorkshopOrder = () => {
   const [workshopOrder, setWorkshopOrder] = useState(null)
+  const navigate = useNavigate()
   const { oid } = useParams()
 
   useEffect(() => {
@@ -26,6 +27,7 @@ const WorkshopOrder = () => {
 
   const receiveFromWorkShop = async () => {
     await customAxios.put(`/workshop-order/receive/${oid}`)
+    navigate(`/orders/${workshopOrder?.cut?.order?._id}`)
   }
 
   return (
@@ -33,20 +35,20 @@ const WorkshopOrder = () => {
       {workshopOrder ? (
         <>
           <Title text={`Taller: ${workshopOrder?.workshop?.name}`} />
-          <Button className="font-bold p-4 px-6 lg:justify-self-end" onClick={receiveFromWorkShop}>Recibido</Button>
+          {!workshopOrder?.deliveryDate ? <Button className="font-bold p-4 px-6 lg:justify-self-end" onClick={receiveFromWorkShop}>Recibido</Button> : <p className="font-bold text-white text-2xl lg:justify-self-end">Recibido: {moment(workshopOrder?.deliveryDate).format("DD-MM-YYYY")}</p>}
           <div className="flex flex-col items-start text-white gap-y-4 lg:col-span-2">
             <p className="text-2xl">Corte N°: {workshopOrder?.cut?.order?.orderNumber}</p>
             <p className="text-2xl">Fecha de salida: {moment(workshopOrder?.date).format("DD-MM-YYYY")}</p>
             <p className="text-2xl">Direccion: {workshopOrder?.workshop?.address}</p>
             <p className="text-2xl">Telefono: {workshopOrder?.workshop?.phone}</p>
-            <div className="flex gap-4 flex-wrap items-center">
+            <div className="flex gap-4 flex-wrap items-center overflow-hidden">
               <Label className={"!text-2xl"}>Precio</Label>
-              <Input type="number" defaultValue={workshopOrder?.price} onChange={changePrice} />
+              <Input type="number" className="w-full" defaultValue={workshopOrder?.price} onChange={changePrice} />
             </div>
           </div>
           <div className="grid md:grid-cols-2 gap-4 self-start content-start text-white">
             <h3 className="md:col-span-2 text-2xl text-white">Articulos de linea</h3>
-            {workshopOrder?.cut?.order?.articles?.filter(a => a.common && a.hasToBeCut && (a.quantity > a.booked))?.length ? workshopOrder?.cut?.order?.articles?.filter(a => a.common && a.hasToBeCut && (a.quantity > a.booked))?.map(article => {
+            {(workshopOrder?.deliveryDate ? workshopOrder?.cut?.items : workshopOrder?.cut?.order?.articles)?.filter(a => a.common && a.hasToBeCut && (a.quantity > a.booked))?.length ? (workshopOrder?.deliveryDate ? workshopOrder?.cut?.items : workshopOrder?.cut?.order?.articles)?.filter(a => a.common && a.hasToBeCut && (a.quantity > a.booked))?.map(article => {
               let articleCard = { ...article }
               articleCard.quantity = Number(articleCard.quantity) - Number(articleCard.booked)
               articleCard = { ...articleCard, ...articleCard.article }
@@ -55,7 +57,7 @@ const WorkshopOrder = () => {
           </div>
           <div className="grid md:grid-cols-2 gap-4 self-start content-start text-white">
             <h3 className="md:col-span-2 text-2xl text-white">Articulos personalizados</h3>
-            {workshopOrder?.cut?.order?.articles?.filter(a => !a.common && a.hasToBeCut && (a.quantity > a.booked))?.length ? workshopOrder?.cut?.order?.articles?.filter(a => !a.common && a.hasToBeCut && (a.quantity > a.booked))?.map(article => {
+            {(workshopOrder?.deliveryDate ? workshopOrder?.cut?.items : workshopOrder?.cut?.order?.articles)?.filter(a => !a.common && a.hasToBeCut && (a.quantity > a.booked))?.length ? (workshopOrder?.deliveryDate ? workshopOrder?.cut?.items : workshopOrder?.cut?.order?.articles)?.filter(a => !a.common && a.hasToBeCut && (a.quantity > a.booked))?.map(article => {
               let articleCard = { ...article }
               articleCard.quantity = Number(articleCard.quantity) - Number(articleCard.booked)
               articleCard = { ...articleCard, ...articleCard.customArticle }

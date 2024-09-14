@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FaChevronDown } from 'react-icons/fa';
 
-const SelectInput = ({ options, selectedOption, setSelectedOption, firstNull, onChange = () => {} }) => {
+const SelectInput = ({ options, selectedOption, text = false, setSelectedOption, firstNull, onChange = () => {} }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [isOverflowing, setIsOverflowing] = useState(false)
   const selectRef = useRef(null)
@@ -39,11 +40,15 @@ const SelectInput = ({ options, selectedOption, setSelectedOption, firstNull, on
   return (
     <div className="relative w-full">
       <div
-        className={`${selectedOption?.bg || "bg-transparent"} ${selectedOption?.transparent ? "text-transparent" : "text-white"} border border-2 border-white rounded-lg p-2 px-4 text-xl cursor-pointer`}
+        className={`${selectedOption?.bg || "bg-transparent"} ${selectedOption?.transparent ? "text-transparent" : "text-white"} ${!text && "p-2 px-4"} border max-w-full border-2 border-white rounded-lg text-xl cursor-pointer`}
         onClick={toggleOpen}
         ref={selectRef}
       >
-        {selectedOption?.value}
+        {text ? <div className='w-full flex max-w-full items-center justify-between'>
+          <input value={selectedOption?.value} className='bg-transparent p-2 px-4 w-4/5 outline-none' onChange={e => handleOptionClick({value: e?.target?.value})}/>
+          <FaChevronDown className='w-1/5'/>
+        </div>
+        : selectedOption?.value}
       </div>
       <AnimatePresence>
         {isOpen && (
