@@ -41,6 +41,13 @@ export const categories = [
   { value: "Otros" }
 ]
 
+export const roles = [
+  { value: "orders", text: "Pedidos" },
+  { value: "workshops", text: "Talleres" },
+  { value: "prices", text: "Facturacion" },
+  { value: "admin", text: "Administrador" },
+]
+
 export const getArticleImg = (id, custom = false) => {
   return `${import.meta.env.VITE_REACT_API_URL}/files/articles/${custom ? "custom/" + id : id}/thumbnail.png`
 }

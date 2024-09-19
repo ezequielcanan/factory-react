@@ -22,6 +22,7 @@ import EditWorkshop from "../pages/EditWorkshop"
 import CutToWorkshop from "../pages/CutToWorkshop"
 import WorkshopOrders from "../pages/WorkshopOrders"
 import WorkshopOrder from "../pages/WorkshopOrder"
+import Users from "../pages/Users"
 
 
 const Router = () => {
@@ -41,6 +42,7 @@ const Router = () => {
           <>
             <Route path="*" element={<NotFound/>}/>
             <Route path="/" element={<Home/>}/>
+            <Route path="/users" element={<Users/>}/>
             <Route path="/articles" element={<Articles/>}/>
             <Route path="/articles/new" element={<NewArticle/>}/>
             <Route path="/articles/:aid" element={<EditArticle/>}/>

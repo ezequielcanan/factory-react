@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaChevronDown } from 'react-icons/fa';
 
-const SelectInput = ({ options, selectedOption, text = false, setSelectedOption, firstNull, onChange = () => {} }) => {
+const SelectInput = ({ options, selectedOption, text = false, setSelectedOption, containerClassName, textClassName, onChange = () => {} }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [isOverflowing, setIsOverflowing] = useState(false)
   const selectRef = useRef(null)
@@ -38,9 +38,9 @@ const SelectInput = ({ options, selectedOption, text = false, setSelectedOption,
   }, [isOpen]);
 
   return (
-    <div className="relative w-full">
+    <div className={`relative w-full text-xl ${containerClassName}`}>
       <div
-        className={`${selectedOption?.bg || "bg-transparent"} ${selectedOption?.transparent ? "text-transparent" : "text-white"} ${!text && "p-2 px-4"} border max-w-full border-2 border-white rounded-lg text-xl cursor-pointer`}
+        className={`${selectedOption?.bg || "bg-transparent"} ${selectedOption?.transparent ? "text-transparent" : "text-white"} ${!text && "p-2 px-4"} border max-w-full border-2 border-white rounded-lg cursor-pointer ${textClassName}`}
         onClick={toggleOpen}
         ref={selectRef}
       >

@@ -41,6 +41,7 @@ const Navbar = () => {
           <NavItem path={"/cuts"} setIsOpen={setIsOpen}>Cortes <FaScissors /></NavItem>
           <NavItem path={"/workshops"} setIsOpen={setIsOpen}>Talleres <GrUserWorker /></NavItem>
           <NavItem path={"/workshop-orders"} className={"text-nowrap"} setIsOpen={setIsOpen}>En Taller <FaHammer/></NavItem>
+          <NavItem path={"/users"} setIsOpen={setIsOpen}>Usuarios <FaUsers/></NavItem>
           <Button className={"bg-red-700 hover:bg-red-800 !text-2xl text-white text-sm rounded-md"} onClick={() => (setUser(false), customAxios.defaults.headers.common['Authorization'] = "", localStorage.setItem("token", ""), navigate("/"))}><BiLogOut/></Button>
         </ul>
       </motion.nav>
