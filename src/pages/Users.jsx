@@ -7,12 +7,13 @@ import UserCard from "../components/UserCard"
 
 const Users = () => {
   const [users, setUsers] = useState(null)
+  const [reload, setReload] = useState(false)
 
   useEffect(() => {
     customAxios.get(`/users`).then(res => {
       setUsers(res?.data)
     })
-  }, [])
+  }, [reload])
 
   return (
     <Main className={"grid lg:grid-cols-4 gap-8 content-start"}>
@@ -20,7 +21,7 @@ const Users = () => {
       {users ? (
         users.map(user => {
           return (
-            <UserCard user={user} key={user?._id}/>
+            <UserCard user={user} key={user?._id} setReload={setReload}/>
           )
         })
       ) : (
