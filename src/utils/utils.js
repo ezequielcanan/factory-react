@@ -62,3 +62,17 @@ export const uploadFile = async (sendFile, path, name) => {
     },
   })
 }
+
+export const userIncludesRoles = (userData, ...roles) => {
+  let verified = false
+  const user = userData
+  if (user?.roles?.includes("admin")) return true
+
+  roles.forEach(role => {
+    if (user?.roles?.includes(role)) {
+      verified = true
+    }
+  })
+
+  return verified
+}

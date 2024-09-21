@@ -17,7 +17,7 @@ const SelectInput = ({ options, selectedOption, text = false, setSelectedOption,
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (selectRef.current && !selectRef.current.contains(event.target) && !dropdownRef.current.contains(event.target)) {
+      if (selectRef?.current && !selectRef?.current?.contains(event.target) && !dropdownRef?.current?.contains(event.target)) {
         setIsOpen(false);
       }
     };

@@ -23,43 +23,51 @@ import CutToWorkshop from "../pages/CutToWorkshop"
 import WorkshopOrders from "../pages/WorkshopOrders"
 import WorkshopOrder from "../pages/WorkshopOrder"
 import Users from "../pages/Users"
+import { userIncludesRoles } from "../utils/utils"
+import Prices from "../pages/Prices"
 
 
 const Router = () => {
-  const {getUser, setUser} = useContext(UserContext)
+  const { getUser, userData } = useContext(UserContext)
   return (
     <HashRouter>
       {getUser() && (
-        <Navbar/>
+        <Navbar />
       )}
       <Routes>
         {!getUser() ? (
           <>
-          <Route path="/login" element={<Login/>}/>
-          <Route path="*" element={<Navigate to={"/login"}/>}/>
+            <Route path="/login" element={<Login />} />
+            <Route path="*" element={<Navigate to={"/login"} />} />
           </>
         ) : (
           <>
-            <Route path="*" element={<NotFound/>}/>
-            <Route path="/" element={<Home/>}/>
-            <Route path="/users" element={<Users/>}/>
-            <Route path="/articles" element={<Articles/>}/>
-            <Route path="/articles/new" element={<NewArticle/>}/>
-            <Route path="/articles/:aid" element={<EditArticle/>}/>
-            <Route path="/clients" element={<Clients/>}/>
-            <Route path="/clients/new" element={<NewClient/>}/>
-            <Route path="/clients/:cid" element={<EditClient/>}/>
-            <Route path="/orders" element={<Orders/>}/>
-            <Route path="/orders/:oid" element={<Order/>}/>
-            <Route path="/orders/new" element={<NewOrder/>}/>
-            <Route path="/cuts" element={<Cuts/>}/>
-            <Route path="/cuts/:cid" element={<Cut/>}/>
-            <Route path="/cuts/:cid/workshop" element={<CutToWorkshop/>}/>
-            <Route path="/workshops" element={<Workshops/>}/>
-            <Route path="/workshops/new" element={<NewWorkshop/>}/>
-            <Route path="/workshops/:wid" element={<EditWorkshop/>}/>
-            <Route path="/workshop-orders" element={<WorkshopOrders/>}/>
-            <Route path="/workshop-orders/:oid" element={<WorkshopOrder/>}/>
+            <Route path="*" element={<NotFound />} />
+            {userIncludesRoles(userData) ? <>
+              <Route path="/" element={<Home />} />
+              <Route path="/users" element={<Users />} />
+            </> : null}
+            {userIncludesRoles(userData, "orders", "prices") ? <>
+              <Route path="/articles" element={<Articles />} />
+              <Route path="/articles/new" element={<NewArticle />} />
+              <Route path="/articles/:aid" element={<EditArticle />} />
+              <Route path="/clients" element={<Clients />} />
+              <Route path="/clients/new" element={<NewClient />} />
+              <Route path="/clients/:cid" element={<EditClient />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/orders/:oid" element={<Order />} />
+              <Route path="/orders/new" element={<NewOrder />} />
+            </> : null}
+            <Route path="/cuts" element={<Cuts />} />
+            <Route path="/cuts/:cid" element={<Cut />} />
+            <Route path="/cuts/:cid/workshop" element={<CutToWorkshop />} />
+            <Route path="/workshops" element={<Workshops />} />
+            <Route path="/workshops/new" element={<NewWorkshop />} />
+            <Route path="/workshops/:wid" element={<EditWorkshop />} />
+            <Route path="/workshop-orders" element={<WorkshopOrders />} />
+            <Route path="/workshop-orders/:oid" element={<WorkshopOrder />} />
+            <Route path="/prices" element={<Prices />} />
+
           </>
         )}
       </Routes>

@@ -12,17 +12,16 @@ export const UserContextProvider = ({ children }) => {
     if (user) {
       customAxios.defaults.headers.common['Authorization'] = `${localStorage.getItem("token")}`
       customAxios.get(`/auth/current`).then(res => {
-        const userObj = res?.data?.payload
+        const userObj = res?.data
         setUserData(userObj)
       })
     }
-  }, [])
+  }, [user])
 
   const getUser = () => user
 
-
   return (
-    <UserContext.Provider value={{ user, userData, setUser, getUser }}>
+    <UserContext.Provider value={{ user, userData, setUser, getUser, setUserData }}>
       {children}
     </UserContext.Provider>
   )
