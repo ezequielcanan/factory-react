@@ -47,27 +47,36 @@ const Router = () => {
               <Route path="/" element={<Home />} />
               <Route path="/users" element={<Users />} />
             </> : null}
-            {userIncludesRoles(userData, "orders", "prices") ? <>
+            {userIncludesRoles(userData, "stock") ? <>
               <Route path="/articles" element={<Articles />} />
               <Route path="/articles/new" element={<NewArticle />} />
               <Route path="/articles/:aid" element={<EditArticle />} />
-              <Route path="/clients" element={<Clients />} />
-              <Route path="/clients/new" element={<NewClient />} />
-              <Route path="/clients/:cid" element={<EditClient />} />
+            </> : null}
+            {userIncludesRoles(userData, "orders") ? <>
               <Route path="/orders" element={<Orders />} />
               <Route path="/orders/:oid" element={<Order />} />
               <Route path="/orders/new" element={<NewOrder />} />
             </> : null}
-            <Route path="/cuts" element={<Cuts />} />
-            <Route path="/cuts/:cid" element={<Cut />} />
-            <Route path="/cuts/:cid/workshop" element={<CutToWorkshop />} />
-            <Route path="/workshops" element={<Workshops />} />
-            <Route path="/workshops/new" element={<NewWorkshop />} />
-            <Route path="/workshops/:wid" element={<EditWorkshop />} />
-            <Route path="/workshop-orders" element={<WorkshopOrders />} />
-            <Route path="/workshop-orders/:oid" element={<WorkshopOrder />} />
-            <Route path="/prices" element={<Prices />} />
-
+            {userIncludesRoles(userData, "clients") ? <>
+              <Route path="/clients" element={<Clients />} />
+              <Route path="/clients/new" element={<NewClient />} />
+              <Route path="/clients/:cid" element={<EditClient />} />
+            </> : null}
+            {userIncludesRoles(userData, "cuts") ? <>
+              <Route path="/cuts" element={<Cuts />} />
+              <Route path="/cuts/:cid" element={<Cut />} />
+              <Route path="/cuts/:cid/workshop" element={<CutToWorkshop />} />
+            </> : null}
+            {userIncludesRoles(userData, "workshops") ? <>
+              <Route path="/workshops" element={<Workshops />} />
+              <Route path="/workshops/new" element={<NewWorkshop />} />
+              <Route path="/workshops/:wid" element={<EditWorkshop />} />
+              <Route path="/workshop-orders" element={<WorkshopOrders />} />
+              <Route path="/workshop-orders/:oid" element={<WorkshopOrder />} />
+            </> : null}
+            {userIncludesRoles(userData, "prices") ? <>
+              <Route path="/prices" element={<Prices />} />
+            </> : null}
           </>
         )}
       </Routes>

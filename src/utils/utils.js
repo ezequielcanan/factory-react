@@ -42,9 +42,12 @@ export const categories = [
 ]
 
 export const roles = [
-  { value: "orders", text: "Pedidos" },
-  { value: "workshops", text: "Talleres" },
   { value: "prices", text: "Facturacion" },
+  { value: "articles", text: "Stock" },
+  { value: "orders", text: "Pedidos" },
+  { value: "clients", text: "Clientes" },
+  { value: "cuts", text: "Cortes" },
+  { value: "workshops", text: "Talleres" },
   { value: "admin", text: "Administrador" },
 ]
 

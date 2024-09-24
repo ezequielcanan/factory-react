@@ -16,8 +16,8 @@ const Users = () => {
   }, [reload])
 
   return (
-    <Main className={"grid lg:grid-cols-4 gap-8 content-start"}>
-      <Title text={"Usuarios"} className={"lg:col-span-4"}/>
+    <Main className={"grid md:grid-cols-2 lg:grid-cols-4 gap-8 content-start overflow-hidden"}>
+      <Title text={"Usuarios"} className={"md:col-span-2 lg:col-span-4"}/>
       {users ? (
         users.map(user => {
           return (

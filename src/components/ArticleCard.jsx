@@ -27,10 +27,10 @@ const ArticleCard = ({ article, articles = [], setArticles = () => { }, onClickA
   }
 
   return (
-    <motion.div onClick={() => onClickArticle ? onClickArticle(articleCard, setArticleCard) : (!forCut && navigate(`/articles/${article?._id}`))} initial={{ opacity: 0 }} transition={{ duration: 0.5 }} animate={{ opacity: 1 }} className={`flex flex-col text-white ${hoverEffect && "hover:bg-primary cursor-pointer"} duration-300 rounded-lg bg-secondary justify-items-center overflow-hidden`}>
-      <img src={getArticleImg(articleCard?._id, customArticle)} alt="No hay imagen" className="font-bold h-80 object-cover object-center" />
-      <div className={`flex flex-col gap-y-4 w-full p-4 text-xl`}>
-        <h3 className="text-2xl">{articleCard.description || articleCard.detail}</h3>
+    <motion.div onClick={() => onClickArticle ? onClickArticle(articleCard, setArticleCard) : (!forCut && navigate(`/articles/${article?._id}`))} initial={{ opacity: 0 }} transition={{ duration: 0.5 }} animate={{ opacity: 1 }} className={`flex flex-col text-white ${hoverEffect && "hover:bg-primary cursor-pointer"} duration-300 rounded-lg bg-secondary justify-items-center justify-between overflow-hidden`}>
+      <img src={getArticleImg(articleCard?._id, customArticle)} alt="No hay imagen" className="font-bold !h-full object-cover object-center" />
+      <div className={`flex flex-col gap-y-4 w-full p-4 text-sm`}>
+        <h3 className="text-xl">{articleCard.description || articleCard.detail} - {articleCard?.size}</h3>
         {!customArticle &&
           <>
             <div className="flex gap-8 items-center">

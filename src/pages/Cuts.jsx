@@ -32,7 +32,7 @@ const Cuts = () => {
     </section>
     <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-auto my-8">
       {cuts?.length ? cuts.map(cut => {
-        return <OrderCard name={false} order={cut.order} link={`/cuts/${cut?._id}`} text="CORTE N°" forCut />
+        return <OrderCard name={false} order={{...cut.order, workshop: cut?.workshopOrder}} link={`/cuts/${cut?._id}`} text="CORTE N°" forCut />
       }) : (
         <p className="text-white text-2xl">No hay ordenes de corte vigentes</p>
       )}
@@ -42,7 +42,7 @@ const Cuts = () => {
       {(showFinished) ? (
         <motion.section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-auto overflow-hidden" initial={{ height: 0 }} transition={{ duration: 0.5 }} exit={{ height: 0 }} animate={{ height: "auto" }}>
           {finishedCuts.length ? finishedCuts.map(cut => {
-            return <OrderCard name={false} order={cut.order} articles={cut?.items} link={`/cuts/${cut?._id}`} text="CORTE N°" forCut />
+            return <OrderCard name={false} order={cut.order} green articles={cut?.items} link={`/cuts/${cut?._id}`} text="CORTE N°" forCut />
           }) : <p className="text-white text-2xl">No hay ordenes de corte finalizadas</p>}
         </motion.section>
       ) : null}
