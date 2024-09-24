@@ -6,6 +6,7 @@ import { Oval } from "react-loader-spinner"
 import ArticleCard from "../components/ArticleCard"
 import Table from "../components/Table"
 import { FaMinusCircle, FaPlusCircle } from "react-icons/fa"
+import Input from "../components/Input"
 
 const Order = () => {
   const [order, setOrder] = useState(null)
@@ -45,7 +46,9 @@ const Order = () => {
     {value: "quantity", controls: true, onClickControls: onClickControls},
     {value: "bookedQuantity", controls: true, onClickControls: onClickControls},
     {value: "hasToBeCut", showsFunc: true, shows: (val) => val ? "Si" : "No", clickeable: true, onClick: onClickHasToBeCut},
-    {value: "unitPrice"},
+    {value: "unitPrice", showsFunc: true, shows: (val) => {
+      return <Input defaultValue={val} className={"!py-0 !px-0 rounded-none focus:bg-transparent w-[100px]"} containerClassName={"!border-0 rounded-none"}/>
+    }},
     {value: "price"},
   ]
 

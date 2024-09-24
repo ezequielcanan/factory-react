@@ -1,4 +1,4 @@
-import { motion } from "framer-motion"
+import { AnimatePresence, motion } from "framer-motion"
 import { Link, NavLink, useNavigate } from "react-router-dom"
 import { FaBagShopping, FaMoneyBill, FaScissors } from "react-icons/fa6"
 import NavItem from "./NavItem"
@@ -22,34 +22,60 @@ const Navbar = () => {
 
 
   const navVariants = {
-    hidden: { opacity: 0, x: -100 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.5 } },
+    hidden: {
+      height: 0,
+      opacity: 0,
+      overflow: "hidden", // Evitar mostrar contenido cuando está oculto
+      transition: {
+        height: { duration: 0.5 }, // Controlar la duración del cambio de altura
+        opacity: { duration: 0.3 }, // Animación más rápida para la opacidad
+      },
+    },
+    visible: {
+      height: "auto", // Framer Motion maneja la altura automática
+      opacity: 1,
+      transition: {
+        height: { duration: 0.5 }, // Duración de la animación de altura
+        opacity: { duration: 0.3 }, // Animación de opacidad
+      },
+    },
+    exit: {
+      height: 0,
+      opacity: 0,
+      transition: {
+        height: { duration: 0.5 }, // Duración de la animación de cierre
+        opacity: { duration: 0.3 }, // Transición suave de opacidad
+      },
+    }
   };
 
   document.addEventListener("resize", () => {
     setWidth(window.innerWidth)
   })
 
-  const largeBreakpoint = width < 1024
 
   return (
     <header className={`flex items-center justify-between py-6 h-[100px] sm:gap-x-16 fixed z-20 w-full text-white bg-black`}>
       <NavLink to={"/"} className="text-white font-bold text-3xl px-8">Fabrica</NavLink>
-      <motion.nav animate={(!largeBreakpoint) ? "visible" : ((isOpen) ? "visible" : "hidden")} variants={navVariants} className={`h-full ${(!isOpen) ? "hidden" : "absolute top-[100px] h-screen w-screen bg-black/90 pt-[100px]"} px-8 overflow-y-auto items-center gap-x-8`}>
-        <ul className={`${(!isOpen) ? "hidden" : "flex flex-col gap-y-16 items-center"} pb-12 items-center w-full gap-x-8`}>
-          {(userIncludesRoles(userData, "prices")) && <NavItem path={"/prices"} setIsOpen={setIsOpen}>Facturacion <FaMoneyBill /></NavItem>}
-          {(userIncludesRoles(userData, "stock")) && <NavItem path={"/articles"} setIsOpen={setIsOpen}>Stock <FaBagShopping /></NavItem>}
-          {(userIncludesRoles(userData, "orders")) && <NavItem path={"/orders"} setIsOpen={setIsOpen}>Pedidos <MdSell /></NavItem>}
-          {(userIncludesRoles(userData, "clients")) && <NavItem path={"/clients"} setIsOpen={setIsOpen}>Clientes <FaUsers /></NavItem>}
-          {(userIncludesRoles(userData, "cuts")) && <NavItem path={"/cuts"} setIsOpen={setIsOpen}>Cortes <FaScissors /></NavItem>}
-          {(userIncludesRoles(userData, "workshops")) && <>
-            <NavItem path={"/workshops"} setIsOpen={setIsOpen}>Talleres <GrUserWorker /></NavItem>
-            <NavItem path={"/workshop-orders"} className={"text-nowrap"} setIsOpen={setIsOpen}>En Taller <FaHammer /></NavItem>
-          </>}
-          {(userIncludesRoles(userData)) && <NavItem path={"/users"} setIsOpen={setIsOpen}>Usuarios <FaUsers /></NavItem>}
-          <Button className={"bg-red-700 hover:bg-red-800 !text-2xl text-white text-sm rounded-md"} onClick={() => (setUser(false), customAxios.defaults.headers.common['Authorization'] = "", localStorage.setItem("token", ""), navigate("/"))}><BiLogOut /></Button>
-        </ul>
-      </motion.nav>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.nav animate={((isOpen) ? "visible" : "hidden")} exit="exit" initial="hidden" variants={navVariants} className={`${(!isOpen) ? "hidden" : "sm:w-auto w-full bg-black/90 absolute right-[30px] top-[120px]"} px-0 items-center gap-x-8`}>
+            <ul className={`${(!isOpen) ? "hidden" : "flex flex-col gap-y-8 sm:h-auto h-screen sm:gap-y-0 items-center"} items-center w-full gap-x-8`}>
+              {(userIncludesRoles(userData, "prices")) && <NavItem path={"/prices"} setIsOpen={setIsOpen}>Facturacion <FaMoneyBill /></NavItem>}
+              {(userIncludesRoles(userData, "stock")) && <NavItem path={"/articles"} setIsOpen={setIsOpen}>Stock <FaBagShopping /></NavItem>}
+              {(userIncludesRoles(userData, "orders")) && <NavItem path={"/orders"} setIsOpen={setIsOpen}>Pedidos <MdSell /></NavItem>}
+              {(userIncludesRoles(userData, "clients")) && <NavItem path={"/clients"} setIsOpen={setIsOpen}>Clientes <FaUsers /></NavItem>}
+              {(userIncludesRoles(userData, "cuts")) && <NavItem path={"/cuts"} setIsOpen={setIsOpen}>Cortes <FaScissors /></NavItem>}
+              {(userIncludesRoles(userData, "workshops")) && <>
+                <NavItem path={"/workshops"} setIsOpen={setIsOpen}>Talleres <GrUserWorker /></NavItem>
+                <NavItem path={"/workshop-orders"} className={"text-nowrap"} setIsOpen={setIsOpen}>En Taller <FaHammer /></NavItem>
+              </>}
+              {(userIncludesRoles(userData)) && <NavItem path={"/users"} setIsOpen={setIsOpen}>Usuarios <FaUsers /></NavItem>}
+              <Button className={"bg-red-600 hover:bg-red-700 text-white !rounded-none !w-full px-4 py-2 gap-4 text-lg flex justify-between items-center duration-300"} onClick={() => (setUser(false), customAxios.defaults.headers.common['Authorization'] = "", localStorage.setItem("token", ""), navigate("/"))}>Cerrar sesion <BiLogOut /></Button>
+            </ul>
+          </motion.nav>
+        )}
+      </AnimatePresence>
       <div className="inline-block text-4xl cursor-pointer px-8">
         <GiHamburgerMenu onClick={toggleOpen} />
       </div>
