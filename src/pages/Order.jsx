@@ -7,12 +7,15 @@ import ArticleCard from "../components/ArticleCard"
 import Table from "../components/Table"
 import { FaMinusCircle, FaPlusCircle } from "react-icons/fa"
 import Input from "../components/Input"
+import Button from "../components/Button"
 
 const Order = () => {
   const [order, setOrder] = useState(null)
   const [cut, setCut] = useState(null)
   const [reload, setReload] = useState(false)
   const [lastReload, setLastReload] = useState(false)
+  const [pricesList, setPricesList] = useState([])
+  const [edit, setEdit] = useState(false)
   const {oid} = useParams()
 
   useEffect(() => {
@@ -38,7 +41,17 @@ const Order = () => {
   const onClickHasToBeCut = async (article) => {
     await customAxios.put(`/orders/cut-state/${oid}/${article?._id}${article?.custom ? "?custom=true" : ""}`)
     setReload(!reload)
-    
+  }
+
+  const onChangePrice = (price, article) => {
+    setPricesList([...pricesList, {...article, price: price}])
+  }
+
+  const onConfirmPrices = async () => {
+    await Promise.all(pricesList.map(async change => {
+      await customAxios.put(`/orders/price/${oid}/${change?._id}?price=${change?.price}${change?.custom ? "&custom=true" : ""}`)
+    }))
+    setReload(!reload)
   }
 
   const tableFields = [
@@ -46,8 +59,8 @@ const Order = () => {
     {value: "quantity", controls: true, onClickControls: onClickControls},
     {value: "bookedQuantity", controls: true, onClickControls: onClickControls},
     {value: "hasToBeCut", showsFunc: true, shows: (val) => val ? "Si" : "No", clickeable: true, onClick: onClickHasToBeCut},
-    {value: "unitPrice", showsFunc: true, shows: (val) => {
-      return <Input defaultValue={val} className={"!py-0 !px-0 rounded-none focus:bg-transparent w-[100px]"} containerClassName={"!border-0 rounded-none"}/>
+    {value: "price", showsFunc: true, param: true, shows: (val, row) => {
+      return <Input defaultValue={val} disabled={!edit} onChange={(e) => onChangePrice(e?.target?.value, row)} className={"!py-0 !px-0 rounded-none focus:!bg-transparent w-[100px]"} containerClassName={"!border-0 rounded-none"}/>
     }},
     {value: "price"},
   ]
@@ -70,7 +83,10 @@ const Order = () => {
             </div>
             <p className="text-xl max-w-full text-wrap">Informacion extra / Anotaciones: {order?.extraInfo}</p>
             <div className="grid gap-8 max-w-full">
-              <h3 className="text-3xl">Detalles del pedido</h3>
+              <div className="flex flex-wrap justify-between items-center gap-8">
+                <h3 className="text-3xl">Detalles del pedido</h3>
+                <Button onClick={edit ? onConfirmPrices : () => setEdit(!edit)} className={"rounded-none border-2 border-white bg-third"}>{!edit ? "Editar precios" : "Confirmar"}</Button>
+              </div>
               <Table fields={tableFields} headers={["Articulo", "Cantidad", "Reservado", "Cortar Restantes", "Precio Unitario", "Subtotal"]} rows={order?.articles}/>
             </div>
           </section>

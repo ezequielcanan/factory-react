@@ -25,7 +25,7 @@ const Table = ({ headers, rows, fields }) => {
                   return (
                     <td className={`py-2 px-4 whitespace-nowrap ${i % 2 ? "bg-secondary" : "bg-third"} ${f.clickeable ? "cursor-pointer" : ""}`} onClick={() => f.clickeable ? f.onClick(row) : {}} key={f.value+i+j}>
                       <div className="flex items-center gap-x-2">
-                        {!f.showsFunc ? (f.value == "description" ? (row[f?.value] || row["detail"]) : row[f?.value]) : f?.shows(row[f?.value])}
+                        {!f.showsFunc ? (f.value == "description" ? (row[f?.value] || row["detail"]) : row[f?.value]) : (f?.param ? f?.shows(row[f?.value], row) : f?.shows(row[f?.value]))}
                         {f.controls && (
                           <div className="flex gap-x-2">
                             <FaPlusCircle className={"cursor-pointer"} onClick={() => f.onClickControls(row, f.value, 1)}/>
