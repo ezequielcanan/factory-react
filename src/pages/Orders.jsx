@@ -2,7 +2,7 @@ import Main from "../containers/Main"
 import Title from "../components/Title"
 import { Link } from "react-router-dom"
 import Button from "../components/Button"
-import { FaCartPlus } from "react-icons/fa"
+import { FaCartPlus, FaChevronLeft, FaChevronRight } from "react-icons/fa"
 import { useEffect, useState } from "react"
 import customAxios from "../config/axios.config"
 import OrderCard from "../components/OrderCard"
@@ -13,16 +13,17 @@ const Orders = () => {
   const societies = [{ value: "Arcan" }, { value: "Cattown" }]
   const [orders, setOrders] = useState(null)
   const [society, setSociety] = useState(societies[0])
+  const [page, setPage] = useState(1)
 
   useEffect(() => {
     if (society) {
-      customAxios.get(`/orders?society=${society?.value}`).then(res => {
+      customAxios.get(`/orders?society=${society?.value}&page=${page}`).then(res => {
         setOrders(res.data?.map(order => {
           return { ...order, remainingDays: moment(order?.deliveryDate).diff(moment(), "days") }
         }))
       })
     }
-  }, [society])
+  }, [society, page])
 
 
   return (
@@ -43,6 +44,11 @@ const Orders = () => {
           <p className="text-white text-2xl">No hay pedidos</p>
         )}
       </section>
+      <div className="flex gap-x-16 justify-center self-end items-center text-white">
+        {page > 1 && <Button className={"px-4 py-4"} onClick={() => setPage(p => p - 1)}><FaChevronLeft/></Button>}
+        <p className="text-2xl">{page}</p>
+        {orders?.length ? <Button className={"px-4 py-4"} onClick={() => setPage(p => p + 1)}><FaChevronRight/></Button> : null}
+      </div>
     </Main>
   )
 }

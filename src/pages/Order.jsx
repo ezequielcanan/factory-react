@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import Main from "../containers/Main"
 import customAxios from "../config/axios.config"
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { Oval } from "react-loader-spinner"
 import ArticleCard from "../components/ArticleCard"
 import Table from "../components/Table"
@@ -16,6 +16,7 @@ const Order = () => {
   const [lastReload, setLastReload] = useState(false)
   const [pricesList, setPricesList] = useState([])
   const [edit, setEdit] = useState(false)
+  const navigate = useNavigate()
   const {oid} = useParams()
 
   useEffect(() => {
@@ -51,7 +52,13 @@ const Order = () => {
     await Promise.all(pricesList.map(async change => {
       await customAxios.put(`/orders/price/${oid}/${change?._id}?price=${change?.price}${change?.custom ? "&custom=true" : ""}`)
     }))
+    setEdit(!edit)
     setReload(!reload)
+  }
+
+  const onFinishOrder = async () => {
+    await customAxios.put(`/orders/finish/${oid}`)
+    navigate(`/prices/${oid}`)
   }
 
   const tableFields = [
@@ -60,16 +67,17 @@ const Order = () => {
     {value: "bookedQuantity", controls: true, onClickControls: onClickControls},
     {value: "hasToBeCut", showsFunc: true, shows: (val) => val ? "Si" : "No", clickeable: true, onClick: onClickHasToBeCut},
     {value: "price", showsFunc: true, param: true, shows: (val, row) => {
-      return <Input defaultValue={val} disabled={!edit} onChange={(e) => onChangePrice(e?.target?.value, row)} className={"!py-0 !px-0 rounded-none focus:!bg-transparent w-[100px]"} containerClassName={"!border-0 rounded-none"}/>
+      return <Input type="number" defaultValue={val || 0} disabled={!edit} onChange={(e) => onChangePrice(e?.target?.value, row)} className={"!py-0 !px-0 rounded-none focus:!bg-transparent w-[100px]"} containerClassName={"!border-0 rounded-none"}/>
     }},
-    {value: "price"},
+    {value: "subtotal", showsFunc: true, param: true, shows: (val, row) => (row?.price * row?.quantity) || 0},
   ]
 
   return (
     <Main className={"grid lg:grid-cols-2 gap-y-8 md:gap-y-16 gap-x-16 overflow-x-hidden content-start text-white"}>
       {(order) ? (
         <>
-          <h2 className="text-4xl lg:col-span-2 font-bold">Pedido N° {order?.orderNumber}</h2>
+          <h2 className="text-4xl justify-self-center lg:justify-self-start font-bold">Pedido N° {order?.orderNumber}</h2>
+          <Button className={`justify-self-center lg:justify-self-end ${!order?.finished && "bg-green-700 hover:bg-green-800"}`} onClick={!order?.finished ? onFinishOrder : () => navigate(`/prices/${oid}`)}>{order?.finished ? "Facturado" : "Pasar a facturacion"}</Button>
           <section className="flex flex-col gap-16">
             <div className="flex flex-col gap-8">
               <h3 className="text-3xl">Cliente: {order?.client?.name}</h3>

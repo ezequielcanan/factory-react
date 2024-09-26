@@ -25,6 +25,7 @@ import WorkshopOrder from "../pages/WorkshopOrder"
 import Users from "../pages/Users"
 import { userIncludesRoles } from "../utils/utils"
 import Prices from "../pages/Prices"
+import Price from "../pages/Price"
 
 
 const Router = () => {
@@ -76,6 +77,7 @@ const Router = () => {
             </> : null}
             {userIncludesRoles(userData, "prices") ? <>
               <Route path="/prices" element={<Prices />} />
+              <Route path="/prices/:oid" element={<Price />} />
             </> : null}
           </>
         )}
