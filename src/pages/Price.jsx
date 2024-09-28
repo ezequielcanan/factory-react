@@ -62,7 +62,7 @@ const Price = () => {
             <div className="flex flex-wrap items-center gap-4">
               <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/2/${oid}`} download><Button className={"flex items-center gap-x-6"}>Cuenta 1 <FaFilePdf/></Button></a>
               <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/2/${oid}`} download><Button className={"flex items-center gap-x-6"}>Cuenta 2 <FaFilePdf/></Button></a>
-              <Button className={"flex items-center gap-x-6"}>Cuenta Corriente <FaFileExcel/></Button>
+              <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/cc/${order?.client?._id}`} download><Button className={"flex items-center gap-x-6"}>Cuenta Corriente <FaFileExcel/></Button></a>
             </div>
           </section>
         </>
