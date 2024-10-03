@@ -62,7 +62,7 @@ const Navbar = () => {
           <motion.nav animate={((isOpen) ? "visible" : "hidden")} exit="exit" initial="hidden" variants={navVariants} className={`${(!isOpen) ? "hidden" : "sm:w-auto w-full bg-black/90 absolute right-[30px] top-[120px]"} px-0 items-center gap-x-8`}>
             <ul className={`${(!isOpen) ? "hidden" : "flex flex-col gap-y-8 sm:h-auto h-screen sm:gap-y-0 items-center"} items-center w-full gap-x-8`}>
               {(userIncludesRoles(userData, "prices")) && <NavItem path={"/prices"} setIsOpen={setIsOpen}>Facturacion <FaMoneyBill /></NavItem>}
-              {(userIncludesRoles(userData, "stock")) && <NavItem path={"/articles"} setIsOpen={setIsOpen}>Stock <FaBagShopping /></NavItem>}
+              {(userIncludesRoles(userData, "articles")) && <NavItem path={"/articles"} setIsOpen={setIsOpen}>Stock <FaBagShopping /></NavItem>}
               {(userIncludesRoles(userData, "orders")) && <NavItem path={"/orders"} setIsOpen={setIsOpen}>Pedidos <MdSell /></NavItem>}
               {(userIncludesRoles(userData, "clients")) && <NavItem path={"/clients"} setIsOpen={setIsOpen}>Clientes <FaUsers /></NavItem>}
               {(userIncludesRoles(userData, "cuts")) && <NavItem path={"/cuts"} setIsOpen={setIsOpen}>Cortes <FaScissors /></NavItem>}

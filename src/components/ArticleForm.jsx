@@ -4,8 +4,33 @@ import Button from "./Button"
 import { FaFileUpload } from "react-icons/fa"
 import { colors, sizes, categories, societies } from "../utils/utils"
 import SelectInput from "./SelectInput"
+import customAxios from "../config/axios.config"
+import Swal from "sweetalert2"
+import { useNavigate } from "react-router-dom"
 
 const ArticleForm = ({onSubmit, register, file, article, handleFileChange, color, setColor, size, setSize, category, setCategory, society, setSociety}) => {
+  const navigate = useNavigate()
+  const deleteArticle = async () => {
+    Swal.fire({
+      title: "<strong>CUIDADO: Vas a borrar el articulo</strong>",
+      icon: "warning",
+      showCloseButton: true,
+      showCancelButton: true,
+      focusConfirm: false,
+      confirmButtonText: `
+        Confirmar
+      `,
+      cancelButtonText: `
+        Cancelar
+      `,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const result = await customAxios.delete(`/articles/${article?._id}`)
+        if (result) navigate("/articles")
+      }
+    });
+  }
+
   return (
     <>
       <form action="" className={`grid grid-cols-2 items-start gap-y-8 h-max`} onSubmit={onSubmit}>
@@ -28,6 +53,7 @@ const ArticleForm = ({onSubmit, register, file, article, handleFileChange, color
         <Input register={register("stock", { required: true })} defaultValue={article?.stock || ""} type="number" step="1" className={"!py-2 w-full"} />
 
         <Button className={"col-span-2"} type="submit">Confirmar</Button>
+        {article && <Button className={"col-span-2 bg-red-600 hover:bg-red-700"} onClick={deleteArticle}>Borrar</Button>}
       </form>
 
       <Label htmlFor="file" className={`${file ? "w-full h-[650px] border-4 border-nav" : "w-full h-full border-dashed rounded-lg border-nav border-4"} flex items-center overflow-hidden justify-center `}>

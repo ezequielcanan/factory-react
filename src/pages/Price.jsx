@@ -26,7 +26,7 @@ const Price = () => {
 
   const tableFields = [
     { value: "description" },
-    { value: "bookedQuantity" },
+    { value: "quantity" },
     {
       value: "price", showsFunc: true, param: true, shows: (val, row) => {
         return val || 0
@@ -48,7 +48,7 @@ const Price = () => {
         <>
           <section className="grid gap-8 max-w-full text-white">
             <div className="flex flex-col gap-8">
-              <h3 className="text-2xl">Total: ${order?.articles?.reduce((acc, art) => acc+(art?.price ? (art?.price * art?.bookedQuantity) : 0), 0)}</h3>
+              <h3 className="text-2xl">Total: ${order?.articles?.reduce((acc, art) => acc+(art?.price ? (art?.price * art?.quantity) : 0), 0)}</h3>
 
               <div className="flex flex-wrap items-center gap-4">
                 <Label>Pagado</Label>
@@ -60,7 +60,7 @@ const Price = () => {
             </div>
             <Table fields={tableFields} headers={["Articulo", "Cantidad", "Precio Unitario", "Subtotal"]} rows={order?.articles} />
             <div className="flex flex-wrap items-center gap-4">
-              <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/2/${oid}`} download><Button className={"flex items-center gap-x-6"}>Cuenta 1 <FaFilePdf/></Button></a>
+              <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/1/${oid}`} download><Button className={"flex items-center gap-x-6"}>Cuenta 1 <FaFilePdf/></Button></a>
               <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/2/${oid}`} download><Button className={"flex items-center gap-x-6"}>Cuenta 2 <FaFilePdf/></Button></a>
               <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/cc/${order?.client?._id}`} download><Button className={"flex items-center gap-x-6"}>Cuenta Corriente <FaFileExcel/></Button></a>
             </div>

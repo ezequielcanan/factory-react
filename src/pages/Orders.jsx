@@ -3,14 +3,17 @@ import Title from "../components/Title"
 import { Link } from "react-router-dom"
 import Button from "../components/Button"
 import { FaCartPlus, FaChevronLeft, FaChevronRight } from "react-icons/fa"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import customAxios from "../config/axios.config"
 import OrderCard from "../components/OrderCard"
 import moment from "moment"
 import SelectInput from "../components/SelectInput"
+import { userIncludesRoles } from "../utils/utils"
+import { UserContext } from "../context/UserContext"
 
 const Orders = () => {
-  const societies = [{ value: "Arcan" }, { value: "Cattown" }]
+  const { userData } = useContext(UserContext)
+  const societies = userIncludesRoles(userData, "cattown") ? [{ value: "Cattown" }] : [{ value: "Arcan" }, { value: "Cattown" }]
   const [orders, setOrders] = useState(null)
   const [society, setSociety] = useState(societies[0])
   const [page, setPage] = useState(1)
@@ -35,7 +38,7 @@ const Orders = () => {
         </div>
         <Link to={"/orders/new"} className="justify-self-end"><Button className={"text-xl font-bold px-4 flex gap-x-4 items-center"}>Nuevo Pedido <FaCartPlus /></Button></Link>
       </section>
-      <section className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-auto content-start">
+      <section className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-auto content-start grid-flow-row">
         {orders?.length ? (
           orders.map(o => {
             return <OrderCard key={o?._id} order={o} />

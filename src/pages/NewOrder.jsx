@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useContext, useRef, useState } from "react"
 import Main from "../containers/Main"
 import Label from "../components/Label"
 import ClientsContainer from "../containers/ClientsContainer"
@@ -9,22 +9,26 @@ import Input from "../components/Input"
 import ArticlesContainer from "../containers/ArticlesContainer"
 import ArticleRow from "../components/ArticleRow"
 import customAxios from "../config/axios.config"
-import { uploadFile } from "../utils/utils"
+import { uploadFile, userIncludesRoles } from "../utils/utils"
 import moment from "moment"
 import { useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import SelectInput from "../components/SelectInput"
+import OrderCard from "../components/OrderCard"
+import { UserContext } from "../context/UserContext"
 
 const NewOrder = () => {
   const [client, setClient] = useState(null)
-  const societies = [{ value: "Arcan" }, { value: "Cattown" }]
+  const { userData } = useContext(UserContext)
+  const societies = userIncludesRoles(userData, "cattown") ? [{ value: "Cattown" }] : [{ value: "Arcan" }, { value: "Cattown" }]
   const [society, setSociety] = useState(societies[0])
   const [selectClients, setSelectClients] = useState(true)
   const [articles, setArticles] = useState([])
   const [customArticles, setCustomArticles] = useState([])
   const [order, setOrder] = useState(null)
   const [orderId, setOrderId] = useState(null)
-  const [date, setDate] = useState("")
+  const [suborders, setSuborders] = useState([])
+  const newSuborderRef = useRef(null)
   const [file, setFile] = useState(null)
   const [step, setStep] = useState(1)
   const { register, handleSubmit, getValues } = useForm()
@@ -90,38 +94,41 @@ const NewOrder = () => {
 
   const onSubmit = handleSubmit(async data => {
     if (client?._id) {
-      const finalCustomArticles = customArticles.filter(c => c.quantity > 0)
-      const result = await customAxios.post("/articles/custom", finalCustomArticles?.map(c => {
-        return { detail: c.detail, quantity: c?.quantity }
-      }))
-      const uploadedCustomArticles = result?.data
       const items = []
 
-      await Promise.all(uploadedCustomArticles.map(async c => {
-        const customArticle = finalCustomArticles.find(cs => cs?.detail == c?.detail)
-        items.push({ booked: 0, quantity: customArticle?.quantity, common: false, customArticle: c?._id, hasToBeCut: true })
+      if (!suborders?.length) {
+        const finalCustomArticles = customArticles.filter(c => c.quantity > 0)
+        const result = await customAxios.post("/articles/custom", finalCustomArticles?.map(c => {
+          return { detail: c.detail, quantity: c?.quantity }
+        }))
+        const uploadedCustomArticles = result?.data
 
-        if (customArticle.file[0]) {
-          const filePath = `/articles/custom/${c?._id}`
-          await uploadFile(customArticle.file[0], filePath, "thumbnail.png")
-        }
-      }))
+        await Promise.all(uploadedCustomArticles.map(async c => {
+          const customArticle = finalCustomArticles.find(cs => cs?.detail == c?.detail)
+          items.push({ booked: 0, quantity: customArticle?.quantity, common: false, customArticle: c?._id, hasToBeCut: true })
+
+          if (customArticle.file[0]) {
+            const filePath = `/articles/custom/${c?._id}`
+            await uploadFile(customArticle.file[0], filePath, "thumbnail.png")
+          }
+        }))
 
 
-      await Promise.all(articles.map(async (article) => {
-        const resultArticleQuantities = await customAxios.get(`/orders/booked/${article?._id}`)
-        const booked = resultArticleQuantities.data?.booked
-        const stock = resultArticleQuantities.data?.stock
-        const stockDifference = (stock - booked)
+        await Promise.all(articles.map(async (article) => {
+          const resultArticleQuantities = await customAxios.get(`/orders/booked/${article?._id}`)
+          const booked = resultArticleQuantities.data?.booked
+          const stock = resultArticleQuantities.data?.stock
+          const stockDifference = (stock - booked)
 
-        items.push({
-          booked: (stockDifference >= article?.quantity) ? article?.quantity : stockDifference,
-          quantity: article?.quantity,
-          common: true,
-          article: article?._id,
-          hasToBeCut: false
-        })
-      }))
+          items.push({
+            booked: (stockDifference >= article?.quantity) ? article?.quantity : stockDifference,
+            quantity: article?.quantity,
+            common: true,
+            article: article?._id,
+            hasToBeCut: false
+          })
+        }))
+      }
 
       const order = {
         articles: items,
@@ -131,7 +138,11 @@ const NewOrder = () => {
         finished: false,
         hasToBeCut: false,
         extraInfo: data?.extraInfo,
-        society: society?.value
+        society: society?.value,
+      }
+
+      if (suborders?.length) {
+        order["suborders"] = suborders?.map(s => s?._id)
       }
 
       let count = 0
@@ -147,7 +158,7 @@ const NewOrder = () => {
         }
       })
 
-      if (count) {
+      if (count && !suborders?.length) {
         setOrderId(resultOrder?._id)
         setOrder(resultOrder.articles.filter(a => a))
       } else {
@@ -160,6 +171,15 @@ const NewOrder = () => {
     await customAxios.put(`/orders/articles/${orderId}`)
 
     navigate("/orders")
+  }
+
+  const onClickAddSuborder = async (e) => {
+    e.preventDefault()
+    const suborder = (await customAxios.get(`/orders/number/${newSuborderRef?.current?.value}`)).data
+    if (suborder && (userIncludesRoles(userData, "cattown") ? suborder?.order?.society == "Cattown" : true) && !suborders?.some(s => s?._id == suborder?.order?._id)) {
+      setSuborders([...suborders, suborder?.order])
+      newSuborderRef.current.value = ""
+    }
   }
 
   return (
@@ -178,12 +198,22 @@ const NewOrder = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 justify-start content-start gap-8 items-center self-start">
                     <Label>Negocio</Label>
                     <SelectInput selectedOption={society} setSelectedOption={setSociety} options={societies} className={"!py-2"} />
-                    
+
                     <Label>Fecha de entrega</Label>
                     <Input type="date" register={register("date", { required: true })} className={"w-full"} containerClassName={"sm:justify-self-end"} />
 
                     <Label className={"self-start"}>Informacion extra / Anotaciones</Label>
                     <Input textarea cols="50" rows="5" register={register("extraInfo")} className={"w-full"} containerClassName={"sm:justify-self-end"} />
+                    <div className="grid sm:col-span-2 lg:grid-cols-2 gap-4 text-white">
+                      <h3 className="text-xl lg:col-span-2">Parciales</h3>
+                      {suborders?.map(s => {
+                        return <OrderCard order={s} key={s?._id} cross crossAction={(s) => (suborders.splice(suborders?.findIndex(so => so?._id == s?._id), 1), setSuborders([...suborders]))} />
+                      })}
+                      <div className="flex gap-x-4 lg:col-span-2">
+                        <Input placeholder="N° de pedido" ref={newSuborderRef} className={"w-full"} />
+                        <Button className={"px-4 py-2"} onClick={onClickAddSuborder}>Agregar</Button>
+                      </div>
+                    </div>
                   </div>
                   <div className="flex flex-col gap-8 self-start">
                     <div className="flex gap-x-2 sm:gap-x-8 justify-between items-center">
@@ -234,26 +264,37 @@ const NewOrder = () => {
                   )}
                 </div>
                 <p className="text-2xl">Informacion extra / Anotaciones: {getValues("extraInfo")}</p>
-                <div className="flex flex-col gap-4 text-white">
-                  <h4 className="text-2xl font-semibold">Articulos</h4>
-                  {articles?.length ? articles.map(article => {
-                    return (
-                      <ArticleRow article={article} key={"row" + article?._id} />
-                    )
-                  }) : (
-                    <p>No hay articulos de linea</p>
-                  )}
-                </div>
-                <div className="flex flex-col gap-4 text-white">
-                  <h4 className="text-2xl font-semibold">Articulos personalizados</h4>
-                  {customArticles?.filter(c => c.quantity > 0)?.length ? customArticles.filter(c => c.quantity > 0).map(article => {
-                    return (
-                      <ArticleRow article={article} key={"customrow" + article?.id} />
-                    )
-                  }) : (
-                    <p>No hay articulos personalizados</p>
-                  )}
-                </div>
+                {!suborders?.length ? (
+                  <>
+                    <div className="flex flex-col gap-4 text-white">
+                      <h4 className="text-2xl font-semibold">Articulos</h4>
+                      {articles?.length ? articles.map(article => {
+                        return (
+                          <ArticleRow article={article} key={"row" + article?._id} />
+                        )
+                      }) : (
+                        <p>No hay articulos de linea</p>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-4 text-white">
+                      <h4 className="text-2xl font-semibold">Articulos personalizados</h4>
+                      {customArticles?.filter(c => c.quantity > 0)?.length ? customArticles.filter(c => c.quantity > 0).map(article => {
+                        return (
+                          <ArticleRow article={article} key={"customrow" + article?.id} />
+                        )
+                      }) : (
+                        <p>No hay articulos personalizados</p>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <div className="md:col-span-2 grid gap-4 md:grid-cols-3">
+                    <h4 className="text-2xl font-semibold md:col-span-3">Parciales</h4>
+                    {suborders?.map(s => {
+                      return <OrderCard order={s} key={s?._id} />
+                    })}
+                  </div>
+                )}
                 {client?._id && <Button className={"md:col-span-2 justify-self-end flex gap-4 items-center"} type={"submit"}>Confirmar Pedido <FaCheck /></Button>}
               </div>
             )}

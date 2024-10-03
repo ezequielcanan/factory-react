@@ -26,6 +26,7 @@ import Users from "../pages/Users"
 import { userIncludesRoles } from "../utils/utils"
 import Prices from "../pages/Prices"
 import Price from "../pages/Price"
+import NewCut from "../pages/NewCut"
 
 
 const Router = () => {
@@ -48,7 +49,7 @@ const Router = () => {
               <Route path="/" element={<Home />} />
               <Route path="/users" element={<Users />} />
             </> : null}
-            {userIncludesRoles(userData, "stock") ? <>
+            {userIncludesRoles(userData, "articles") ? <>
               <Route path="/articles" element={<Articles />} />
               <Route path="/articles/new" element={<NewArticle />} />
               <Route path="/articles/:aid" element={<EditArticle />} />
@@ -65,6 +66,7 @@ const Router = () => {
             </> : null}
             {userIncludesRoles(userData, "cuts") ? <>
               <Route path="/cuts" element={<Cuts />} />
+              <Route path="/cuts/new" element={<NewCut />} />
               <Route path="/cuts/:cid" element={<Cut />} />
               <Route path="/cuts/:cid/workshop" element={<CutToWorkshop />} />
             </> : null}

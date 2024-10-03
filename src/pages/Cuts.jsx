@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import customAxios from "../config/axios.config"
 import moment from "moment"
 import OrderCard from "../components/OrderCard"
-import { FaChevronDown, FaChevronUp } from "react-icons/fa"
+import { FaChevronDown, FaChevronUp, FaPlus } from "react-icons/fa"
 
 const Cuts = () => {
   const [cuts, setCuts] = useState(null)
@@ -29,6 +29,7 @@ const Cuts = () => {
   return <Main className={"grid gap-6 items-start content-start"}>
     <section className="grid items-center justify-center gap-8 md:items-start md:grid-cols-2 md:justify-between">
       <Title text={"Ordenes de corte"} className={"text-center md:text-start"} />
+      <Link className="justify-between justify-self-center md:justify-self-end font-bold" to={`/cuts/new`}><Button className={"flex gap-4 items-center px-4 py-2"}>Nuevo corte <FaPlus/></Button></Link>
     </section>
     <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-auto my-8">
       {cuts?.length ? cuts.map(cut => {

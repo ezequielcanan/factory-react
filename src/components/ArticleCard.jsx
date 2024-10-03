@@ -5,8 +5,9 @@ import customAxios from "../config/axios.config"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { getArticleImg } from "../utils/utils"
+import Input from "./Input"
 
-const ArticleCard = ({ article, articles = [], setArticles = () => { }, onClickArticle, stockNoShow = false, forCut = false, stockNoControl, quantityNoControl, hoverEffect = true, customArticle = false, bookedQuantity = false }) => {
+const ArticleCard = ({ article, articles = [], setArticles = () => { }, quantityLocalNoControl = false, onClickArticle, stockNoShow = false, forCut = false, stockNoControl, quantityNoControl, hoverEffect = true, customArticle = false, bookedQuantity = false }) => {
   const [articleCard, setArticleCard] = useState(article)
   const navigate = useNavigate()
 
@@ -16,8 +17,8 @@ const ArticleCard = ({ article, articles = [], setArticles = () => { }, onClickA
     setArticleCard(newArticle?.data)
   }
 
-  const changeQuantity = (qty) => {
-    const newQuantity = articleCard?.quantity + qty
+  const changeQuantity = (qty, direct=false) => {
+    const newQuantity = !direct ? articleCard?.quantity + qty : (qty || 0)
     const articleIndex = articles.findIndex(a => a?._id == articleCard?._id)
     articles.splice(articleIndex, 1)
     const newArticleCard = { ...articleCard, quantity: newQuantity }
@@ -49,8 +50,11 @@ const ArticleCard = ({ article, articles = [], setArticles = () => { }, onClickA
               </>}
           </>}
         {(bookedQuantity && !customArticle && !forCut) && <p>Reservado en este pedido: {articleCard.bookedQuantity || 0}</p>}
-        {articleCard?.quantity ? <div className="flex gap-2 sm:gap-8 flex-col sm:flex-row sm:items-center">
-          <p>Cantidad: {articleCard?.quantity}</p>
+        {articleCard?.quantity ? <div className="flex gap-2 sm:gap-6 flex-col sm:flex-row sm:items-center">
+          <div className="flex gap-2 items-center">
+            <p>Cantidad: {quantityLocalNoControl && articleCard?.quantity}</p>
+            {!quantityLocalNoControl && <Input onClick={e => e.stopPropagation()} onChange={e => (e.stopPropagation(), changeQuantity(parseInt(e?.target?.value), true))} step="1" type="number" value={articleCard?.quantity} className={"text-sm w-[50px] !px-1 !py-1 "} containerClassName={"rounded-none"}/>}
+          </div>
           {!quantityNoControl && <div className="flex gap-4">
             <FaMinusCircle onClick={(e) => (e.stopPropagation(), changeQuantity(-1))} />
             <FaPlusCircle onClick={(e) => (e.stopPropagation(), changeQuantity(1))} />
