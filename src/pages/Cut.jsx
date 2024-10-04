@@ -19,7 +19,7 @@ const Cut = () => {
 
   useEffect(() => {
     customAxios.get(`/cuts/${cid}`).then(res => {
-      const articles = (res?.data?.items?.length ? res?.data?.items : res?.data?.order?.articles)?.filter(a => a.hasToBeCut && a.quantity > a.booked)
+      const articles = (res?.data?.items?.length ? res?.data?.items : (res?.data?.order ? res?.data?.order?.articles : res?.data?.manualItems))?.filter(a => res?.data?.order ? (a.hasToBeCut && a.quantity > a.booked) : true)
       setCut({ ...res?.data, articles })
     })
   }, [reload])
@@ -30,7 +30,6 @@ const Cut = () => {
     setWorkshop(false)
     setReload(!reload)
   }
-
   return (
     <Main>
       {cut ? (
@@ -55,20 +54,20 @@ const Cut = () => {
           {passToWorkshop && <WorkshopsContainer containerClassName={"max-h-[30rem] h-full overflow-y-auto auto-rows-auto xl:col-span-2"} onClickWorkshop={(c) => (setWorkshop(c), setPassToWorkshop(false))} />}
           <div className="grid md:grid-cols-2 gap-4 content-start text-white">
             <h3 className="md:col-span-2 text-2xl text-white">Articulos de linea</h3>
-            {cut?.articles?.filter(a => a.common)?.length ? cut?.articles?.filter(a => a.common)?.map(article => {
+            {cut?.articles?.filter(a => cut?.order ? a.common : true)?.length ? cut?.articles?.filter(a => cut?.order ? a.common : true)?.map(article => {
               let articleCard = { ...article }
-              articleCard.quantity = Number(articleCard.quantity) - Number(articleCard.booked)
+              articleCard.quantity = cut?.order ? (Number(articleCard.quantity) - Number(articleCard.booked)) : Number(articleCard?.quantity)
               articleCard = { ...articleCard, ...articleCard.article }
-              return <ArticleCard article={articleCard} stockNoShow stockNoControl quantityNoControl forCut bookedQuantity hoverEffect={false} />
+              return <ArticleCard quantityLocalNoControl article={articleCard} stockNoShow stockNoControl quantityNoControl forCut bookedQuantity hoverEffect={false} />
             }) : <p>No hay articulos de linea</p>}
           </div>
           <div className="grid md:grid-cols-2 gap-4 content-start text-white">
             <h3 className="md:col-span-2 text-2xl text-white">Articulos personalizados</h3>
-            {cut?.articles?.filter(a => !a.common)?.length ? cut?.articles?.filter(a => !a.common)?.map(article => {
+            {cut?.articles?.filter(a => cut?.order ? !a.common : false)?.length ? cut?.articles?.filter(a => cut?.order ? !a.common : false)?.map(article => {
               let articleCard = { ...article }
               articleCard.quantity = Number(articleCard.quantity) - Number(articleCard.booked)
               articleCard = { ...articleCard, ...articleCard.customArticle }
-              return <ArticleCard article={articleCard} stockNoShow stockNoControl quantityNoControl forCut bookedQuantity customArticle hoverEffect={false} />
+              return <ArticleCard quantityLocalNoControl article={articleCard} stockNoShow stockNoControl quantityNoControl forCut bookedQuantity customArticle hoverEffect={false} />
             }) : <p>No hay articulos personalizados</p>}
           </div>
         </section>

@@ -22,8 +22,8 @@ const WorkshopOrders = () => {
       <Title text={"Cortes en talleres"} className={"text-center md:text-start"} />
     </section>
     <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-auto">
-      {workshopOrders?.filter(order => !order?.cut?.items.length)?.length ? workshopOrders?.filter(order => !order?.cut?.items.length)?.map(order => {
-        return <OrderCard name={false} order={order?.cut?.order} link={`/workshop-orders/${order?._id}`} text={`${order?.workshop?.name} CORTE N°`} forCut/>
+      {workshopOrders?.filter(order => !order?.deliveryDate)?.length ? workshopOrders?.filter(order => !order?.deliveryDate)?.map(order => {
+        return <OrderCard name={false} order={order?.cut?.order} articles={order?.cut?.order?.articles || order?.cut?.manualItems} link={`/workshop-orders/${order?._id}`} text={order?.cut?.order ? `${order?.workshop?.name} CORTE N°` : order?.cut?.detail} forCut/>
       }) : (
         <p className="text-white text-2xl">No hay cortes en talleres</p>
       )}
@@ -32,8 +32,8 @@ const WorkshopOrders = () => {
     <AnimatePresence>
       {(showFinished) ? (
         <motion.section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-auto overflow-hidden" initial={{ height: 0 }} transition={{ duration: 0.5 }} exit={{ height: 0 }} animate={{ height: "auto" }}>
-          {workshopOrders?.filter(order => order?.cut?.items.length)?.length ? workshopOrders?.filter(order => order?.cut?.items.length)?.map(order => {
-            return <OrderCard name={false} green order={order?.cut.order} articles={order?.cut?.items} link={`/workshop-orders/${order?._id}`} text={`${order?.workshop?.name} CORTE N°`} forCut />
+          {workshopOrders?.filter(order => order?.deliveryDate)?.length ? workshopOrders?.filter(order => order?.deliveryDate)?.map(order => {
+            return <OrderCard name={false} green order={order?.cut.order} articles={order?.cut?.items?.length ? order?.cut?.items : order?.cut?.manualItems} link={`/workshop-orders/${order?._id}`} text={order?.cut?.order ? `${order?.workshop?.name} CORTE N°` : order?.cut?.detail} forCut />
           }) : <p className="text-white text-2xl">No hay ordenes de talleres finalizadas</p>}
         </motion.section>
       ) : null}

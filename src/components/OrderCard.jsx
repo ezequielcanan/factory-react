@@ -5,7 +5,8 @@ import { Link } from "react-router-dom"
 
 const OrderCard = ({ order, articles = order?.articles, cross = false, crossAction = () => { }, text = "N°", green = false, name = true, link = `/orders/${order?._id}`, forCut = false }) => {
   let articlesString = ""
-  const articlesForString = articles?.filter(a => forCut ? (a.hasToBeCut && a.quantity > a.booked) : a)
+  const articlesForString = articles?.filter(a => forCut ? (order ? a.hasToBeCut && a.quantity > a.booked : true) : a)
+  console.log(articles)
   articlesForString?.forEach((article, i) => {
     articlesString += `${(article?.article?.description || article?.customArticle?.detail)?.toUpperCase()}${i != (articlesForString?.length - 1) ? " ///// " : ""}`
   })
@@ -28,12 +29,14 @@ const OrderCard = ({ order, articles = order?.articles, cross = false, crossActi
       <Link to={link}>
         <div className={`flex flex-col gap-2 ${color} ${color != "bg-amber-300" ? "text-white" : "text-black"} p-6 rounded`}>
           <div className="flex gap-x-2 items-center justify-between">
-            <h3 className="text-lg font-bold underline underline-offset-2">{text} {order?.orderNumber}{name && `: ${order?.client?.name}`}</h3>
+            <h3 className="text-lg font-bold underline underline-offset-2">{order ? `${text} ${order?.orderNumber}${name ? `: ${order?.client?.name}` : ""}` : text}</h3>
           </div>
           <p className="text-md">{articlesString}</p>
-          <p className="text-md">Fecha de pedido: {moment.utc(order?.date).format("DD-MM-YYYY")}</p>
-          <p className="text-md">Fecha de entrega: {order?.deliveryDate ? moment.utc(order?.deliveryDate).format("DD-MM-YYYY") : ""}</p>
-          {(order?.remainingDays || order.remainingDays == 0) && <p className="text-md">Dias restantes: {order.remainingDays}</p>}
+          {order && <>
+            <p className="text-md">Fecha de pedido: {moment.utc(order?.date).format("DD-MM-YYYY")}</p>
+            <p className="text-md">Fecha de entrega: {order?.deliveryDate ? moment.utc(order?.deliveryDate).format("DD-MM-YYYY") : ""}</p>
+            {(order?.remainingDays || order?.remainingDays == 0) && <p className="text-md">Dias restantes: {order?.remainingDays}</p>}
+          </>}
         </div>
       </Link>
       {cross ? <MdClose className={`!text-3xl absolute top-5 right-5 cursor-pointer ${color != "bg-amber-300" ? "text-white" : "text-black"}`} onClick={(e) => (e.stopPropagation(), crossAction(order))} /> : null}

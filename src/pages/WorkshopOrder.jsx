@@ -27,7 +27,7 @@ const WorkshopOrder = () => {
 
   const receiveFromWorkShop = async () => {
     await customAxios.put(`/workshop-order/receive/${oid}`)
-    navigate(`/orders/${workshopOrder?.cut?.order?._id}`)
+    workshopOrder?.cut?.order ? navigate(`/orders/${workshopOrder?.cut?.order?._id}`) : navigate(`/articles`)
   }
 
   return (
@@ -41,18 +41,14 @@ const WorkshopOrder = () => {
             <p className="text-2xl">Fecha de salida: {moment(workshopOrder?.date).format("DD-MM-YYYY")}</p>
             <p className="text-2xl">Direccion: {workshopOrder?.workshop?.address}</p>
             <p className="text-2xl">Telefono: {workshopOrder?.workshop?.phone}</p>
-            <div className="flex gap-4 flex-wrap items-center overflow-hidden">
-              <Label className={"!text-2xl"}>Precio</Label>
-              <Input type="number" className="w-full" defaultValue={workshopOrder?.price} onChange={changePrice} />
-            </div>
           </div>
           <div className="grid md:grid-cols-2 gap-4 self-start content-start text-white">
             <h3 className="md:col-span-2 text-2xl text-white">Articulos de linea</h3>
-            {(workshopOrder?.deliveryDate ? workshopOrder?.cut?.items : workshopOrder?.cut?.order?.articles)?.filter(a => a.common && a.hasToBeCut && (a.quantity > a.booked))?.length ? (workshopOrder?.deliveryDate ? workshopOrder?.cut?.items : workshopOrder?.cut?.order?.articles)?.filter(a => a.common && a.hasToBeCut && (a.quantity > a.booked))?.map(article => {
+            {(workshopOrder?.deliveryDate ? (workshopOrder?.cut?.items?.length ? workshopOrder?.cut?.items : workshopOrder?.cut?.manualItems) : (workshopOrder?.cut?.order?.articles || workshopOrder?.cut?.manualItems))?.filter(a => workshopOrder?.cut?.order ? (a.common && a.hasToBeCut && (a.quantity > a.booked)) : true)?.length ? (workshopOrder?.deliveryDate ? (workshopOrder?.cut?.items?.length ? workshopOrder?.cut?.items : workshopOrder?.cut?.manualItems) : (workshopOrder?.cut?.order?.articles || workshopOrder?.cut?.manualItems))?.filter(a => workshopOrder?.cut?.order ? (a.common && a.hasToBeCut && (a.quantity > a.booked)) : true)?.map(article => {
               let articleCard = { ...article }
-              articleCard.quantity = Number(articleCard.quantity) - Number(articleCard.booked)
+              articleCard.quantity = workshopOrder?.cut?.order ? (Number(articleCard.quantity) - Number(articleCard.booked)) : Number(articleCard?.quantity)
               articleCard = { ...articleCard, ...articleCard.article }
-              return <ArticleCard article={articleCard} stockNoShow stockNoControl quantityNoControl forCut bookedQuantity hoverEffect={false} />
+              return <ArticleCard article={articleCard} stockNoShow stockNoControl quantityNoControl quantityLocalNoControl forCut bookedQuantity hoverEffect={false} />
             }) : <p>No hay articulos de linea</p>}
           </div>
           <div className="grid md:grid-cols-2 gap-4 self-start content-start text-white">
@@ -61,7 +57,7 @@ const WorkshopOrder = () => {
               let articleCard = { ...article }
               articleCard.quantity = Number(articleCard.quantity) - Number(articleCard.booked)
               articleCard = { ...articleCard, ...articleCard.customArticle }
-              return <ArticleCard article={articleCard} stockNoShow stockNoControl quantityNoControl forCut bookedQuantity customArticle hoverEffect={false} />
+              return <ArticleCard article={articleCard} stockNoShow stockNoControl quantityNoControl quantityLocalNoControl forCut bookedQuantity customArticle hoverEffect={false} />
             }) : <p>No hay articulos personalizados</p>}
           </div>
         </>
