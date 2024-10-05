@@ -16,15 +16,16 @@ import { uploadFile, userIncludesRoles } from "../utils/utils"
 import OrderCard from "../components/OrderCard"
 import { useContext } from "react"
 import { UserContext } from "../context/UserContext"
+import { useForm } from "react-hook-form"
 
 const Order = () => {
   const {userData} = useContext(UserContext)
   const [order, setOrder] = useState(null)
   const [cut, setCut] = useState(null)
   const [file, setFile] = useState(null)
+  const {register, handleSubmit, reset} = useForm()
   const [reload, setReload] = useState(false)
   const [lastReload, setLastReload] = useState(false)
-  const [newCArticle, setNewCArticle] = useState("")
   const [pricesList, setPricesList] = useState([])
   const [edit, setEdit] = useState(false)
   const newSuborderRef = useRef(null)
@@ -72,7 +73,7 @@ const Order = () => {
 
   const onFinishOrder = async () => {
     await customAxios.put(`/orders/finish/${oid}`)
-    navigate(`/prices/${oid}`)
+    navigate(`/prices/order/${oid}`)
   }
 
   const deleteOrder = async () => {
@@ -104,15 +105,19 @@ const Order = () => {
   const addArticle = async (article, custom) => {
     if (article) {
       await customAxios.post(`/orders/articles/${oid}/${article?._id}`)
+      setReload(!reload)
     } else {
-      const result = await customAxios.post("/articles/custom", [{ detail: newCArticle, quantity: 0 }])
-      const cid = result?.data[0]?._id
-      const filePath = `/articles/custom/${cid}`
-      await uploadFile(file[1], filePath, "thumbnail.png")
-
-      await customAxios.post(`/orders/articles/${oid}/${cid}?custom=true`)
+      await handleSubmit(async data => {
+        const result = await customAxios.post("/articles/custom", [{ ...data, quantity: 0, common: false }])
+        const cid = result?.data[0]?._id
+        const filePath = `/articles/custom/${cid}`
+        reset()
+        await uploadFile(file[1], filePath, "thumbnail.png")
+        
+        await customAxios.post(`/orders/articles/${oid}/${cid}?custom=true`)
+      })()
+      setReload(!reload)
     }
-    setReload(!reload)
   }
 
   const changeCustomArticleFile = (file) => {
@@ -131,10 +136,10 @@ const Order = () => {
     { value: "hasToBeCut", showsFunc: true, shows: (val) => val ? "Si" : "No", clickeable: true, onClick: onClickHasToBeCut },
     {
       value: "price", showsFunc: true, param: true, shows: (val, row) => {
-        return <Input type="number" defaultValue={val || ""} disabled={!edit} onChange={(e) => onChangePrice(e?.target?.value, row)} className={"!py-0 !px-0 rounded-none focus:!bg-transparent w-[100px]"} containerClassName={"!border-0 rounded-none"} />
+        return (userIncludesRoles(userData, "prices") ? <Input type="number" defaultValue={val || ""} disabled={!edit} onChange={(e) => onChangePrice(e?.target?.value, row)} className={"!py-0 !px-0 rounded-none focus:!bg-transparent w-[100px]"} containerClassName={"!border-0 rounded-none"} /> : null)
       }
     },
-    { value: "subtotal", showsFunc: true, param: true, shows: (val, row) => (row?.price * row?.quantity) || 0 },
+    { value: "subtotal", showsFunc: true, param: true, shows: (val, row) => userIncludesRoles(userData, "prices") ? ((row?.price * row?.quantity) || 0) : null },
     { value: "delete", showsFunc: true, param: true, shows: (val, row) => <MdClose className="text-xl cursor-pointer" onClick={() => deleteArticle(row)} /> },
   ]
 
@@ -181,7 +186,11 @@ const Order = () => {
                 </div>
                 <ArticlesContainer containerClassName={"max-h-[600px] overflow-y-auto md:!grid-cols-2 text-black"} filterClassName="md:!col-span-2 !flex-col md:!flex-col xl:!flex-col" filterCClassName="xl:!grid-cols-1" pageClassName={"md:!col-span-2 lg:!col-span-2 xl:!col-span-2"} stockControl={false} onClickArticle={addArticle} stockNoControl />
                 <div className="grid grid-cols-1 bg-third p-4 rounded-lg sm:grid-cols-2 w-full gap-4">
-                  <Input className={"resize-none w-full h-full"} onChange={e => setNewCArticle(e.target?.value)} textarea />
+                  <Input className={"resize-none w-full h-full"} textarea register={register("detail")} placeholder={"Producto"}/>
+                  <Input className={"resize-none w-full h-full"} textarea register={register("size")} placeholder={"Talle"}/>
+                  <Input className={"resize-none w-full h-full"} textarea register={register("bordado")} placeholder={"Bordado"}/>
+                  <Input className={"resize-none w-full h-full"} textarea register={register("ubicacion")} placeholder={"Ubicacion"}/>
+                  <Input className={"resize-none w-full h-full"} textarea register={register("details")} placeholder={"Detalle tecnico"} containerClassName={"md:col-span-2"}/>
                   <div className="flex flex-col gap-2">
                     <Label htmlFor={"file"} className={`${file ? "max-h-[150px] border-4 border-nav" : "w-full h-full border-dashed rounded-lg border-nav border-4 py-8"} col-span-1 flex items-center overflow-hidden self-center justify-center `}>
                       {!file ? <FaFileUpload className="text-7xl" /> : <img src={file[0]} alt="Seleccionar imagen" className="w-full h-full object-cover" />}

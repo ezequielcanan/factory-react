@@ -60,6 +60,15 @@ const ArticleCard = ({ article, articles = [], setArticles = () => { }, quantity
             <FaPlusCircle onClick={(e) => (e.stopPropagation(), changeQuantity(1))} />
           </div>}
         </div> : null}
+        {customArticle?.bordado ? (
+          <p>Bordado: {customArticle?.bordado}</p>
+        ) : null}
+        {customArticle?.ubicacion ? (
+          <p>Ubicacion: {customArticle?.ubicacion}</p>
+        ) : null}
+        {customArticle?.details ? (
+          <p>Detalle tecnico: {customArticle?.details}</p>
+        ) : null}
       </div>
     </motion.div>
   )

@@ -9,9 +9,12 @@ import moment from "moment"
 import Label from "../components/Label"
 import Input from "../components/Input"
 import { Oval } from "react-loader-spinner"
+import { useForm } from "react-hook-form"
 
 const WorkshopOrder = () => {
   const [workshopOrder, setWorkshopOrder] = useState(null)
+  const {register, handleSubmit} = useForm()
+  const [edit, setEdit] = useState(false)
   const navigate = useNavigate()
   const { oid } = useParams()
 
@@ -30,6 +33,12 @@ const WorkshopOrder = () => {
     workshopOrder?.cut?.order ? navigate(`/orders/${workshopOrder?.cut?.order?._id}`) : navigate(`/articles`)
   }
 
+  const onConfirmDescription = handleSubmit(async data => {
+    await customAxios.put(`/workshop-order/${oid}`, data)
+    setEdit(!edit)
+    setReload(!reload)
+  })
+
   return (
     <Main className={"grid grid-cols-1 items-center content-start lg:grid-cols-2 gap-y-16 gap-8"}>
       {workshopOrder ? (
@@ -41,6 +50,10 @@ const WorkshopOrder = () => {
             <p className="text-2xl">Fecha de salida: {moment(workshopOrder?.date).format("DD-MM-YYYY")}</p>
             <p className="text-2xl">Direccion: {workshopOrder?.workshop?.address}</p>
             <p className="text-2xl">Telefono: {workshopOrder?.workshop?.phone}</p>
+          </div>
+          <div className="flex flex-col lg:col-span-2 gap-8">
+            <Input textarea className={"w-full"} register={register("detail")} disabled={!edit} defaultValue={workshopOrder?.detail}/>
+            <Button onClick={!edit ? () => setEdit(true) : onConfirmDescription} className={"self-start"}>{edit ? "Confirmar" : "Editar"}</Button>
           </div>
           <div className="grid md:grid-cols-2 gap-4 self-start content-start text-white">
             <h3 className="md:col-span-2 text-2xl text-white">Articulos de linea</h3>
@@ -57,7 +70,7 @@ const WorkshopOrder = () => {
               let articleCard = { ...article }
               articleCard.quantity = Number(articleCard.quantity) - Number(articleCard.booked)
               articleCard = { ...articleCard, ...articleCard.customArticle }
-              return <ArticleCard article={articleCard} stockNoShow stockNoControl quantityNoControl quantityLocalNoControl forCut bookedQuantity customArticle hoverEffect={false} />
+              return <ArticleCard article={articleCard} customArticle={articleCard} stockNoShow stockNoControl quantityNoControl quantityLocalNoControl forCut bookedQuantity hoverEffect={false} />
             }) : <p>No hay articulos personalizados</p>}
           </div>
         </>

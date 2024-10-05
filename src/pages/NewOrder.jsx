@@ -99,7 +99,7 @@ const NewOrder = () => {
       if (!suborders?.length) {
         const finalCustomArticles = customArticles.filter(c => c.quantity > 0)
         const result = await customAxios.post("/articles/custom", finalCustomArticles?.map(c => {
-          return { detail: c.detail, quantity: c?.quantity }
+          return { detail: c.detail, quantity: c?.quantity, details: c?.details, size: c?.size, ubicacion: c?.ubicacion, bordado: c?.bordado }
         }))
         const uploadedCustomArticles = result?.data
 
@@ -243,6 +243,24 @@ const NewOrder = () => {
                         <Label>Cantidad</Label>
                         <Input type="number" step="1" className={"w-full"} id={"quantity" + article.id} defaultValue={article?.quantity} name={"quantity" + article.id} onChange={e => changeCustomArticle(e.target.value, "quantity", article?.id)} />
                         <Button className={"self-end !bg-red-600"} onClick={e => (e.preventDefault(), deleteCustomArticle(article?.id))}><FaTrashAlt /></Button>
+                      </div>
+                      <div className="flex justify-between gap-2 lg:col-span-5">
+                        <div className="flex flex-col gap-2">
+                          <Label>Talle</Label>
+                          <Input className={"w-full"} id={"size" + article.id} defaultValue={article?.size} name={"size" + article.id} onChange={e => changeCustomArticle(e.target.value, "size", article?.id)} />
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <Label>Bordado</Label>
+                          <Input className={"w-full"} id={"bordado" + article.id} defaultValue={article?.bordado} name={"bordado" + article.id} onChange={e => changeCustomArticle(e.target.value, "bordado", article?.id)} />
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <Label>Ubicacion</Label>
+                          <Input className={"w-full"} id={"ubicacion" + article.id} defaultValue={article?.ubicacion} name={"ubicacion" + article.id} onChange={e => changeCustomArticle(e.target.value, "ubicacion", article?.id)} />
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <Label>Detalle tecnico</Label>
+                          <Input className={"w-full"} id={"details" + article.id} defaultValue={article?.details} name={"details" + article.id} onChange={e => changeCustomArticle(e.target.value, "details", article?.id)} />
+                        </div>
                       </div>
                     </div>
                   })}

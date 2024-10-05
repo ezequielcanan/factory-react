@@ -9,12 +9,16 @@ import Button from "../components/Button"
 import { BiTransferAlt } from "react-icons/bi"
 import WorkshopsContainer from "../containers/WorkshopsContainer"
 import moment from "moment"
+import Input from "../components/Input"
+import { useForm } from "react-hook-form"
 
 const Cut = () => {
   const [cut, setCut] = useState(null)
   const [workshop, setWorkshop] = useState(null)
   const [passToWorkshop, setPassToWorkshop] = useState(false)
+  const [edit, setEdit] = useState(false)
   const [reload, setReload] = useState(false)
+  const {register, handleSubmit} = useForm()
   const { cid } = useParams()
 
   useEffect(() => {
@@ -30,6 +34,13 @@ const Cut = () => {
     setWorkshop(false)
     setReload(!reload)
   }
+
+  const onConfirmDescription = handleSubmit(async data => {
+    await customAxios.put(`/cuts/${cid}?property=description&value=${data?.description}`)
+    setEdit(!edit)
+    setReload(!reload)
+  })
+
   return (
     <Main>
       {cut ? (
@@ -51,6 +62,10 @@ const Cut = () => {
               </div>
             </div>
           ) : null}
+          <div className="flex flex-col xl:col-span-2 gap-8">
+            <Input textarea className={"w-full"} register={register("description")} disabled={!edit} defaultValue={cut?.description}/>
+            <Button onClick={!edit ? () => setEdit(true) : onConfirmDescription} className={"self-start"}>{edit ? "Confirmar" : "Editar"}</Button>
+          </div>
           {passToWorkshop && <WorkshopsContainer containerClassName={"max-h-[30rem] h-full overflow-y-auto auto-rows-auto xl:col-span-2"} onClickWorkshop={(c) => (setWorkshop(c), setPassToWorkshop(false))} />}
           <div className="grid md:grid-cols-2 gap-4 content-start text-white">
             <h3 className="md:col-span-2 text-2xl text-white">Articulos de linea</h3>
@@ -67,7 +82,8 @@ const Cut = () => {
               let articleCard = { ...article }
               articleCard.quantity = Number(articleCard.quantity) - Number(articleCard.booked)
               articleCard = { ...articleCard, ...articleCard.customArticle }
-              return <ArticleCard quantityLocalNoControl article={articleCard} stockNoShow stockNoControl quantityNoControl forCut bookedQuantity customArticle hoverEffect={false} />
+              console.log(articleCard)
+              return <ArticleCard quantityLocalNoControl article={articleCard} customArticle={articleCard} stockNoShow stockNoControl quantityNoControl forCut bookedQuantity hoverEffect={false} />
             }) : <p>No hay articulos personalizados</p>}
           </div>
         </section>

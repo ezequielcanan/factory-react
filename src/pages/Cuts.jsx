@@ -32,7 +32,7 @@ const Cuts = () => {
     </section>
     <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-auto my-8">
       {cuts?.length ? cuts.map(cut => {
-        return <OrderCard name={false} order={cut?.order && {...cut.order, workshop: cut?.workshopOrder}} articles={cut?.items?.length ? cut?.items : cut?.manualItems} link={`/cuts/${cut?._id}`} text={cut?.order ? "CORTE N°" : cut?.detail} forCut />
+        return <OrderCard name={false} order={cut?.order && {...cut.order, workshop: cut?.workshopOrder}} articles={cut?.items?.length ? cut?.items : (cut?.order ? cut?.order?.articles : cut?.manualItems)} link={`/cuts/${cut?._id}`} text={cut?.order ? "CORTE N°" : cut?.detail} forCut />
       }) : (
         <p className="text-white text-2xl">No hay ordenes de corte vigentes</p>
       )}
