@@ -8,29 +8,35 @@ import customAxios from "../config/axios.config"
 import OrderCard from "../components/OrderCard"
 import moment from "moment"
 import SelectInput from "../components/SelectInput"
+import Table from "../components/Table"
+import { Oval } from "react-loader-spinner"
+import { FaArrowRight, FaFileExcel } from "react-icons/fa6"
 
 const Prices = () => {
   const [clients, setClients] = useState(null)
-  const [page, setPage] = useState(1)
 
   useEffect(() => {
-    customAxios.get(`/clients?sort=true&page=${page}`).then(res => {
+    customAxios.get(`/payments/balance`).then(res => {
       setClients(res.data)
     })
-  }, [page])
+  }, [])
 
+  const tableFields = [
+    { value: "name", showsFunc: true, shows: (val) => val.toUpperCase() },
+    { value: "balance"},
+    { value: "excel", showsFunc: true, param: true, shows: (val, row) => <Link to={`/prices/${row?._id}`}><FaArrowRight className="text-xl cursor-pointer" /></Link> },
+  ]
 
   return (
-    <Main className={"grid gap-6 gap-y-16 items-start content-start"}>
+    <Main className={"grid gap-6 gap-y-16 items-start content-start text-white"}>
       <section className="grid items-center justify-center gap-8 md:items-start md:grid-cols-2 md:justify-between">
         <Title text={"Facturacion"} className={"text-center md:text-start"} />
       </section>
-      
-      <div className="flex gap-x-16 justify-center self-end items-center text-white">
-        {page > 1 && <Button className={"px-4 py-4"} onClick={() => setPage(p => p - 1)}><FaChevronLeft /></Button>}
-        <p className="text-2xl">{page}</p>
-        {clients?.length ? <Button className={"px-4 py-4"} onClick={() => setPage(p => p + 1)}><FaChevronRight /></Button> : null}
-      </div>
+      {clients ? (
+        <Table fields={tableFields} headers={["Cliente", "Deuda", "Ver"]} rows={clients}/>
+      ) : (
+        <Oval className="text-3xl" />
+      )}
     </Main>
   )
 }

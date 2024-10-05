@@ -6,7 +6,6 @@ import { Link } from "react-router-dom"
 const OrderCard = ({ order, articles = order?.articles, cross = false, crossAction = () => { }, text = "N°", green = false, name = true, link = `/orders/${order?._id}`, forCut = false }) => {
   let articlesString = ""
   const articlesForString = articles?.filter(a => forCut ? (order ? a.hasToBeCut && a.quantity > a.booked : true) : a)
-  console.log(articles)
   articlesForString?.forEach((article, i) => {
     articlesString += `${(article?.article?.description || article?.customArticle?.detail)?.toUpperCase()}${i != (articlesForString?.length - 1) ? " ///// " : ""}`
   })

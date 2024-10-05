@@ -156,7 +156,7 @@ const Order = () => {
           <h2 className="text-4xl justify-self-center lg:justify-self-start font-bold">Pedido N° {order?.orderNumber}</h2>
           <div className="flex gap-8 flex-wrap items-center justify-center lg:justify-end">
             <FaTrashAlt className="text-2xl cursor-pointer" onClick={deleteOrder} />
-            <Button className={`justify-self-center lg:justify-self-end ${!order?.finished && "bg-green-700 hover:bg-green-800"}`} onClick={!order?.finished ? onFinishOrder : () => navigate(`/prices/${oid}`)}>{order?.finished ? "Facturado" : "Pasar a facturacion"}</Button>
+            <Button className={`justify-self-center lg:justify-self-end ${!order?.finished && "bg-green-700 hover:bg-green-800"}`} onClick={!order?.finished ? onFinishOrder : () => navigate(`/prices/order/${oid}`)}>{order?.finished ? "Facturado" : "Pasar a facturacion"}</Button>
           </div>
           <section className="flex flex-col gap-16">
             <div className="flex flex-col gap-8">

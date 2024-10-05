@@ -27,6 +27,7 @@ import { userIncludesRoles } from "../utils/utils"
 import Prices from "../pages/Prices"
 import Price from "../pages/Price"
 import NewCut from "../pages/NewCut"
+import ClientPayments from "../pages/ClientPayments"
 
 
 const Router = () => {
@@ -79,7 +80,8 @@ const Router = () => {
             </> : null}
             {userIncludesRoles(userData, "prices") ? <>
               <Route path="/prices" element={<Prices />} />
-              <Route path="/prices/:oid" element={<Price />} />
+              <Route path="/prices/:cid" element={<ClientPayments />} />
+              <Route path="/prices/order/:oid" element={<Price />} />
             </> : null}
           </>
         )}
