@@ -12,6 +12,7 @@ import Input from "../components/Input"
 
 const Price = () => {
   const [order, setOrder] = useState(null)
+  const [reload, setReload] = useState(false)
   const { oid } = useParams()
 
   useEffect(() => {
@@ -22,41 +23,44 @@ const Price = () => {
         })
       })
     })
-  }, [])
+  }, [reload])
+
+  const multiply = (order?.mode ? 1.21 : 1)
 
   const tableFields = [
     { value: "description" },
     { value: "quantity" },
     {
       value: "price", showsFunc: true, param: true, shows: (val, row) => {
-        return val || 0
+        return (val || 0) * multiply
       }
     },
-    { value: "subtotal", showsFunc: true, param: true, shows: (val, row) => (row?.price * row?.quantity) || 0 },
+    { value: "subtotal", showsFunc: true, param: true, shows: (val, row) => ((row?.price * row?.quantity) || 0) * multiply },
   ]
 
-  const onChangePaidAmount = async (e) => {
-    await customAxios.put(`/orders/paid/${oid}?paid=${e?.target?.value}`)
+  const toggleMode = async () => {
+    await customAxios.put(`/orders/mode/${oid}`)
+    setReload(!reload)
   }
 
   return (
     <Main className={"grid gap-8 content-start"}>
-      <section>
+      <section className="grid md:grid-cols-2 content-start gap-8">
         <Title text={`Facturacion: N° ${order?.orderNumber} - ${order?.client?.name}`} className={"md:text-start text-center text-3xl"}/>
+        <Button className={"md:justify-self-end self-start px-4 py-2"} onClick={toggleMode}>Modo: {order?.mode ? "Cuenta 1" : "Cuenta 2"}</Button>
       </section>
       {order ? (
         <>
           <section className="grid gap-8 max-w-full text-white">
             <div className="flex flex-col gap-8">
-              <h3 className="text-2xl">Total: ${order?.articles?.reduce((acc, art) => acc+(art?.price ? (art?.price * art?.quantity) : 0), 0)}</h3>
+              <h3 className="text-2xl">Total: ${order?.articles?.reduce((acc, art) => acc+((art?.price ? (art?.price * art?.quantity) : 0) * multiply), 0)}</h3>
             </div>
             <div className="flex flex-wrap justify-between items-center gap-8">
               <h3 className="text-xl">Detalles del pedido</h3>
             </div>
             <Table fields={tableFields} headers={["Articulo", "Cantidad", "Precio Unitario", "Subtotal"]} rows={order?.articles} />
             <div className="flex flex-wrap items-center gap-4">
-              <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/1/${oid}`} download><Button className={"flex items-center gap-x-6"}>Cuenta <FaFilePdf/></Button></a>
-              <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/cc/${order?.client?._id}`} download><Button className={"flex items-center gap-x-6"}>Cuenta Corriente <FaFileExcel/></Button></a>
+              <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/${order?.mode ? "1" : "2"}/${oid}`} download><Button className={"flex items-center gap-x-6"}>Cuenta <FaFilePdf/></Button></a>
             </div>
           </section>
         </>

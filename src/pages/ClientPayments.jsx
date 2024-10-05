@@ -12,6 +12,7 @@ import Table from "../components/Table"
 import { TiTick } from "react-icons/ti"
 import { useForm } from "react-hook-form"
 import moment from "moment"
+import { FaFileExcel } from "react-icons/fa"
 
 const ClientPayments = () => {
   const [client, setClient] = useState(null)
@@ -40,6 +41,7 @@ const ClientPayments = () => {
     <Main className={"grid gap-6 gap-y-16 items-start content-start text-white"}>
       <section className="grid items-center justify-center gap-8 md:items-start md:grid-cols-2 md:justify-between">
         <Title text={`Facturacion ${client ? client?.name : ""}`} className={"text-center md:text-start"} />
+        <a className="md:justify-self-end justify-self-center" href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/cc/${client?._id}`} download><Button className={"flex items-center gap-x-6"}>Cuenta Corriente <FaFileExcel/></Button></a>
       </section>
       {client ? (
         <>
