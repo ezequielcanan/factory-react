@@ -13,6 +13,7 @@ import { TiTick } from "react-icons/ti"
 import { useForm } from "react-hook-form"
 import moment from "moment"
 import { FaFileExcel } from "react-icons/fa"
+import { MdClose } from "react-icons/md"
 
 const ClientPayments = () => {
   const [client, setClient] = useState(null)
@@ -32,11 +33,18 @@ const ClientPayments = () => {
     setReload(!reload)
   })
 
+  const deletePayment = async (payment) => {
+    await customAxios.delete(`/payments/${payment?._id}`)
+    setReload(!reload)
+  }
+
   const tableFields = [
     { value: "date", showsFunc: true, shows: (val) => moment.utc(val).format("DD-MM-YYYY") },
+    { value: "detail"},
     { value: "amount"},
+    { value: "delete", showsFunc: true, param: true, shows: (val, row) => <MdClose className="text-xl cursor-pointer" onClick={() => deletePayment(row)} /> },
   ]
-  console.log(client)
+
   return (
     <Main className={"grid gap-6 gap-y-16 items-start content-start text-white"}>
       <section className="grid items-center justify-center gap-8 md:items-start md:grid-cols-2 md:justify-between">
@@ -49,11 +57,12 @@ const ClientPayments = () => {
             <p className="text-3xl text-center md:text-start">Deuda a favor: ${client?.balance}</p>
             <form className="flex flex-wrap items-center gap-4" onSubmit={onSubmit}>
               <Label>Agregar Pago</Label>
-              <Input register={register("amount")} type="number" />
+              <Input register={register("amount")} type="number" placeholder={"Monto"}/>
+              <Input register={register("detail")} type="string" placeholder={"Observaciones"}/>
               <Input register={register("date")} type="date" />
               <Button><TiTick/></Button>
             </form>
-            <Table fields={tableFields} headers={["Fecha", "Monto"]} rows={client?.payments}/>
+            <Table fields={tableFields} headers={["Fecha", "Observaciones", "Monto", "Borrar"]} rows={client?.payments} containerClassName="max-h-[500px]"/>
           </section>
           <section className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-auto content-start grid-flow-row">
             {client?.orders?.length ? (

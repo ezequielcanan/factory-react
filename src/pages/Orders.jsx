@@ -52,6 +52,14 @@ const Orders = () => {
         </div>
         <Input placeholder={"Buscar..."} className={"w-full"} onChange={onChangeSearch}/>
         <Link to={"/orders/new"} className="justify-self-end"><Button className={"text-xl font-bold px-4 flex gap-x-4 items-center"}>Nuevo Pedido <FaCartPlus /></Button></Link>
+        <div className="flex gap-4 flex-wrap justify-center md:justify-between text-white lg:col-span-3 text-xl">
+          <p className="bg-red-600 px-4 py-2">En corte</p>
+          <p className="bg-orange-600 px-4 py-2">En taller</p>
+          <p className="bg-amber-300 text-black px-4 py-2">Para separar</p>
+          <p className="bg-sky-600 px-4 py-2">Separado</p>
+          <p className="bg-green-600 px-4 py-2">Facturado</p>
+          <p className="bg-purple-700 px-4 py-2">Pedido agrupado</p>
+        </div>
       </section>
       <section className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-auto content-start grid-flow-row">
         {filterOrders?.length ? (

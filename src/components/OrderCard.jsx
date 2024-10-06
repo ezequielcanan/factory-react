@@ -15,6 +15,8 @@ const OrderCard = ({ order, articles = order?.articles, cross = false, crossActi
     color = "bg-purple-700"
   } else if (order?.finished || green) {
     color = "bg-green-600"
+  } else if (order?.inPricing) {
+    color = "bg-sky-600"
   } else if (!needsStock) {
     color = "bg-amber-300"
   } else if (order?.workshop || order?.workshopOrder) {

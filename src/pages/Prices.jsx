@@ -11,19 +11,51 @@ import SelectInput from "../components/SelectInput"
 import Table from "../components/Table"
 import { Oval } from "react-loader-spinner"
 import { FaArrowRight, FaFileExcel } from "react-icons/fa6"
+import Input from "../components/Input"
 
 const Prices = () => {
   const [clients, setClients] = useState(null)
+  const [filterClients, setFilterClients] = useState(null)
+  const [search, setSearch] = useState(null)
+  const [filterMode, setFilterMode] = useState(false)
+  const [amountFilter, setAmountFilter] = useState(null)
+  const [colorValues, setColorValues] = useState(null)
 
   useEffect(() => {
     customAxios.get(`/payments/balance`).then(res => {
-      setClients(res.data)
+      setClients(res?.data)
+      setFilterClients(res?.data)
+      const max = Math.max(...res?.data.map(item => item?.balance))
+      const min = Math.min(...res?.data.map(item => item?.balance))
+
+      setColorValues([max, min])
     })
   }, [])
 
+  const onChangeFilter = (e, search = true) => {
+    if (search) {
+      setSearch(e?.target?.value)
+    } else {
+      setAmountFilter(String(e?.target?.value))
+    }
+  }
+
+  useEffect(() => {
+    let finalClients = clients
+    if (search) {
+      finalClients = finalClients.filter(client => client?.name?.toLowerCase()?.includes(search))
+    }
+
+    if (amountFilter?.length) {
+      finalClients = finalClients.filter(client => !filterMode ? client?.balance > Number(amountFilter) : client?.balance < Number(amountFilter))
+    }
+
+    setFilterClients(finalClients)
+  }, [search, filterMode, amountFilter])
+
   const tableFields = [
     { value: "name", showsFunc: true, shows: (val) => val.toUpperCase() },
-    { value: "balance"},
+    { value: "balance" },
     { value: "excel", showsFunc: true, param: true, shows: (val, row) => <Link to={`/prices/${row?._id}`}><FaArrowRight className="text-xl cursor-pointer" /></Link> },
   ]
 
@@ -31,9 +63,14 @@ const Prices = () => {
     <Main className={"grid gap-6 gap-y-16 items-start content-start text-white"}>
       <section className="grid items-center justify-center gap-8 md:items-start md:grid-cols-2 md:justify-between">
         <Title text={"Facturacion"} className={"text-center md:text-start"} />
+        <div className="flex justify-evenly flex-wrap gap-4">
+          <Input placeholder={"Buscar..."} onChange={onChangeFilter} className={"w-full"} />
+          <Button onClick={() => setFilterMode(!filterMode)}>Balance {!filterMode ? "mayor que" : "menor que"}</Button>
+          <Input placeholder={"Monto"} type={"number"} onChange={(e) => onChangeFilter(e, false)} className={"w-full"} />
+        </div>
       </section>
-      {clients ? (
-        <Table fields={tableFields} headers={["Cliente", "Deuda", "Ver"]} rows={clients}/>
+      {(clients && colorValues) ? (
+        <Table fields={tableFields} headers={["Cliente", "Deuda", "Ver"]} rows={filterClients} containerClassName="min-w-[250]" colorScale minValue={colorValues[1]} maxValue={colorValues[0]}/>
       ) : (
         <Oval className="text-3xl" />
       )}

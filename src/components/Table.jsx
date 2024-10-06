@@ -1,14 +1,14 @@
 import { useState } from "react"
 import { FaPlusCircle, FaMinusCircle } from "react-icons/fa"
 
-const Table = ({ headers, rows, fields }) => {
+const Table = ({ headers, rows, fields, containerClassName = "", colorScale = false, colorProperty = "balance", maxValue = 0, minValue = 0 }) => {
   const [width, setWidth] = useState(window.innerWidth)
   const widthClass = `max-w-[${width}px]`
   window.addEventListener("resize", () => {
     setWidth(window.innerWidth)
   })
   return (
-    <div className={`relative overflow-x-auto col-start-1`}>
+    <div className={`relative overflow-x-auto col-start-1 ${containerClassName}`}>
       <table className="w-full">
         <thead className="bg-primary">
           <tr>
@@ -22,8 +22,18 @@ const Table = ({ headers, rows, fields }) => {
             return (
               <tr key={"row" + i}>
                 {fields.map((f, j) => {
+                  
+                  const finalOscurity = 200
+                  const red = 255
+                  const green = Math.floor(finalOscurity - ((row[colorProperty] - minValue) / (maxValue - minValue)) * finalOscurity);
+                  const blue = 0;
+
+                  const finalGreen = Math.max(0, Math.min(green, finalOscurity));
+                
+                  const finalColor = `rgb(${red}, ${finalGreen}, ${blue})`;
+
                   return (
-                    <td className={`py-2 px-4 whitespace-nowrap ${i % 2 ? "bg-secondary" : "bg-third"} ${f.clickeable ? "cursor-pointer" : ""}`} onClick={() => f.clickeable ? f.onClick(row) : {}} key={f.value+i+j}>
+                    <td style={{ backgroundColor: finalColor, color: finalGreen > 150 ? "black" : "white" }} className={`py-2 px-4 whitespace-nowrap ${!colorScale ? (i % 2 ? "!bg-secondary" : "!bg-third") : ""} ${f.clickeable ? "cursor-pointer" : ""}`} onClick={() => f.clickeable ? f.onClick(row) : {}} key={f.value+i+j}>
                       <div className="flex items-center gap-x-2">
                         {!f.showsFunc ? (f.value == "description" ? (row[f?.value] || row["detail"]) : row[f?.value]) : (f?.param ? f?.shows(row[f?.value], row) : f?.shows(row[f?.value]))}
                         {f.controls && (

@@ -1,20 +1,22 @@
 import ArticleCard from "../components/ArticleCard"
 import { Oval } from "react-loader-spinner"
 import customAxios from "../config/axios.config"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import { FaFilter } from "react-icons/fa6"
-import { colors, sizes, categories, societies } from "../utils/utils"
+import { colors, sizes, categories, societies, userIncludesRoles } from "../utils/utils"
 import SelectInput from "../components/SelectInput"
 import Input from "../components/Input"
 import ItemsContainer from "./ItemsContainer"
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa"
 import Button from "../components/Button"
+import { UserContext } from "../context/UserContext"
 
 const ArticlesContainer = ({ containerClassName, filterClassName = "", filterCClassName = "", pageClassName = "", quantities = [], setQuantities = () => {}, onClickArticle=null, stockNoControl=false }) => {
+  const {userData} = useContext(UserContext)
   const [articles, setArticles] = useState(null)
   const [filteredArticles, setFilteredArticles] = useState(null)
   const [color, setColor] = useState({value: "Todos los colores", all: true})
-  const [category, setCategory] = useState({value: "Todas las categorias", all: true})
+  const [category, setCategory] = useState(!userIncludesRoles(userData, "cattown") ? {value: "Todas las categorias", all: true} : {value: "Cattown"})
   const [size, setSize] = useState({value: "Todos los tamaños", all: true})
   const [society, setSociety] = useState({value: "Ambos negocios", all: true})
   const [search, setSearch] = useState("")
@@ -34,13 +36,15 @@ const ArticlesContainer = ({ containerClassName, filterClassName = "", filterCCl
     })
   }, [society, color, size, category, search, page])
 
+  const finalSocieties = !userIncludesRoles(userData, "cattown") ? [{value: "Ambos negocios", all: true}, ...societies] : [{value: "Cattown"}]
+
   return (
     <ItemsContainer className={`${containerClassName}`}>
       <div className={`md:col-span-2 lg:col-span-3 xl:col-span-6 flex flex-col xl:flex-row items-center gap-8 justify-between ${filterClassName}`}>
         <FaFilter className="text-white text-3xl" />
         <div className={`grid md:grid-cols-3 xl:grid-cols-5 items-center gap-8 text-xl w-full ${filterCClassName}`}>
           <Input placeholder="Buscar..." className={"w-full"} onChange={(e) => setSearch(e?.target?.value)}/>
-          <SelectInput selectedOption={society} setSelectedOption={setSociety} options={[{value: "Ambos negocios", all: true}, ...societies]} className={"!py-"} />
+          <SelectInput selectedOption={society} setSelectedOption={setSociety} options={finalSocieties} className={"!py-"} />
           <SelectInput selectedOption={category} setSelectedOption={setCategory} options={[{value: "Todas las categorias", all: true}, ...categories]} className={"!py-2"} />
           <SelectInput selectedOption={color} setSelectedOption={setColor} options={[{value: "Todos los colores", all: true}, ...colors]} className={"!py-2"} />
           <SelectInput selectedOption={size} setSelectedOption={setSize} options={[{value: "Todos los tamaños", all: true}, ...sizes]} text className={"!py-2"} />

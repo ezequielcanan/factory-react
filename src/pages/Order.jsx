@@ -59,14 +59,11 @@ const Order = () => {
     setReload(!reload)
   }
 
-  const onChangePrice = (price, article) => {
-    setPricesList([...pricesList, { ...article, price: price }])
+  const onChangePrice = async (price, article) => {
+    await customAxios.put(`/orders/price/${oid}/${article?._id}?price=${price}${article?.custom ? "&custom=true" : ""}`)
   }
 
   const onConfirmPrices = async () => {
-    await Promise.all(pricesList.map(async change => {
-      await customAxios.put(`/orders/price/${oid}/${change?._id}?price=${change?.price}${change?.custom ? "&custom=true" : ""}`)
-    }))
     setEdit(!edit)
     setReload(!reload)
   }
@@ -74,6 +71,11 @@ const Order = () => {
   const onFinishOrder = async () => {
     await customAxios.put(`/orders/finish/${oid}`)
     navigate(`/prices/order/${oid}`)
+  }
+
+  const onPricingOrder = async () => {
+    await customAxios.put(`/orders/${oid}?property=inPricing&value=true`)
+    setReload(!reload)
   }
 
   const deleteOrder = async () => {
@@ -161,7 +163,7 @@ const Order = () => {
           <h2 className="text-4xl justify-self-center lg:justify-self-start font-bold">Pedido N° {order?.orderNumber}</h2>
           <div className="flex gap-8 flex-wrap items-center justify-center lg:justify-end">
             <FaTrashAlt className="text-2xl cursor-pointer" onClick={deleteOrder} />
-            <Button className={`justify-self-center lg:justify-self-end ${!order?.finished && "bg-green-700 hover:bg-green-800"}`} onClick={!order?.finished ? onFinishOrder : () => navigate(`/prices/order/${oid}`)}>{order?.finished ? "Facturado" : "Pasar a facturacion"}</Button>
+            <Button className={`justify-self-center lg:justify-self-end ${!order?.finished && (order?.inPricing ? "bg-green-700 hover:bg-green-800" : "bg-sky-600 hover:bg-sky-700")}`} onClick={!order?.finished ? (order?.inPricing ? onFinishOrder : onPricingOrder) : () => navigate(`/prices/order/${oid}`)}>{order?.finished ? "Finalizado" : (!order?.inPricing ? "Pasar a facturacion" : "Facturar")}</Button>
           </div>
           <section className="flex flex-col gap-16">
             <div className="flex flex-col gap-8">
@@ -180,11 +182,11 @@ const Order = () => {
                 <div className="grid gap-8 max-w-full">
                   <div className="flex flex-wrap justify-between items-center gap-8">
                     <h3 className="text-3xl">Detalles del pedido</h3>
-                    <Button onClick={edit ? onConfirmPrices : () => setEdit(!edit)} className={"rounded-none border-2 border-white bg-third"}>{!edit ? "Editar precios" : "Confirmar"}</Button>
+                    <Button onClick={edit ? onConfirmPrices : () => setEdit(!edit)} className={"rounded-none border-2 border-white bg-third"}>{!edit ? "Editar precios" : "Actualizar"}</Button>
                   </div>
                   <Table fields={tableFields} headers={["Articulo", "Cantidad", "Reservado", "Cortar Restantes", "Precio Unitario", "Subtotal", "Borrar"]} rows={order?.articles} />
                 </div>
-                <ArticlesContainer containerClassName={"max-h-[600px] overflow-y-auto md:!grid-cols-2 text-black"} filterClassName="md:!col-span-2 !flex-col md:!flex-col xl:!flex-col" filterCClassName="xl:!grid-cols-1" pageClassName={"md:!col-span-2 lg:!col-span-2 xl:!col-span-2"} stockControl={false} onClickArticle={addArticle} stockNoControl />
+                <ArticlesContainer containerClassName={"max-h-[800px] overflow-y-scroll md:!grid-cols-2 text-black auto-rows-auto"} filterClassName="md:!col-span-2 !flex-col md:!flex-col xl:!flex-col" filterCClassName="xl:!grid-cols-1" pageClassName={"md:!col-span-2 lg:!col-span-2 xl:!col-span-2"} stockControl={false} onClickArticle={addArticle} stockNoControl />
                 <div className="grid grid-cols-1 bg-third p-4 rounded-lg sm:grid-cols-2 w-full gap-4">
                   <Input className={"resize-none w-full h-full"} textarea register={register("detail")} placeholder={"Producto"}/>
                   <Input className={"resize-none w-full h-full"} textarea register={register("size")} placeholder={"Talle"}/>

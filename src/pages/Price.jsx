@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import customAxios from "../config/axios.config"
 import { useParams } from "react-router-dom"
 import Main from "../containers/Main"
@@ -9,10 +9,14 @@ import Button from "../components/Button"
 import { FaFileExcel, FaFilePdf } from "react-icons/fa"
 import Label from "../components/Label"
 import Input from "../components/Input"
+import { userIncludesRoles } from "../utils/utils"
+import { UserContext } from "../context/UserContext"
 
 const Price = () => {
+  const {userData} = useContext(UserContext)
   const [order, setOrder] = useState(null)
   const [reload, setReload] = useState(false)
+  const [edit, setEdit] = useState(false)
   const { oid } = useParams()
 
   useEffect(() => {
@@ -32,11 +36,20 @@ const Price = () => {
     { value: "quantity" },
     {
       value: "price", showsFunc: true, param: true, shows: (val, row) => {
-        return (val || 0) * multiply
+        return (userIncludesRoles(userData, "prices") ? <Input type="number" defaultValue={val || ""} disabled={!edit} onChange={(e) => onChangePrice(e?.target?.value, row)} className={"!py-0 !px-0 rounded-none focus:!bg-transparent w-[100px]"} containerClassName={"!border-0 rounded-none"} /> : null)
       }
     },
     { value: "subtotal", showsFunc: true, param: true, shows: (val, row) => ((row?.price * row?.quantity) || 0) * multiply },
   ]
+
+  const onChangePrice = async (price, article) => {
+    await customAxios.put(`/orders/price/${oid}/${article?._id}?price=${price}${article?.custom ? "&custom=true" : ""}`)
+  }
+
+  const onConfirmPrices = async () => {
+    setEdit(!edit)
+    setReload(!reload)
+  }
 
   const toggleMode = async () => {
     await customAxios.put(`/orders/mode/${oid}`)
@@ -57,6 +70,7 @@ const Price = () => {
             </div>
             <div className="flex flex-wrap justify-between items-center gap-8">
               <h3 className="text-xl">Detalles del pedido</h3>
+              <Button onClick={edit ? onConfirmPrices : () => setEdit(!edit)} className={"rounded-none border-2 border-white bg-third"}>{!edit ? "Editar precios" : "Actualizar"}</Button>
             </div>
             <Table fields={tableFields} headers={["Articulo", "Cantidad", "Precio Unitario", "Subtotal"]} rows={order?.articles} />
             <div className="flex flex-wrap items-center gap-4">
