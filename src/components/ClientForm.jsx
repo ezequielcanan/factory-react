@@ -22,6 +22,9 @@ const ClientForm = ({register, onSubmit, client, error, newClient = true}) => {
 
       <Label>Referencia</Label>
       <Input register={register("detail")} defaultValue={client?.detail || ""} className={"!py-2 w-full resize-none !text-lg"} textarea/>
+
+      <Label>Descuento</Label>
+      <Input register={register("discount")} type={"number"} defaultValue={((client?.discount || 0) * 100) || ""} className={"!py-2 "} />
       
       <Label>Expreso</Label>
       <Input register={register("expreso")} defaultValue={client?.expreso || ""} className={"!py-2 "} />

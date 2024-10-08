@@ -36,7 +36,7 @@ const Order = () => {
     customAxios.get(`/orders/${oid}`).then((res) => {
       setOrder({
         ...res?.data?.order, articles: res?.data?.order?.articles?.map(art => {
-          return { bookedQuantity: art.booked, custom: art?.customArticle ? true : false, ...art, ...art?.article, ...art?.customArticle }
+          return { bookedQuantity: art.booked, custom: art?.customArticle ? true : false, ...art, ...art?.article, ...art?.customArticle, price: art?.price || 0 }
         })
       })
       setCut(res?.data?.cut)

@@ -15,7 +15,7 @@ const NewClient = () => {
 
   const onSubmit = handleSubmit(async data => {
     try {
-      const result = await customAxios.post("/clients", data)
+      const result = await customAxios.post("/clients", {...data, discount: data?.discount / 100})
       navigate("/clients")
     } catch (e) {
       setError(true)

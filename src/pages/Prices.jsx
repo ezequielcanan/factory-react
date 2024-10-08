@@ -55,7 +55,7 @@ const Prices = () => {
 
   const tableFields = [
     { value: "name", showsFunc: true, shows: (val) => val.toUpperCase() },
-    { value: "balance" },
+    { value: "balance", showsFunc: true, shows: (val) => val.toFixed(2) },
     { value: "excel", showsFunc: true, param: true, shows: (val, row) => <Link to={`/prices/${row?._id}`}><FaArrowRight className="text-xl cursor-pointer" /></Link> },
   ]
 

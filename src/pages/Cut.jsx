@@ -90,7 +90,7 @@ const Cut = () => {
             </div>
           ) : null}
           <div className="flex flex-col xl:col-span-2 gap-8">
-            <Input textarea className={"w-full"} register={register("description")} disabled={!edit} defaultValue={cut?.description} />
+            <Input textarea className={"w-full"} register={register("description")} disabled={!edit} defaultValue={cut?.description || ""} />
             <Button onClick={!edit ? () => setEdit(true) : onConfirmDescription} className={"self-start"}>{edit ? "Confirmar" : "Editar"}</Button>
           </div>
           {passToWorkshop && <WorkshopsContainer containerClassName={"max-h-[30rem] h-full overflow-y-auto auto-rows-auto xl:col-span-2"} onClickWorkshop={(c) => (setWorkshop(c), setPassToWorkshop(false))} />}

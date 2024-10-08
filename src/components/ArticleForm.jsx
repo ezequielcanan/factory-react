@@ -50,7 +50,10 @@ const ArticleForm = ({onSubmit, register, file, article, handleFileChange, color
         <SelectInput selectedOption={size} setSelectedOption={setSize} text options={sizes} className={"!py-2"} />
 
         <Label>Stock</Label>
-        <Input register={register("stock", { required: true })} defaultValue={article?.stock || ""} type="number" step="1" className={"!py-2 w-full"} />
+        <Input register={register("stock")} defaultValue={article?.stock || ""} type="number" step="1" className={"!py-2 w-full"} />
+
+        <Label>Precio</Label>
+        <Input register={register("price")} defaultValue={article?.price || ""} type="number" step="1" className={"!py-2 w-full"} />
 
         <Button className={"col-span-2"} type="submit">Confirmar</Button>
         {article && <Button className={"col-span-2 bg-red-600 hover:bg-red-700"} onClick={deleteArticle}>Borrar</Button>}

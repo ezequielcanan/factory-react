@@ -125,10 +125,13 @@ const NewOrder = () => {
             quantity: article?.quantity,
             common: true,
             article: article?._id,
-            hasToBeCut: false
+            hasToBeCut: false,
+            price: article?.price ? (article?.price * (1-client?.discount)) : 0
           })
+          console.log(article?.price ? (article?.price * (1-client?.discount)) : 0, (1-client?.discount))
         }))
       }
+
 
       const order = {
         articles: items,
@@ -172,6 +175,7 @@ const NewOrder = () => {
 
     navigate("/orders")
   }
+  
 
   const onClickAddSuborder = async (e) => {
     e.preventDefault()

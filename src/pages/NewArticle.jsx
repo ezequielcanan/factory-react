@@ -36,6 +36,7 @@ const NewArticle = () => {
     data.color = color.value
     data.society = society.value
     data.stock = Number(data.stock)
+    data.price = Number(data?.price)
     const result = await customAxios.post("/articles", data)
     const id = result?.data?._id
 

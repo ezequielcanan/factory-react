@@ -19,7 +19,7 @@ const EditClient = () => {
   }, [])
 
   const onSubmit = handleSubmit(async data => {
-    const result = await customAxios.put(`/clients/${cid}`, data)
+    const result = await customAxios.put(`/clients/${cid}`, {...data, discount: data?.discount / 100})
     navigate("/clients")
   })
 
