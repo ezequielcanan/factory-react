@@ -18,6 +18,7 @@ const Cut = () => {
   const [cut, setCut] = useState(null)
   const [workshop, setWorkshop] = useState(null)
   const [passToWorkshop, setPassToWorkshop] = useState(false)
+  const [selectedArticles, setSelectedArticles] = useState(null)
   const [edit, setEdit] = useState(false)
   const [reload, setReload] = useState(false)
   const { register, handleSubmit } = useForm()
@@ -65,6 +66,22 @@ const Cut = () => {
     });
   }
 
+  const onChangeWorkshop = (w) => {
+    setWorkshop(w)
+    setSelectedArticles([...cut?.articles])
+  } 
+
+  const toggleFromSelectedArticles = (article) => {
+    if (workshop) {
+      if (!selectedArticles.some(art => art?._id == article?.id)) {
+        setSelectedArticles([...selectedArticles, cut?.articles?.find(art => art?._id == article?.id)])
+      } else {
+        selectedArticles.splice(selectedArticles.findIndex(art => art?._id == article?.id), 1)
+        setSelectedArticles([...selectedArticles])
+      }
+    }
+  }
+
   return (
     <Main>
       {cut ? (
@@ -84,7 +101,7 @@ const Cut = () => {
               <p className="text-white text-center text-2xl">Telefono: {workshop?.phone}</p>
               <p className="text-white text-center text-2xl">Direccion: {workshop?.address}</p>
               <div className="xl:justify-self-end flex justify-center gap-4 flex-wrap">
-                <Button className={"bg-red-600 hover:bg-red-700"} onClick={() => (setWorkshop(null), setPassToWorkshop(false))}>Cancelar</Button>
+                <Button className={"bg-red-600 hover:bg-red-700"} onClick={() => (setWorkshop(null), setSelectedArticles(null), setPassToWorkshop(false))}>Cancelar</Button>
                 <Button className={""} onClick={cutToWorkshop}>Confirmar</Button>
               </div>
             </div>
@@ -93,14 +110,14 @@ const Cut = () => {
             <Input textarea className={"w-full"} register={register("description")} disabled={!edit} defaultValue={cut?.description || ""} />
             <Button onClick={!edit ? () => setEdit(true) : onConfirmDescription} className={"self-start"}>{edit ? "Confirmar" : "Editar"}</Button>
           </div>
-          {passToWorkshop && <WorkshopsContainer containerClassName={"max-h-[30rem] h-full overflow-y-auto auto-rows-auto xl:col-span-2"} onClickWorkshop={(c) => (setWorkshop(c), setPassToWorkshop(false))} />}
+          {passToWorkshop && <WorkshopsContainer containerClassName={"max-h-[30rem] h-full overflow-y-auto auto-rows-auto xl:col-span-2"} onClickWorkshop={(c) => (onChangeWorkshop(c), setPassToWorkshop(false))} />}
           <div className="grid md:grid-cols-2 gap-4 content-start text-white">
             <h3 className="md:col-span-2 text-2xl text-white">Articulos de linea</h3>
             {cut?.articles?.filter(a => cut?.order ? a.common : true)?.length ? cut?.articles?.filter(a => cut?.order ? a.common : true)?.map(article => {
               let articleCard = { ...article }
               articleCard.quantity = cut?.order ? (Number(articleCard.quantity) - Number(articleCard.booked)) : Number(articleCard?.quantity)
-              articleCard = { ...articleCard, ...articleCard.article }
-              return <ArticleCard quantityLocalNoControl article={articleCard} stockNoShow stockNoControl quantityNoControl forCut bookedQuantity hoverEffect={false} />
+              articleCard = { ...articleCard, ...articleCard.article, id: articleCard?._id }
+              return <ArticleCard quantityLocalNoControl onClickArticle={() => toggleFromSelectedArticles(articleCard)} article={articleCard} cstockNoShow stockNoControl quantityNoControl forCut bookedQuantity hoverEffect={false} className={selectedArticles?.some(art => art?._id == articleCard?.id) && `!bg-teal-700`}/>
             }) : <p>No hay articulos de linea</p>}
           </div>
           <div className="grid md:grid-cols-2 gap-4 content-start text-white">
@@ -108,9 +125,8 @@ const Cut = () => {
             {cut?.articles?.filter(a => cut?.order ? !a.common : false)?.length ? cut?.articles?.filter(a => cut?.order ? !a.common : false)?.map(article => {
               let articleCard = { ...article }
               articleCard.quantity = Number(articleCard.quantity) - Number(articleCard.booked)
-              articleCard = { ...articleCard, ...articleCard.customArticle }
-              console.log(articleCard)
-              return <ArticleCard quantityLocalNoControl article={articleCard} customArticle={articleCard} stockNoShow stockNoControl quantityNoControl forCut bookedQuantity hoverEffect={false} />
+              articleCard = { ...articleCard, ...articleCard.customArticle, id: articleCard?._id }
+              return <ArticleCard quantityLocalNoControl onClickArticle={() => toggleFromSelectedArticles(articleCard)} article={articleCard} customArticle={articleCard} stockNoShow stockNoControl quantityNoControl forCut bookedQuantity hoverEffect={false} className={selectedArticles?.some(art => art?._id == articleCard?.id) && `!bg-teal-700`}/>
             }) : <p>No hay articulos personalizados</p>}
           </div>
         </section>
