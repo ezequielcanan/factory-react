@@ -10,10 +10,15 @@ import Label from "../components/Label"
 import Input from "../components/Input"
 import { Oval } from "react-loader-spinner"
 import { useForm } from "react-hook-form"
+import { FaTrashAlt } from "react-icons/fa"
+import Swal from "sweetalert2"
+import { AnimatePresence, motion } from "framer-motion"
+
 
 const WorkshopOrder = () => {
   const [workshopOrder, setWorkshopOrder] = useState(null)
-  const {register, handleSubmit} = useForm()
+  const [receiving, setReceiving] = useState(false)
+  const { register, handleSubmit } = useForm()
   const [edit, setEdit] = useState(false)
   const navigate = useNavigate()
   const { oid } = useParams()
@@ -24,13 +29,29 @@ const WorkshopOrder = () => {
     })
   }, [])
 
+  useEffect(() => {
+    if (receiving) {
+      // Añadir clase overflow-hidden al html para desactivar el scroll
+      document.documentElement.classList.add('overflow-hidden');
+    } else {
+      // Quitar clase overflow-hidden para habilitar el scroll
+      document.documentElement.classList.remove('overflow-hidden');
+    }
+
+    // Limpiar efecto al desmontar componente
+    return () => {
+      document.documentElement.classList.remove('overflow-hidden');
+    };
+  }, [receiving]);
+
   const changePrice = async (e) => {
     await customAxios.put(`/workshop-order/${oid}`, { price: e?.target?.value })
   }
 
   const receiveFromWorkShop = async () => {
-    await customAxios.put(`/workshop-order/receive/${oid}`)
-    workshopOrder?.cut?.order ? navigate(`/orders/${workshopOrder?.cut?.order?._id}`) : navigate(`/articles`)
+    setReceiving(true)
+    /*await customAxios.put(`/workshop-order/receive/${oid}`)
+    workshopOrder?.cut?.order ? navigate(`/orders/${workshopOrder?.cut?.order?._id}`) : navigate(`/articles`)*/
   }
 
   const onConfirmDescription = handleSubmit(async data => {
@@ -39,12 +60,46 @@ const WorkshopOrder = () => {
     setReload(!reload)
   })
 
+  const commonArticles = (workshopOrder?.deliveryDate ?
+    (workshopOrder?.cut?.items?.length ? workshopOrder?.cut?.items : workshopOrder?.cut?.manualItems
+    ) : (
+      workshopOrder?.cut?.order?.articles || workshopOrder?.cut?.manualItems)?.filter(art => workshopOrder?.articles?.some(a => a == art?._id))
+  )?.filter(a => workshopOrder?.cut?.order ? (a.common && a.hasToBeCut && (a.quantity > a.booked)) : true) || []
+
+  const customArticles = (workshopOrder?.deliveryDate ? workshopOrder?.cut?.items : workshopOrder?.cut?.order?.articles)?.filter(art => workshopOrder?.articles?.some(a => a == art?._id))?.filter(a => !a.common && a.hasToBeCut && (a.quantity > a.booked)) || []
+
+  const allArticles = [...commonArticles, ...customArticles]
+
+  const deleteWorkshopOrder = async () => {
+    Swal.fire({
+      title: "<strong>CUIDADO: Vas a borrar la orden en taller</strong>",
+      icon: "warning",
+      showCloseButton: true,
+      showCancelButton: true,
+      focusConfirm: false,
+      confirmButtonText: `
+        Confirmar
+      `,
+      cancelButtonText: `
+        Cancelar
+      `,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await customAxios.delete(`/workshop-order/${oid}`)
+        navigate("/workshop-orders")
+      }
+    });
+  }
+
   return (
-    <Main className={"grid grid-cols-1 items-center content-start lg:grid-cols-2 gap-y-16 gap-8"}>
+    <Main className={`grid grid-cols-1 items-center content-start lg:grid-cols-2 gap-y-16 gap-8 ${receiving && "!overflow-hidden"} relative`}>
       {workshopOrder ? (
         <>
-          <Title text={`Taller: ${workshopOrder?.workshop?.name}`} />
-          {!workshopOrder?.deliveryDate ? <Button className="font-bold p-4 px-6 lg:justify-self-end" onClick={receiveFromWorkShop}>Recibido</Button> : <p className="font-bold text-white text-2xl lg:justify-self-end">Recibido: {moment(workshopOrder?.deliveryDate).format("DD-MM-YYYY")}</p>}
+          <Title className={"text-center lg:text-start"} text={`Taller: ${workshopOrder?.workshop?.name}`} />
+          <div className="items-center flex justify-center lg:justify-end gap-4 flex-wrap text-white">
+            <FaTrashAlt className="text-2xl cursor-pointer" onClick={deleteWorkshopOrder} />
+            {!workshopOrder?.deliveryDate ? <Button className="font-bold p-4 px-6 lg:justify-self-end" onClick={receiveFromWorkShop}>Recibido</Button> : <p className="font-bold text-white text-2xl lg:justify-self-end">Recibido: {moment(workshopOrder?.deliveryDate).format("DD-MM-YYYY")}</p>}
+          </div>
           <div className="flex flex-col items-start text-white gap-y-4 lg:col-span-2">
             <p className="text-2xl">Corte N°: {workshopOrder?.cut?.order?.orderNumber}</p>
             <p className="text-2xl">Fecha de salida: {moment(workshopOrder?.date).format("DD-MM-YYYY")}</p>
@@ -52,12 +107,12 @@ const WorkshopOrder = () => {
             <p className="text-2xl">Telefono: {workshopOrder?.workshop?.phone}</p>
           </div>
           <div className="flex flex-col lg:col-span-2 gap-8">
-            <Input textarea className={"w-full"} register={register("detail")} disabled={!edit} defaultValue={workshopOrder?.detail}/>
+            <Input textarea className={"w-full"} register={register("detail")} disabled={!edit} defaultValue={workshopOrder?.detail} />
             <Button onClick={!edit ? () => setEdit(true) : onConfirmDescription} className={"self-start"}>{edit ? "Confirmar" : "Editar"}</Button>
           </div>
           <div className="grid md:grid-cols-2 gap-4 self-start content-start text-white">
             <h3 className="md:col-span-2 text-2xl text-white">Articulos de linea</h3>
-            {(workshopOrder?.deliveryDate ? (workshopOrder?.cut?.items?.length ? workshopOrder?.cut?.items : workshopOrder?.cut?.manualItems) : (workshopOrder?.cut?.order?.articles || workshopOrder?.cut?.manualItems))?.filter(a => workshopOrder?.cut?.order ? (a.common && a.hasToBeCut && (a.quantity > a.booked)) : true)?.length ? (workshopOrder?.deliveryDate ? (workshopOrder?.cut?.items?.length ? workshopOrder?.cut?.items : workshopOrder?.cut?.manualItems) : (workshopOrder?.cut?.order?.articles || workshopOrder?.cut?.manualItems))?.filter(a => workshopOrder?.cut?.order ? (a.common && a.hasToBeCut && (a.quantity > a.booked)) : true)?.map(article => {
+            {commonArticles?.length ? commonArticles?.map(article => {
               let articleCard = { ...article }
               articleCard.quantity = workshopOrder?.cut?.order ? (Number(articleCard.quantity) - Number(articleCard.booked)) : Number(articleCard?.quantity)
               articleCard = { ...articleCard, ...articleCard.article }
@@ -66,7 +121,7 @@ const WorkshopOrder = () => {
           </div>
           <div className="grid md:grid-cols-2 gap-4 self-start content-start text-white">
             <h3 className="md:col-span-2 text-2xl text-white">Articulos personalizados</h3>
-            {(workshopOrder?.deliveryDate ? workshopOrder?.cut?.items : workshopOrder?.cut?.order?.articles)?.filter(a => !a.common && a.hasToBeCut && (a.quantity > a.booked))?.length ? (workshopOrder?.deliveryDate ? workshopOrder?.cut?.items : workshopOrder?.cut?.order?.articles)?.filter(a => !a.common && a.hasToBeCut && (a.quantity > a.booked))?.map(article => {
+            {customArticles?.length ? customArticles?.map(article => {
               let articleCard = { ...article }
               articleCard.quantity = Number(articleCard.quantity) - Number(articleCard.booked)
               articleCard = { ...articleCard, ...articleCard.customArticle }
@@ -77,6 +132,28 @@ const WorkshopOrder = () => {
       ) : (
         <Oval />
       )}
+      <AnimatePresence>
+        {receiving ? (
+          <div className="absolute top-0 left-0 w-full h-full bg-[#000]/50 flex justify-center items-center px-8">
+            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ duration: 0.1 }} style={{ transformOrigin: "center" }} className={`mb-[10rem] grid md:grid-cols-${allArticles?.length > 1 ? "2" : "1"} gap-4 justify-center content-center text-white`}>
+              {allArticles?.length ? allArticles?.map(article => {
+                let articleCard = { ...article }
+                articleCard.quantity = workshopOrder?.cut?.order ? (Number(articleCard.quantity) - Number(articleCard.booked)) : Number(articleCard?.quantity)
+                articleCard = { ...articleCard, ...articleCard.article, ...articleCard?.customArticle }
+                const props = {}
+                if (article?.customArticle) {
+                  props["customArticle"] = articleCard
+                }
+                return <ArticleCard article={articleCard} {...props} stockNoShow stockNoControl quantityNoControl quantityLocalNoControl forCut bookedQuantity hoverEffect={false} />
+              }) : <p>No hay articulos</p>}
+              <div className={`md:col-span-${allArticles?.length > 1 ? "2" : "1"} col-span-1 flex justify-between items-center gap-4 flex-wrap`}>
+                <Button className={"bg-red-600 hover:bg-red-700"} onClick={() => setReceiving(false)}>Cancelar</Button>
+                <Button >Confirmar</Button>
+              </div>
+            </motion.div>
+          </div>
+        ) : null}
+      </AnimatePresence>
     </Main>
   )
 }

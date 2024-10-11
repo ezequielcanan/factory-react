@@ -33,8 +33,9 @@ const Cut = () => {
   }, [reload])
 
   const cutToWorkshop = async () => {
-    await customAxios.post("/workshop-order", { workshop: workshop?._id, cut: cid, date: moment() })
+    await customAxios.post("/workshop-order", { workshop: workshop?._id, cut: cid, date: moment(), articles: selectedArticles?.map(art => art?._id) })
     setPassToWorkshop(false)
+    setSelectedArticles(null)
     setWorkshop(false)
     setReload(!reload)
   }
@@ -89,11 +90,7 @@ const Cut = () => {
           <Title text={"Orden de corte"} className={`text-center xl:text-start`} />
           <div className="flex gap-4 flex-wrap justify-center xl:justify-end text-white items-center wrap-reverse">
             {cut?.manualItems?.length ? <FaTrashAlt className="text-2xl cursor-pointer" onClick={deleteCut} /> : null}
-            {!cut?.workshopOrder ? (
-              <Button className={"flex items-center justify-between gap-2 justify-self-center xl:justify-self-end"} onClick={() => setPassToWorkshop(a => !a)}>Pasar a un taller <BiTransferAlt /></Button>
-            ) : (
-              <Link to={`/workshop-orders/${cut?.workshopOrder?._id}`} className="justify-self-center xl:justify-self-end"><Button>{cut?.workshopOrder?.deliveryDate ? `Recibido: ${moment(cut?.workshopOrder?.deliveryDate)?.format("DD-MM-YYYY")}` : `En taller`}</Button></Link>
-            )}
+            <Button className={"flex items-center justify-between gap-2 justify-self-center xl:justify-self-end"} onClick={() => setPassToWorkshop(a => !a)}>Pasar a un taller <BiTransferAlt /></Button>
           </div>
           {workshop ? (
             <div className="grid xl:grid-cols-4 gap-4 items-center w-full text-xl justify-items-center xl:justify-items-start xl:col-span-2">
@@ -117,7 +114,7 @@ const Cut = () => {
               let articleCard = { ...article }
               articleCard.quantity = cut?.order ? (Number(articleCard.quantity) - Number(articleCard.booked)) : Number(articleCard?.quantity)
               articleCard = { ...articleCard, ...articleCard.article, id: articleCard?._id }
-              return <ArticleCard quantityLocalNoControl onClickArticle={() => toggleFromSelectedArticles(articleCard)} article={articleCard} cstockNoShow stockNoControl quantityNoControl forCut bookedQuantity hoverEffect={false} className={selectedArticles?.some(art => art?._id == articleCard?.id) && `!bg-teal-700`}/>
+              return <ArticleCard quantityLocalNoControl onClickArticle={() => toggleFromSelectedArticles(articleCard)} article={articleCard} cstockNoShow stockNoControl quantityNoControl forCut bookedQuantity hoverEffect={workshop ? true : false} className={selectedArticles?.some(art => art?._id == articleCard?.id) && `!bg-teal-700`}/>
             }) : <p>No hay articulos de linea</p>}
           </div>
           <div className="grid md:grid-cols-2 gap-4 content-start text-white">
@@ -126,7 +123,7 @@ const Cut = () => {
               let articleCard = { ...article }
               articleCard.quantity = Number(articleCard.quantity) - Number(articleCard.booked)
               articleCard = { ...articleCard, ...articleCard.customArticle, id: articleCard?._id }
-              return <ArticleCard quantityLocalNoControl onClickArticle={() => toggleFromSelectedArticles(articleCard)} article={articleCard} customArticle={articleCard} stockNoShow stockNoControl quantityNoControl forCut bookedQuantity hoverEffect={false} className={selectedArticles?.some(art => art?._id == articleCard?.id) && `!bg-teal-700`}/>
+              return <ArticleCard quantityLocalNoControl onClickArticle={() => toggleFromSelectedArticles(articleCard)} article={articleCard} customArticle={articleCard} stockNoShow stockNoControl quantityNoControl forCut bookedQuantity hoverEffect={workshop ? true : false} className={selectedArticles?.some(art => art?._id == articleCard?.id) && `!bg-teal-700`}/>
             }) : <p>No hay articulos personalizados</p>}
           </div>
         </section>

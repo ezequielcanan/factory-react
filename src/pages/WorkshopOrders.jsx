@@ -23,7 +23,7 @@ const WorkshopOrders = () => {
     </section>
     <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-auto">
       {workshopOrders?.filter(order => !order?.deliveryDate)?.length ? workshopOrders?.filter(order => !order?.deliveryDate)?.map(order => {
-        return <OrderCard name={false} order={order?.cut?.order} articles={order?.cut?.order?.articles || order?.cut?.manualItems} link={`/workshop-orders/${order?._id}`} text={order?.cut?.order ? `${order?.workshop?.name} CORTE N°` : order?.cut?.detail} forCut/>
+        return <OrderCard name={false} order={order?.cut?.order} articles={(order?.cut?.order?.articles || order?.cut?.manualItems).filter(art => order?.articles?.some(a => a == art?._id) )} link={`/workshop-orders/${order?._id}`} text={order?.cut?.order ? `${order?.workshop?.name} CORTE N°` : order?.cut?.detail} forCut/>
       }) : (
         <p className="text-white text-2xl">No hay cortes en talleres</p>
       )}
