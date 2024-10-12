@@ -33,7 +33,8 @@ const Cut = () => {
   }, [reload])
 
   const cutToWorkshop = async () => {
-    await customAxios.post("/workshop-order", { workshop: workshop?._id, cut: cid, date: moment(), articles: selectedArticles?.map(art => art?._id) })
+    const articles = selectedArticles.map(a => {return {...a, [a?.article ? "article" : "customArticle"]: a[a?.article ? "article" : "customArticle"]?._id}})
+    await customAxios.post("/workshop-order", { workshop: workshop?._id, cut: cid, date: moment(), articles })
     setPassToWorkshop(false)
     setSelectedArticles(null)
     setWorkshop(false)

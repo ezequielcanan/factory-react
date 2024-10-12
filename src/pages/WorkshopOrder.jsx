@@ -18,6 +18,7 @@ import { AnimatePresence, motion } from "framer-motion"
 const WorkshopOrder = () => {
   const [workshopOrder, setWorkshopOrder] = useState(null)
   const [receiving, setReceiving] = useState(false)
+  const [articles, setArticles] = useState([])
   const { register, handleSubmit } = useForm()
   const [edit, setEdit] = useState(false)
   const navigate = useNavigate()
@@ -49,6 +50,7 @@ const WorkshopOrder = () => {
   }
 
   const receiveFromWorkShop = async () => {
+    setArticles(allArticles.map(a => {return {...a, receiving: (workshopOrder?.cut?.order ? (Number(a.quantity) - Number(a.booked)) : Number(a?.quantity)) - Number(a?.received)}}))
     setReceiving(true)
     /*await customAxios.put(`/workshop-order/receive/${oid}`)
     workshopOrder?.cut?.order ? navigate(`/orders/${workshopOrder?.cut?.order?._id}`) : navigate(`/articles`)*/
@@ -60,13 +62,10 @@ const WorkshopOrder = () => {
     setReload(!reload)
   })
 
-  const commonArticles = (workshopOrder?.deliveryDate ?
-    (workshopOrder?.cut?.items?.length ? workshopOrder?.cut?.items : workshopOrder?.cut?.manualItems
-    ) : (
-      workshopOrder?.cut?.order?.articles || workshopOrder?.cut?.manualItems)?.filter(art => workshopOrder?.articles?.some(a => a == art?._id))
-  )?.filter(a => workshopOrder?.cut?.order ? (a.common && a.hasToBeCut && (a.quantity > a.booked)) : true) || []
 
-  const customArticles = (workshopOrder?.deliveryDate ? workshopOrder?.cut?.items : workshopOrder?.cut?.order?.articles)?.filter(art => workshopOrder?.articles?.some(a => a == art?._id))?.filter(a => !a.common && a.hasToBeCut && (a.quantity > a.booked)) || []
+  const commonArticles = workshopOrder?.articles?.filter(a => a?.article) || []
+
+  const customArticles = workshopOrder?.articles?.filter(a => a?.customArticle) || []
 
   const allArticles = [...commonArticles, ...customArticles]
 
@@ -89,6 +88,12 @@ const WorkshopOrder = () => {
         navigate("/workshop-orders")
       }
     });
+  }
+
+  const handleConfirmReceivingArticles = async () => {
+    await customAxios.put(`/workshop-order/receive/${oid}`, articles)
+    setArticles([])
+    setReceiving(false)
   }
 
   return (
@@ -116,7 +121,7 @@ const WorkshopOrder = () => {
               let articleCard = { ...article }
               articleCard.quantity = workshopOrder?.cut?.order ? (Number(articleCard.quantity) - Number(articleCard.booked)) : Number(articleCard?.quantity)
               articleCard = { ...articleCard, ...articleCard.article }
-              return <ArticleCard article={articleCard} stockNoShow stockNoControl quantityNoControl quantityLocalNoControl forCut bookedQuantity hoverEffect={false} />
+              return <ArticleCard article={articleCard} stockNoShow stockNoControl receivingNoControl quantityNoControl quantityLocalNoControl forCut bookedQuantity hoverEffect={false} />
             }) : <p>No hay articulos de linea</p>}
           </div>
           <div className="grid md:grid-cols-2 gap-4 self-start content-start text-white">
@@ -125,7 +130,7 @@ const WorkshopOrder = () => {
               let articleCard = { ...article }
               articleCard.quantity = Number(articleCard.quantity) - Number(articleCard.booked)
               articleCard = { ...articleCard, ...articleCard.customArticle }
-              return <ArticleCard article={articleCard} customArticle={articleCard} stockNoShow stockNoControl quantityNoControl quantityLocalNoControl forCut bookedQuantity hoverEffect={false} />
+              return <ArticleCard article={articleCard} customArticle={articleCard} receivingNoControl stockNoShow stockNoControl quantityNoControl quantityLocalNoControl forCut bookedQuantity hoverEffect={false} />
             }) : <p>No hay articulos personalizados</p>}
           </div>
         </>
@@ -134,21 +139,22 @@ const WorkshopOrder = () => {
       )}
       <AnimatePresence>
         {receiving ? (
-          <div className="absolute top-0 left-0 w-full h-full bg-[#000]/50 flex justify-center items-center px-8">
+          <div className="absolute top-0 left-0 w-full h-full bg-[#000]/70 flex justify-center items-center px-8">
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ duration: 0.1 }} style={{ transformOrigin: "center" }} className={`mb-[10rem] grid md:grid-cols-${allArticles?.length > 1 ? "2" : "1"} gap-4 justify-center content-center text-white`}>
               {allArticles?.length ? allArticles?.map(article => {
                 let articleCard = { ...article }
                 articleCard.quantity = workshopOrder?.cut?.order ? (Number(articleCard.quantity) - Number(articleCard.booked)) : Number(articleCard?.quantity)
-                articleCard = { ...articleCard, ...articleCard.article, ...articleCard?.customArticle }
+                articleCard = { ...articleCard, ...articleCard[articleCard?.article ? "article" : "customArticle"] }
+                articleCard.receiving = articleCard?.quantity - Number(articleCard?.received)
                 const props = {}
                 if (article?.customArticle) {
                   props["customArticle"] = articleCard
                 }
-                return <ArticleCard article={articleCard} {...props} stockNoShow stockNoControl quantityNoControl quantityLocalNoControl forCut bookedQuantity hoverEffect={false} />
+                return <ArticleCard article={articleCard} {...props} articles={articles} setArticles={setArticles} receivingNoControl={false} stockNoShow stockNoControl quantityNoControl quantityLocalNoControl forCut bookedQuantity hoverEffect={false} />
               }) : <p>No hay articulos</p>}
-              <div className={`md:col-span-${allArticles?.length > 1 ? "2" : "1"} col-span-1 flex justify-between items-center gap-4 flex-wrap`}>
-                <Button className={"bg-red-600 hover:bg-red-700"} onClick={() => setReceiving(false)}>Cancelar</Button>
-                <Button >Confirmar</Button>
+              <div className={`md:col-span-${allArticles?.length > 1 ? "2" : "1"} col-span-1 flex justify-start items-center gap-4 flex-wrap`}>
+                <Button className={"bg-red-600 hover:bg-red-700"} onClick={() => (setReceiving(false), setArticles([]))}>Cancelar</Button>
+                <Button onClick={handleConfirmReceivingArticles}>Confirmar</Button>
               </div>
             </motion.div>
           </div>
