@@ -17,13 +17,16 @@ const WorkshopOrders = () => {
     })
   }, [])
 
+  const finishedOrders = workshopOrders?.filter(order => order?.articles?.every(art => Number(art?.quantity || 0) - Number(art?.booked || 0) == (art?.received || 0)))
+  const notFinished = workshopOrders?.filter(order => !order?.articles?.every(art => Number(art?.quantity || 0) - Number(art?.booked || 0) == (art?.received || 0)))
+
   return <Main className={"grid gap-6 gap-y-16 items-start content-start"}>
     <section className="grid items-center justify-center gap-8 md:items-start md:grid-cols-2 md:justify-between">
       <Title text={"Cortes en talleres"} className={"text-center md:text-start"} />
     </section>
     <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-auto">
-      {workshopOrders?.filter(order => !order?.deliveryDate)?.length ? workshopOrders?.filter(order => !order?.deliveryDate)?.map(order => {
-        return <OrderCard name={false} order={order?.cut?.order} articles={(order?.cut?.order?.articles || order?.cut?.manualItems).filter(art => order?.articles?.some(a => a == art?._id) )} link={`/workshop-orders/${order?._id}`} text={order?.cut?.order ? `${order?.workshop?.name} CORTE N°` : order?.cut?.detail} forCut/>
+      {notFinished?.length ? notFinished?.map(order => {
+        return <OrderCard name={false} red order={order?.cut?.order} articles={(order?.cut?.order?.articles || order?.cut?.manualItems).filter(art => order?.articles?.some(a => a == art?._id) )} link={`/workshop-orders/${order?._id}`} text={order?.cut?.order ? `${order?.workshop?.name} CORTE N°` : order?.cut?.detail} forCut/>
       }) : (
         <p className="text-white text-2xl">No hay cortes en talleres</p>
       )}
@@ -32,7 +35,7 @@ const WorkshopOrders = () => {
     <AnimatePresence>
       {(showFinished) ? (
         <motion.section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-auto overflow-hidden" initial={{ height: 0 }} transition={{ duration: 0.5 }} exit={{ height: 0 }} animate={{ height: "auto" }}>
-          {workshopOrders?.filter(order => order?.deliveryDate)?.length ? workshopOrders?.filter(order => order?.deliveryDate)?.map(order => {
+          {finishedOrders?.length ? finishedOrders?.map(order => {
             return <OrderCard name={false} green order={order?.cut.order} articles={order?.cut?.items?.length ? order?.cut?.items : order?.cut?.manualItems} link={`/workshop-orders/${order?._id}`} text={order?.cut?.order ? `${order?.workshop?.name} CORTE N°` : order?.cut?.detail} forCut />
           }) : <p className="text-white text-2xl">No hay ordenes de talleres finalizadas</p>}
         </motion.section>

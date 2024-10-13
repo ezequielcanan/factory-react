@@ -19,6 +19,10 @@ const WorkshopOrder = () => {
   const [workshopOrder, setWorkshopOrder] = useState(null)
   const [receiving, setReceiving] = useState(false)
   const [articles, setArticles] = useState([])
+  const [commonArticles, setCommonArticles] = useState([])
+  const [customArticles, setCustomArticles] = useState([])
+  const [allArticles, setAllArticles] = useState([])
+  const [reload, setReload] = useState(false)
   const { register, handleSubmit } = useForm()
   const [edit, setEdit] = useState(false)
   const navigate = useNavigate()
@@ -26,9 +30,14 @@ const WorkshopOrder = () => {
 
   useEffect(() => {
     customAxios.get(`/workshop-order/${oid}`).then(res => {
-      setWorkshopOrder(res?.data)
+      setWorkshopOrder({...res?.data})
+      const common = res?.data?.articles?.filter(a => a?.article) || []
+      const custom = res?.data?.articles?.filter(a => a?.customArticle) || []
+      setCommonArticles([...common])
+      setCustomArticles([...custom])
+      setAllArticles([...common, ...custom])
     })
-  }, [])
+  }, [reload])
 
   useEffect(() => {
     if (receiving) {
@@ -50,7 +59,7 @@ const WorkshopOrder = () => {
   }
 
   const receiveFromWorkShop = async () => {
-    setArticles(allArticles.map(a => {return {...a, receiving: (workshopOrder?.cut?.order ? (Number(a.quantity) - Number(a.booked)) : Number(a?.quantity)) - Number(a?.received)}}))
+    setArticles(allArticles.map(a => {return {...a, receiving: (workshopOrder?.cut?.order ? (Number(a.quantity) - Number(a.booked)) : Number(a?.quantity)) - Number(a?.received || 0)}}))
     setReceiving(true)
     /*await customAxios.put(`/workshop-order/receive/${oid}`)
     workshopOrder?.cut?.order ? navigate(`/orders/${workshopOrder?.cut?.order?._id}`) : navigate(`/articles`)*/
@@ -63,11 +72,7 @@ const WorkshopOrder = () => {
   })
 
 
-  const commonArticles = workshopOrder?.articles?.filter(a => a?.article) || []
-
-  const customArticles = workshopOrder?.articles?.filter(a => a?.customArticle) || []
-
-  const allArticles = [...commonArticles, ...customArticles]
+  
 
   const deleteWorkshopOrder = async () => {
     Swal.fire({
@@ -92,8 +97,7 @@ const WorkshopOrder = () => {
 
   const handleConfirmReceivingArticles = async () => {
     await customAxios.put(`/workshop-order/receive/${oid}`, articles)
-    setArticles([])
-    setReceiving(false)
+    navigate(`/workshop-orders`)
   }
 
   return (
@@ -145,7 +149,7 @@ const WorkshopOrder = () => {
                 let articleCard = { ...article }
                 articleCard.quantity = workshopOrder?.cut?.order ? (Number(articleCard.quantity) - Number(articleCard.booked)) : Number(articleCard?.quantity)
                 articleCard = { ...articleCard, ...articleCard[articleCard?.article ? "article" : "customArticle"] }
-                articleCard.receiving = articleCard?.quantity - Number(articleCard?.received)
+                articleCard.receiving = articleCard?.quantity - Number(articleCard?.received || 0)
                 const props = {}
                 if (article?.customArticle) {
                   props["customArticle"] = articleCard

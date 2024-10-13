@@ -27,7 +27,7 @@ const Cut = () => {
 
   useEffect(() => {
     customAxios.get(`/cuts/${cid}`).then(res => {
-      const articles = (res?.data?.items?.length ? res?.data?.items : (res?.data?.order ? res?.data?.order?.articles : res?.data?.manualItems))?.filter(a => res?.data?.order ? (a.hasToBeCut && a.quantity > a.booked) : true)
+      const articles = (res?.data?.items?.length ? res?.data?.items : (res?.data?.order ? res?.data?.order?.articles : res?.data?.manualItems))?.filter(a => res?.data?.order ? ((a.hasToBeCut && a.quantity > a.booked) || res?.data?.workshopOrders?.some(o => o?.articles?.some(art => art?.customArticle == a?.customArticle?._id || art?.article == a?.article?._id))) : true)
       setCut({ ...res?.data, articles })
     })
   }, [reload])
@@ -112,8 +112,14 @@ const Cut = () => {
           <div className="grid md:grid-cols-2 gap-4 content-start text-white">
             <h3 className="md:col-span-2 text-2xl text-white">Articulos de linea</h3>
             {cut?.articles?.filter(a => cut?.order ? a.common : true)?.length ? cut?.articles?.filter(a => cut?.order ? a.common : true)?.map(article => {
+              const workshopOrderWithArticle = cut?.workshopOrders?.find(o => o?.articles?.some(art => art?.article == article?.article?._id))
+              if (workshopOrderWithArticle) {
+                const wArticle = workshopOrderWithArticle?.articles?.find(art => art?.article == article?.article?._id)
+                article.quantity = wArticle?.quantity || 0
+                article.booked = wArticle?.booked || 0
+              }
               let articleCard = { ...article }
-              articleCard.quantity = cut?.order ? (Number(articleCard.quantity) - Number(articleCard.booked)) : Number(articleCard?.quantity)
+              articleCard.quantity = Number(articleCard.quantity || 0) - Number(articleCard.booked || 0)
               articleCard = { ...articleCard, ...articleCard.article, id: articleCard?._id }
               return <ArticleCard quantityLocalNoControl onClickArticle={() => toggleFromSelectedArticles(articleCard)} article={articleCard} cstockNoShow stockNoControl quantityNoControl forCut bookedQuantity hoverEffect={workshop ? true : false} className={selectedArticles?.some(art => art?._id == articleCard?.id) && `!bg-teal-700`}/>
             }) : <p>No hay articulos de linea</p>}
@@ -121,6 +127,13 @@ const Cut = () => {
           <div className="grid md:grid-cols-2 gap-4 content-start text-white">
             <h3 className="md:col-span-2 text-2xl text-white">Articulos personalizados</h3>
             {cut?.articles?.filter(a => cut?.order ? !a.common : false)?.length ? cut?.articles?.filter(a => cut?.order ? !a.common : false)?.map(article => {
+              console.log()
+              const workshopOrderWithArticle = cut?.workshopOrders?.find(o => o?.articles?.some(art => art?.customArticle == article?.customArticle?._id))
+              if (workshopOrderWithArticle) {
+                const wArticle = workshopOrderWithArticle?.articles?.find(art => art?.customArticle == article?.customArticle?._id)
+                article.quantity = wArticle?.quantity || 0
+                article.booked = wArticle?.booked || 0
+              }
               let articleCard = { ...article }
               articleCard.quantity = Number(articleCard.quantity) - Number(articleCard.booked)
               articleCard = { ...articleCard, ...articleCard.customArticle, id: articleCard?._id }

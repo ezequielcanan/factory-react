@@ -26,7 +26,6 @@ const ArticleCard = ({ article, articles = [], setArticles = () => { }, classNam
     setArticles(newArticles.filter(a => property == "quantity" ? a[property] > 0 : a))
     setArticleCard(newArticleCard)
   }
-  console.log(articleCard?.received)
   return (
     <motion.div onClick={() => onClickArticle ? onClickArticle(articleCard, setArticleCard) : (!forCut && navigate(`/articles/${article?._id}`))} initial={{ opacity: 0 }} transition={{ duration: 0.5 }} animate={{ opacity: 1 }} className={`flex flex-col text-white min-h-[400px] ${hoverEffect && "hover:bg-primary cursor-pointer"} duration-300 rounded-lg bg-secondary justify-items-center justify-between overflow-hidden ${className}`}>
       <img src={getArticleImg(articleCard?._id, customArticle)} alt="No hay imagen" className="font-bold max-h-[300px] !h-full object-cover object-center" />
