@@ -17,6 +17,7 @@ import OrderCard from "../components/OrderCard"
 import { useContext } from "react"
 import { UserContext } from "../context/UserContext"
 import { useForm } from "react-hook-form"
+import moment from "moment"
 
 const Order = () => {
   const {userData} = useContext(UserContext)
@@ -220,6 +221,12 @@ const Order = () => {
               <>
                 <h3 className="lg:col-span-2 text-xl self-start">Parciales</h3>
                 {order?.suborders?.map(s => {
+                  let articlesString = ""
+                  const articlesForString = s?.articles?.filter(a => a)
+                  articlesForString?.forEach((article, i) => {
+                    articlesString += `${(article?.article?.description || article?.customArticle?.detail)?.toUpperCase()}${i != (articlesForString?.length - 1) ? " ///// " : ""}`
+                  })
+                  s = { ...s, remainingDays: moment(s?.deliveryDate).diff(moment(), "days"), articlesString }
                   return <OrderCard order={s} key={s?._id} cross crossAction={onDeleteSuborder} />
                 })}
                 <div className="flex gap-x-4 lg:col-span-2">

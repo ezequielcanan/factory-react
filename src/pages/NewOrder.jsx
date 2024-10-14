@@ -62,7 +62,7 @@ const NewOrder = () => {
 
   const addCustomArticle = (e) => {
     e.preventDefault();
-    setCustomArticles([...customArticles, { id: customArticles.length ? customArticles[customArticles.length - 1].id + 1 : 1, detail: "", file: [] }])
+    setCustomArticles([...customArticles, { id: customArticles.length ? customArticles[customArticles.length - 1].id + 1 : 1, detail: "", file: [], bordadoFile: [] }])
   }
 
   const changeCustomArticle = (value, property, id) => {
@@ -71,14 +71,14 @@ const NewOrder = () => {
     setCustomArticles([...customArticles])
   }
 
-  const changeCustomArticleFile = (file, id) => {
+  const changeCustomArticleFile = (file, id, bordado = false) => {
     const articleIndex = getCustomArticleIndex(id)
-    customArticles[articleIndex].file[0] = file
+    customArticles[articleIndex][bordado ? "bordadoFile" : "file"][0] = file
 
     const uploadedFile = file
     const reader = new FileReader();
     reader.onload = (e) => {
-      customArticles[articleIndex].file[1] = e.target.result
+      customArticles[articleIndex][bordado ? "bordadoFile" : "file"][1] = e.target.result
       setCustomArticles([...customArticles])
     };
     reader.readAsDataURL(uploadedFile)
@@ -126,9 +126,8 @@ const NewOrder = () => {
             common: true,
             article: article?._id,
             hasToBeCut: false,
-            price: article?.price ? (article?.price * (1-client?.discount)) : 0
+            price: article?.price ? (article?.price * (1 - client?.discount)) : 0
           })
-          console.log(article?.price ? (article?.price * (1-client?.discount)) : 0, (1-client?.discount))
         }))
       }
 
@@ -175,7 +174,7 @@ const NewOrder = () => {
 
     navigate("/orders")
   }
-  
+
 
   const onClickAddSuborder = async (e) => {
     e.preventDefault()
@@ -248,7 +247,7 @@ const NewOrder = () => {
                         <Input type="number" step="1" className={"w-full"} id={"quantity" + article.id} defaultValue={article?.quantity} name={"quantity" + article.id} onChange={e => changeCustomArticle(e.target.value, "quantity", article?.id)} />
                         <Button className={"self-end !bg-red-600"} onClick={e => (e.preventDefault(), deleteCustomArticle(article?.id))}><FaTrashAlt /></Button>
                       </div>
-                      <div className="flex justify-between gap-2 lg:col-span-5">
+                      <div className="flex justify-between gap-2 lg:col-span-5 flex-wrap">
                         <div className="flex flex-col gap-2">
                           <Label>Talle</Label>
                           <Input className={"w-full"} id={"size" + article.id} defaultValue={article?.size} name={"size" + article.id} onChange={e => changeCustomArticle(e.target.value, "size", article?.id)} />
@@ -265,6 +264,10 @@ const NewOrder = () => {
                           <Label>Detalle tecnico</Label>
                           <Input className={"w-full"} id={"details" + article.id} defaultValue={article?.details} name={"details" + article.id} onChange={e => changeCustomArticle(e.target.value, "details", article?.id)} />
                         </div>
+                        <Label htmlFor={"fileb" + article?.id} className={`${article?.bordadoFile[1] ? "max-h-[150px] border-4 border-nav" : "sm:w-[20%] h-full border-dashed rounded-lg border-nav border-4 py-8"} sm:max-w-[20%] col-span-1 flex items-center overflow-hidden self-center justify-center `}>
+                          {!article?.bordadoFile[1] ? <FaFileUpload className="text-7xl" /> : <img src={article?.bordadoFile[1]} alt="Seleccionar imagen" className="w-full h-full object-cover" />}
+                          <Input type="file" className="hidden" id={"fileb" + article?.id} accept="image/*" name={"fileb" + article?.id} onChange={e => changeCustomArticleFile(e.target.files[0], article?.id, true)} containerClassName={"hidden"} />
+                        </Label>
                       </div>
                     </div>
                   })}

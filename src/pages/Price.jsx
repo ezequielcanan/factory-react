@@ -21,22 +21,11 @@ const Price = () => {
 
   useEffect(() => {
     customAxios.get(`/orders/${oid}`).then((res) => {
-      if (!res?.data?.order?.suborders?.length) {
-        setOrder({
-          ...res?.data?.order, articles: res?.data?.order?.articles?.map(art => {
-            return { bookedQuantity: art.booked, custom: art?.customArticle ? true : false, ...art, ...art?.article, ...art?.customArticle, price: art?.price || 0 }
-          })
+      setOrder({
+        ...res?.data?.order, articles: res?.data?.order?.articles?.map(art => {
+          return { bookedQuantity: art.booked, custom: art?.customArticle ? true : false, ...art, ...art?.article, ...art?.customArticle, price: art?.price || 0 }
         })
-      } else {
-        setOrder({
-          ...res?.data?.order,
-          articles: [...res?.data?.order?.suborders?.map(suborder => {
-            return suborder?.articles?.map(art => {
-              return { bookedQuantity: art.booked, custom: art?.customArticle ? true : false, ...art, ...art?.article, ...art?.customArticle, price: art?.price || 0 }
-            })
-          })]
-        })
-      }
+      })
     })
   }, [reload])
 
@@ -47,7 +36,7 @@ const Price = () => {
     { value: "quantity" },
     {
       value: "price", showsFunc: true, param: true, shows: (val, row) => {
-        return (userIncludesRoles(userData, "prices") ? <Input type="number" defaultValue={val || ""} disabled={!edit} onChange={(e) => onChangePrice(e?.target?.value, row)} className={"!py-0 !px-0 rounded-none focus:!bg-transparent w-[100px]"} containerClassName={"!border-0 rounded-none"} /> : null)
+        return (userIncludesRoles(userData, "prices") ? <Input type="number" key={row?._id + "price"} defaultValue={val || 0} disabled={!edit} onChange={(e) => onChangePrice(e?.target?.value, row)} className={"!py-0 !px-0 rounded-none focus:!bg-transparent w-[100px]"} containerClassName={"!border-0 rounded-none"} /> : null)
       }
     },
     { value: "iva", showsFunc: true, param: true, shows: (val, row) => (((row?.price * row?.quantity) || 0) * (multiply - 1)).toFixed(2) },
@@ -82,7 +71,7 @@ const Price = () => {
             </div>
             <div className="flex flex-wrap justify-between items-center gap-8">
               <h3 className="text-xl">Detalles del pedido</h3>
-              <Button onClick={edit ? onConfirmPrices : () => setEdit(!edit)} className={"rounded-none border-2 border-white bg-third"}>{!edit ? "Editar precios" : "Actualizar"}</Button>
+              {!order?.suborders?.length && <Button onClick={edit ? onConfirmPrices : () => setEdit(!edit)} className={"rounded-none border-2 border-white bg-third"}>{!edit ? "Editar precios" : "Actualizar"}</Button>}
             </div>
             <Table fields={tableFields} headers={["Articulo", "Cantidad", "Precio Unitario", "Iva", "Subtotal"]} rows={order?.articles} />
             <div className="flex flex-wrap items-center gap-4">

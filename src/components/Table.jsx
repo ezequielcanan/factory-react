@@ -18,7 +18,7 @@ const Table = ({ headers, rows, fields, containerClassName = "", colorScale = fa
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, i) => {
+          {rows?.map((row, i) => {
             return (
               <tr key={"row" + i}>
                 {fields.map((f, j) => {

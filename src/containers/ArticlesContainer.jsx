@@ -16,9 +16,9 @@ const ArticlesContainer = ({ containerClassName, filterClassName = "", filterCCl
   const [articles, setArticles] = useState(null)
   const [filteredArticles, setFilteredArticles] = useState(null)
   const [color, setColor] = useState({value: "Todos los colores", all: true})
-  const [category, setCategory] = useState(!userIncludesRoles(userData, "cattown") ? {value: "Todas las categorias", all: true} : {value: "Cattown"})
+  const [category, setCategory] = useState( {value: "Todas las categorias", all: true})
   const [size, setSize] = useState({value: "Todos los tamaños", all: true})
-  const [society, setSociety] = useState({value: "Ambos negocios", all: true})
+  const [society, setSociety] = useState(!userIncludesRoles(userData, "cattown") ? {value: "Ambos negocios", all: true} : {value: "Cattown"})
   const [search, setSearch] = useState("")
   const [page, setPage] = useState(1)
 
@@ -36,7 +36,7 @@ const ArticlesContainer = ({ containerClassName, filterClassName = "", filterCCl
     })
   }, [society, color, size, category, search, page])
 
-  const finalSocieties = !userIncludesRoles(userData, "cattown") ? [{value: "Ambos negocios", all: true}, ...societies] : [{value: "Cattown"}]
+  const finalSocieties = !userIncludesRoles(userData, "cattown") ? [{value: "Ambos negocios", all: true}, ...societies] : [{value: "Cattown"}, {value: "Cattown Home"}]
 
   return (
     <ItemsContainer className={`${containerClassName}`}>

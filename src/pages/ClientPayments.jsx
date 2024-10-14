@@ -18,7 +18,7 @@ import { MdClose } from "react-icons/md"
 const ClientPayments = () => {
   const [client, setClient] = useState(null)
   const [reload, setReload] = useState(false)
-  const {register, handleSubmit, reset} = useForm()
+  const { register, handleSubmit, reset } = useForm()
   const { cid } = useParams()
 
   useEffect(() => {
@@ -28,7 +28,7 @@ const ClientPayments = () => {
   }, [reload])
 
   const onSubmit = handleSubmit(async data => {
-    await customAxios.post(`/payments`, {...data, amount: Number(data?.amount), client: cid})
+    await customAxios.post(`/payments`, { ...data, amount: Number(data?.amount), client: cid })
     reset()
     setReload(!reload)
   })
@@ -40,8 +40,8 @@ const ClientPayments = () => {
 
   const tableFields = [
     { value: "date", showsFunc: true, shows: (val) => moment.utc(val).format("DD-MM-YYYY") },
-    { value: "detail"},
-    { value: "amount"},
+    { value: "detail" },
+    { value: "amount" },
     { value: "delete", showsFunc: true, param: true, shows: (val, row) => <MdClose className="text-xl cursor-pointer" onClick={() => deletePayment(row)} /> },
   ]
 
@@ -49,7 +49,7 @@ const ClientPayments = () => {
     <Main className={"grid gap-6 gap-y-16 items-start content-start text-white"}>
       <section className="grid items-center justify-center gap-8 md:items-start md:grid-cols-2 md:justify-between">
         <Title text={`Facturacion ${client ? client?.name : ""}`} className={"text-center md:text-start"} />
-        <a className="md:justify-self-end justify-self-center" href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/cc/${client?._id}`} download><Button className={"flex items-center gap-x-6"}>Cuenta Corriente <FaFileExcel/></Button></a>
+        <a className="md:justify-self-end justify-self-center" href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/cc/${client?._id}`} download><Button className={"flex items-center gap-x-6"}>Cuenta Corriente <FaFileExcel /></Button></a>
       </section>
       {client ? (
         <>
@@ -57,16 +57,22 @@ const ClientPayments = () => {
             <p className="text-3xl text-center md:text-start">Deuda a favor: ${client?.balance}</p>
             <form className="flex flex-wrap items-center gap-4" onSubmit={onSubmit}>
               <Label>Agregar Pago</Label>
-              <Input register={register("amount")} type="number" placeholder={"Monto"}/>
-              <Input register={register("detail")} type="string" placeholder={"Observaciones"}/>
+              <Input register={register("amount")} type="number" placeholder={"Monto"} />
+              <Input register={register("detail")} type="string" placeholder={"Observaciones"} />
               <Input register={register("date")} type="date" />
-              <Button><TiTick/></Button>
+              <Button><TiTick /></Button>
             </form>
-            <Table fields={tableFields} headers={["Fecha", "Observaciones", "Monto", "Borrar"]} rows={client?.payments} containerClassName="max-h-[500px]"/>
+            <Table fields={tableFields} headers={["Fecha", "Observaciones", "Monto", "Borrar"]} rows={client?.payments} containerClassName="max-h-[500px]" />
           </section>
           <section className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-auto content-start grid-flow-row">
             {client?.orders?.length ? (
               client?.orders.map(o => {
+                let articlesString = ""
+                const articlesForString = o?.articles?.filter(a => a)
+                articlesForString?.forEach((article, i) => {
+                  articlesString += `${(article?.article?.description || article?.customArticle?.detail)?.toUpperCase()}${i != (articlesForString?.length - 1) ? " ///// " : ""}`
+                })
+                o = { ...o, remainingDays: moment(o?.deliveryDate).diff(moment(), "days"), articlesString }
                 return <OrderCard key={o?._id} order={o} green link={`/prices/order/${o?._id}`} />
               })
             ) : (
