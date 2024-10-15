@@ -111,6 +111,11 @@ const NewOrder = () => {
             const filePath = `/articles/custom/${c?._id}`
             await uploadFile(customArticle.file[0], filePath, "thumbnail.png")
           }
+
+          if (customArticle.bordadoFile[0]) {
+            const filePath = `/articles/custom/${c?._id}`
+            await uploadFile(customArticle.bordadoFile[0], filePath, "bordado.png")
+          }
         }))
 
 

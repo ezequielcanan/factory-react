@@ -52,8 +52,8 @@ export const roles = [
   { value: "admin", text: "Administrador" },
 ]
 
-export const getArticleImg = (id, custom = false) => {
-  return `${import.meta.env.VITE_REACT_API_URL}/files/articles/${custom ? "custom/" + id : id}/thumbnail.png`
+export const getArticleImg = (id, custom = false, bordado = false) => {
+  return `${import.meta.env.VITE_REACT_API_URL}/files/articles/${custom ? "custom/" + id : id}/${!bordado ? "thumbnail" : "bordado"}.png`
 }
 
 export const uploadFile = async (sendFile, path, name) => {

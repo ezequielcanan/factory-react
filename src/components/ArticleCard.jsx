@@ -17,7 +17,7 @@ const ArticleCard = ({ article, articles = [], setArticles = () => { }, classNam
     setArticleCard(newArticle?.data)
   }
 
-  const changeQuantity = (qty, direct=false, property = "quantity") => {
+  const changeQuantity = (qty, direct = false, property = "quantity") => {
     const newQuantity = !direct ? (articleCard?.[property] || 0) + qty : (qty || 0)
     const articleIndex = articles.findIndex(a => a?._id == articleCard?._id || a?.article?._id == articleCard?.article?._id)
     articles.splice(articleIndex, 1)
@@ -42,7 +42,7 @@ const ArticleCard = ({ article, articles = [], setArticles = () => { }, classNam
                 null
               )}
             </div>
-            {!bookedQuantity && 
+            {!bookedQuantity &&
               <>
                 <p>Reservado en pedidos: {articleCard.booked || 0}</p>
                 <p>Disponibles: {(articleCard.stock - articleCard?.booked) || 0}</p>
@@ -52,7 +52,7 @@ const ArticleCard = ({ article, articles = [], setArticles = () => { }, classNam
         {articleCard?.quantity ? <div className="flex gap-2 sm:gap-6 flex-col sm:flex-row sm:items-center">
           <div className="flex gap-2 items-center">
             <p>Cantidad: {quantityLocalNoControl && articleCard?.quantity}</p>
-            {!quantityLocalNoControl && <Input onClick={e => e.stopPropagation()} onChange={e => (e.stopPropagation(), changeQuantity(parseInt(e?.target?.value), true))} step="1" type="number" value={articleCard?.quantity} className={"text-sm w-[50px] !px-1 !py-1 "} containerClassName={"rounded-none"}/>}
+            {!quantityLocalNoControl && <Input onClick={e => e.stopPropagation()} onChange={e => (e.stopPropagation(), changeQuantity(parseInt(e?.target?.value), true))} step="1" type="number" value={articleCard?.quantity} className={"text-sm w-[50px] !px-1 !py-1 "} containerClassName={"rounded-none"} />}
           </div>
           {!quantityNoControl && <div className="flex gap-4">
             <FaMinusCircle onClick={(e) => (e.stopPropagation(), changeQuantity(-1))} />
@@ -62,7 +62,7 @@ const ArticleCard = ({ article, articles = [], setArticles = () => { }, classNam
         {(articleCard?.received || !receivingNoControl) ? <div className="flex gap-2 sm:gap-6 flex-col sm:flex-row sm:items-center">
           <div className="flex gap-2 items-center">
             <p>Recibido: {receivingNoControl ? articleCard?.received : null}</p>
-            {!receivingNoControl && <Input onClick={e => e.stopPropagation()} onChange={e => (e.stopPropagation(), changeQuantity(parseInt(e?.target?.value), true, "receiving"))} step="1" type="number" value={articleCard?.receiving || 0} className={"text-sm w-[50px] !px-1 !py-1 "} containerClassName={"rounded-none"}/>}
+            {!receivingNoControl && <Input onClick={e => e.stopPropagation()} onChange={e => (e.stopPropagation(), changeQuantity(parseInt(e?.target?.value), true, "receiving"))} step="1" type="number" value={articleCard?.receiving || 0} className={"text-sm w-[50px] !px-1 !py-1 "} containerClassName={"rounded-none"} />}
           </div>
           {!receivingNoControl && <div className="flex gap-4">
             <FaMinusCircle onClick={(e) => (e.stopPropagation(), changeQuantity(-1, false, "receiving"))} />
@@ -70,7 +70,10 @@ const ArticleCard = ({ article, articles = [], setArticles = () => { }, classNam
           </div>}
         </div> : null}
         {customArticle?.bordado ? (
-          <p>Bordado: {customArticle?.bordado}</p>
+          <>
+            <p>Bordado: {customArticle?.bordado}</p>
+            <img src={getArticleImg(articleCard?._id, customArticle, true)} alt="No hay foto del bordado" className="font-bold max-h-[300px] !h-full object-cover object-center" />
+          </>
         ) : null}
         {customArticle?.ubicacion ? (
           <p>Ubicacion: {customArticle?.ubicacion}</p>

@@ -24,6 +24,7 @@ const Order = () => {
   const [order, setOrder] = useState(null)
   const [cut, setCut] = useState(null)
   const [file, setFile] = useState(null)
+  const [bordadoFile, setBordadoFile] = useState(null)
   const {register, handleSubmit, reset} = useForm()
   const [reload, setReload] = useState(false)
   const [lastReload, setLastReload] = useState(false)
@@ -115,7 +116,8 @@ const Order = () => {
         const cid = result?.data[0]?._id
         const filePath = `/articles/custom/${cid}`
         reset()
-        await uploadFile(file[1], filePath, "thumbnail.png")
+        file && await uploadFile(file[1], filePath, "thumbnail.png")
+        bordadoFile && await uploadFile(bordadoFile[1], filePath, "bordado.png")
         
         await customAxios.post(`/orders/articles/${oid}/${cid}?custom=true`)
       })()
@@ -123,11 +125,11 @@ const Order = () => {
     }
   }
 
-  const changeCustomArticleFile = (file) => {
+  const changeCustomArticleFile = (file, bordado = false) => {
     const uploadedFile = file
     const reader = new FileReader();
     reader.onload = (e) => {
-      setFile([e?.target?.result, uploadedFile])
+      !bordado ? setFile([e?.target?.result, uploadedFile]) : setBordadoFile([e?.target?.result, uploadedFile])
     };
     reader.readAsDataURL(uploadedFile)
   }
@@ -194,11 +196,15 @@ const Order = () => {
                   <Input className={"resize-none w-full h-full"} textarea register={register("bordado")} placeholder={"Bordado"}/>
                   <Input className={"resize-none w-full h-full"} textarea register={register("ubicacion")} placeholder={"Ubicacion"}/>
                   <Input className={"resize-none w-full h-full"} textarea register={register("details")} placeholder={"Detalle tecnico"} containerClassName={"md:col-span-2"}/>
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor={"file"} className={`${file ? "max-h-[150px] border-4 border-nav" : "w-full h-full border-dashed rounded-lg border-nav border-4 py-8"} col-span-1 flex items-center overflow-hidden self-center justify-center `}>
-                      {!file ? <FaFileUpload className="text-7xl" /> : <img src={file[0]} alt="Seleccionar imagen" className="w-full h-full object-cover" />}
-                      <Input type="file" className="hidden" id={"file"} accept="image/*" name={"file"} onChange={e => changeCustomArticleFile(e?.target?.files[0])} containerClassName={"hidden"} />
-                    </Label>
+                  <Label htmlFor={"file"} className={`${file ? "max-h-[150px] border-4 border-nav" : "w-full h-full border-dashed rounded-lg border-nav border-4 py-8"} col-span-1 flex items-center overflow-hidden self-center justify-center `}>
+                    {!file ? <FaFileUpload className="text-7xl" /> : <img src={file[0]} alt="Seleccionar imagen" className="w-full h-full object-cover" />}
+                    <Input type="file" className="hidden" id={"file"} accept="image/*" name={"file"} onChange={e => changeCustomArticleFile(e?.target?.files[0])} containerClassName={"hidden"} />
+                  </Label>
+                  <Label htmlFor={"bfile"} className={`${bordadoFile ? "max-h-[150px] border-4 border-nav" : "w-full h-full border-dashed rounded-lg border-nav border-4 py-8"} col-span-1 flex items-center overflow-hidden self-center justify-center `}>
+                    {!bordadoFile ? <FaFileUpload className="text-7xl" /> : <img src={bordadoFile[0]} alt="Seleccionar imagen" className="w-full h-full object-cover" />}
+                    <Input type="file" className="hidden" id={"bfile"} accept="image/*" name={"bfile"} onChange={e => changeCustomArticleFile(e?.target?.files[0], true)} containerClassName={"hidden"} />
+                  </Label>
+                  <div className="md:col-span-2">
                     <Button onClick={() => addArticle(false, true)}>Agregar</Button>
                   </div>
                 </div>

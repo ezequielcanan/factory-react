@@ -39,7 +39,7 @@ const WorkshopOrder = () => {
     })
   }, [reload])
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (receiving) {
       // Añadir clase overflow-hidden al html para desactivar el scroll
       document.documentElement.classList.add('overflow-hidden');
@@ -52,7 +52,7 @@ const WorkshopOrder = () => {
     return () => {
       document.documentElement.classList.remove('overflow-hidden');
     };
-  }, [receiving]);
+  }, [receiving]);*/
 
   const changePrice = async (e) => {
     await customAxios.put(`/workshop-order/${oid}`, { price: e?.target?.value })
@@ -144,7 +144,7 @@ const WorkshopOrder = () => {
       <AnimatePresence>
         {receiving ? (
           <div className="absolute top-0 left-0 w-full h-full bg-[#000]/70 flex justify-center items-center px-8">
-            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ duration: 0.1 }} style={{ transformOrigin: "center" }} className={`mb-[10rem] grid md:grid-cols-${allArticles?.length > 1 ? "2" : "1"} gap-4 justify-center content-center text-white`}>
+            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ duration: 0.1 }} style={{ transformOrigin: "center" }} className={`mb-[10rem] grid md:grid-cols-${allArticles?.length > 1 ? "2" : "1"} gap-4 justify-center content-center overflow-y-auto text-white`}>
               {allArticles?.length ? allArticles?.map(article => {
                 let articleCard = { ...article }
                 articleCard.quantity = workshopOrder?.cut?.order ? (Number(articleCard.quantity) - Number(articleCard.booked)) : Number(articleCard?.quantity)
