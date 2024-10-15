@@ -27,7 +27,7 @@ const Cut = () => {
 
   useEffect(() => {
     customAxios.get(`/cuts/${cid}`).then(res => {
-      const articles = (res?.data?.items?.length ? res?.data?.items : (res?.data?.order ? res?.data?.order?.articles : res?.data?.manualItems))?.filter(a => res?.data?.order ? ((a.hasToBeCut && a.quantity > a.booked) || res?.data?.workshopOrders?.some(o => o?.articles?.some(art => art?.customArticle == a?.customArticle?._id || art?.article == a?.article?._id))) : true)
+      const articles = (res?.data?.items?.length ? res?.data?.items : (res?.data?.order ? res?.data?.order?.articles : res?.data?.manualItems))?.filter(a => res?.data?.order ? ((a.hasToBeCut && a.quantity > a.booked) || res?.data?.workshopOrders?.some(o => o?.articles?.some(art => art?.customArticle ? art?.customArticle == a?.customArticle?._id : art?.article == a?.article?._id))) : true)
       setCut({ ...res?.data, articles })
     })
   }, [reload])
