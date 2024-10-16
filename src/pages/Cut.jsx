@@ -84,6 +84,11 @@ const Cut = () => {
     }
   }
 
+  const handleCut = async () => {
+    await customAxios.put(`/cuts/${cid}?property=cut&value=true`)
+    setReload(!reload)
+  }
+
   return (
     <Main>
       {cut ? (
@@ -91,7 +96,7 @@ const Cut = () => {
           <Title text={"Orden de corte"} className={`text-center xl:text-start`} />
           <div className="flex gap-4 flex-wrap justify-center xl:justify-end text-white items-center wrap-reverse">
             {cut?.manualItems?.length ? <FaTrashAlt className="text-2xl cursor-pointer" onClick={deleteCut} /> : null}
-            <Button className={"flex items-center justify-between gap-2 justify-self-center xl:justify-self-end"} onClick={() => setPassToWorkshop(a => !a)}>Pasar a un taller <BiTransferAlt /></Button>
+            {!cut?.cut ? <Button className={"flex items-center justify-between gap-2 justify-self-center xl:justify-self-end"} onClick={handleCut}>Cortado</Button> : <Button className={"flex items-center justify-between gap-2 justify-self-center xl:justify-self-end"} onClick={() => setPassToWorkshop(a => !a)}>Pasar a un taller <BiTransferAlt /></Button>}
           </div>
           {workshop ? (
             <div className="grid xl:grid-cols-4 gap-4 items-center w-full text-xl justify-items-center xl:justify-items-start xl:col-span-2">
