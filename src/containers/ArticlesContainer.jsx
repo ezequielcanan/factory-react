@@ -11,14 +11,14 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa"
 import Button from "../components/Button"
 import { UserContext } from "../context/UserContext"
 
-const ArticlesContainer = ({ containerClassName, filterClassName = "", filterCClassName = "", pageClassName = "", quantities = [], setQuantities = () => {}, onClickArticle=null, stockNoControl=false }) => {
+const ArticlesContainer = ({ containerClassName, societyState, setSocietyState, filterClassName = "", filterCClassName = "", pageClassName = "", quantities = [], setQuantities = () => {}, onClickArticle=null, stockNoControl=false }) => {
   const {userData} = useContext(UserContext)
   const [articles, setArticles] = useState(null)
   const [filteredArticles, setFilteredArticles] = useState(null)
   const [color, setColor] = useState({value: "Todos los colores", all: true})
   const [category, setCategory] = useState( {value: "Todas las categorias", all: true})
   const [size, setSize] = useState({value: "Todos los tamaños", all: true})
-  const [society, setSociety] = useState(!userIncludesRoles(userData, "cattown") ? {value: "Ambos negocios", all: true} : {value: "Cattown"})
+  const [society, setSociety] = (societyState && setSocietyState) ? [societyState, setSocietyState] : useState(!userIncludesRoles(userData, "cattown") ? {value: "Ambos negocios", all: true} : {value: "Cattown"})
   const [search, setSearch] = useState("")
   const [page, setPage] = useState(1)
 

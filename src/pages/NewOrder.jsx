@@ -62,7 +62,7 @@ const NewOrder = () => {
 
   const addCustomArticle = (e) => {
     e.preventDefault();
-    setCustomArticles([...customArticles, { id: customArticles.length ? customArticles[customArticles.length - 1].id + 1 : 1, detail: "", file: [], bordadoFile: [] }])
+    setCustomArticles([...customArticles, { id: customArticles.length ? customArticles[customArticles.length - 1].id + 1 : 1, detail: "", file: [], bordadoFile: [], bordadoType: {value: "Bordado"} }])
   }
 
   const changeCustomArticle = (value, property, id) => {
@@ -99,7 +99,7 @@ const NewOrder = () => {
       if (!suborders?.length) {
         const finalCustomArticles = customArticles.filter(c => c.quantity > 0)
         const result = await customAxios.post("/articles/custom", finalCustomArticles?.map(c => {
-          return { detail: c.detail, quantity: c?.quantity, details: c?.details, size: c?.size, ubicacion: c?.ubicacion, bordado: c?.bordado }
+          return { detail: c.detail, quantity: c?.quantity, details: c?.details, size: c?.size, ubicacion: c?.ubicacion, bordado: c?.bordado, bordadoType: c?.bordadoType?.value || "Bordado" }
         }))
         const uploadedCustomArticles = result?.data
 
@@ -241,7 +241,7 @@ const NewOrder = () => {
                 <div className="flex flex-col gap-8 sm:gap-4 items-start">
                   <p className="text-2xl text-white">Articulos personalizados</p>
                   {customArticles.map(article => {
-                    return <div className="grid grid-cols-2 bg-third p-4 rounded-lg lg:grid-cols-5 w-full gap-4" key={article?.id}>
+                    return <div className="grid grid-cols-2 bg-third p-4 rounded-lg overflow-y-auto lg:grid-cols-5 w-full gap-4" key={article?.id}>
                       <Input className={"h-full w-full resize-none"} defaultValue={article?.detail} id={"detail" + article.id} name={"detail" + article.id} onChange={e => changeCustomArticle(e.target.value, "detail", article?.id)} containerClassName={"col-span-2 lg:col-span-3"} textarea />
                       <Label htmlFor={"file" + article?.id} className={`${article?.file[1] ? "max-h-[150px] border-4 border-nav" : "w-full h-full border-dashed rounded-lg border-nav border-4 py-8"} col-span-1 flex items-center overflow-hidden self-center justify-center `}>
                         {!article?.file[1] ? <FaFileUpload className="text-7xl" /> : <img src={article?.file[1]} alt="Seleccionar imagen" className="w-full h-full object-cover" />}
@@ -252,13 +252,17 @@ const NewOrder = () => {
                         <Input type="number" step="1" className={"w-full"} id={"quantity" + article.id} defaultValue={article?.quantity} name={"quantity" + article.id} onChange={e => changeCustomArticle(e.target.value, "quantity", article?.id)} />
                         <Button className={"self-end !bg-red-600"} onClick={e => (e.preventDefault(), deleteCustomArticle(article?.id))}><FaTrashAlt /></Button>
                       </div>
-                      <div className="flex justify-between gap-2 lg:col-span-5 flex-wrap">
+                      <div className="flex justify-between gap-2 col-span-2 lg:col-span-5 flex-wrap">
                         <div className="flex flex-col gap-2">
                           <Label>Talle</Label>
                           <Input className={"w-full"} id={"size" + article.id} defaultValue={article?.size} name={"size" + article.id} onChange={e => changeCustomArticle(e.target.value, "size", article?.id)} />
                         </div>
                         <div className="flex flex-col gap-2">
-                          <Label>Bordado</Label>
+                          <Label>Tipo</Label>
+                          <SelectInput selectedOption={article?.bordadoType} setSelectedOption={e => changeCustomArticle(e, "bordadoType", article?.id)} options={[{value: "Bordado"}, {value: "Estampado"}]} className={"!py-2"} containerClassName={"w-auto"}/>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <Label>{article?.bordadoType?.value || "Bordado"}</Label>
                           <Input className={"w-full"} id={"bordado" + article.id} defaultValue={article?.bordado} name={"bordado" + article.id} onChange={e => changeCustomArticle(e.target.value, "bordado", article?.id)} />
                         </div>
                         <div className="flex flex-col gap-2">
@@ -269,7 +273,7 @@ const NewOrder = () => {
                           <Label>Detalle tecnico</Label>
                           <Input className={"w-full"} id={"details" + article.id} defaultValue={article?.details} name={"details" + article.id} onChange={e => changeCustomArticle(e.target.value, "details", article?.id)} />
                         </div>
-                        <Label htmlFor={"fileb" + article?.id} className={`${article?.bordadoFile[1] ? "max-h-[150px] border-4 border-nav" : "sm:w-[20%] h-full border-dashed rounded-lg border-nav border-4 py-8"} sm:max-w-[20%] col-span-1 flex items-center overflow-hidden self-center justify-center `}>
+                        <Label htmlFor={"fileb" + article?.id} className={`${article?.bordadoFile[1] ? "max-h-[150px] border-4 border-nav" : "md:w-[20%] w-full h-full border-dashed rounded-lg border-nav border-4 py-8"} max-w-full md:max-w-[20%] col-span-1 flex items-center overflow-hidden self-center justify-center `}>
                           {!article?.bordadoFile[1] ? <FaFileUpload className="text-7xl" /> : <img src={article?.bordadoFile[1]} alt="Seleccionar imagen" className="w-full h-full object-cover" />}
                           <Input type="file" className="hidden" id={"fileb" + article?.id} accept="image/*" name={"fileb" + article?.id} onChange={e => changeCustomArticleFile(e.target.files[0], article?.id, true)} containerClassName={"hidden"} />
                         </Label>

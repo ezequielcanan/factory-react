@@ -71,7 +71,7 @@ const ArticleCard = ({ article, articles = [], setArticles = () => { }, classNam
         </div> : null}
         {customArticle?.bordado ? (
           <>
-            <p>Bordado: {customArticle?.bordado}</p>
+            <p>{customArticle?.bordadoType}: {customArticle?.bordado}</p>
             <img src={getArticleImg(articleCard?._id, customArticle, true)} alt="No hay foto del bordado" className="font-bold max-h-[300px] !h-full object-cover object-center" />
           </>
         ) : null}

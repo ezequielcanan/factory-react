@@ -18,6 +18,7 @@ import { useContext } from "react"
 import { UserContext } from "../context/UserContext"
 import { useForm } from "react-hook-form"
 import moment from "moment"
+import SelectInput from "../components/SelectInput"
 
 const Order = () => {
   const {userData} = useContext(UserContext)
@@ -29,6 +30,7 @@ const Order = () => {
   const [reload, setReload] = useState(false)
   const [lastReload, setLastReload] = useState(false)
   const [pricesList, setPricesList] = useState([])
+  const [bordadoType, setBordadoType] = useState({value: "Bordado"})
   const [edit, setEdit] = useState(false)
   const newSuborderRef = useRef(null)
   const navigate = useNavigate()
@@ -112,7 +114,7 @@ const Order = () => {
       setReload(!reload)
     } else {
       await handleSubmit(async data => {
-        const result = await customAxios.post("/articles/custom", [{ ...data, quantity: 0, common: false }])
+        const result = await customAxios.post("/articles/custom", [{ ...data, quantity: 0, common: false, bordadoType: bordadoType?.value || "Bordado" }])
         const cid = result?.data[0]?._id
         const filePath = `/articles/custom/${cid}`
         reset()
@@ -193,7 +195,8 @@ const Order = () => {
                 <div className="grid grid-cols-1 bg-third p-4 rounded-lg sm:grid-cols-2 w-full gap-4">
                   <Input className={"resize-none w-full h-full"} textarea register={register("detail")} placeholder={"Producto"}/>
                   <Input className={"resize-none w-full h-full"} textarea register={register("size")} placeholder={"Talle"}/>
-                  <Input className={"resize-none w-full h-full"} textarea register={register("bordado")} placeholder={"Bordado"}/>
+                  <SelectInput selectedOption={bordadoType} setSelectedOption={setBordadoType} options={[{value: "Bordado"}, {value: "Estampado"}]} containerClassName={"w-auto text-black"}/>
+                  <Input className={"resize-none w-full h-full"} textarea register={register("bordado")} placeholder={bordadoType?.value}/>
                   <Input className={"resize-none w-full h-full"} textarea register={register("ubicacion")} placeholder={"Ubicacion"}/>
                   <Input className={"resize-none w-full h-full"} textarea register={register("details")} placeholder={"Detalle tecnico"} containerClassName={"md:col-span-2"}/>
                   <Label htmlFor={"file"} className={`${file ? "max-h-[150px] border-4 border-nav" : "w-full h-full border-dashed rounded-lg border-nav border-4 py-8"} col-span-1 flex items-center overflow-hidden self-center justify-center `}>
