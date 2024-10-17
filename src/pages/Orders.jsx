@@ -18,11 +18,12 @@ const Orders = () => {
   const [orders, setOrders] = useState(null)
   const [filterOrders, setFilterOrders] = useState(null) 
   const [society, setSociety] = useState(societies[0])
+  const [search, setSearch] = useState("")
   const [page, setPage] = useState(1)
 
   useEffect(() => {
     if (society) {
-      customAxios.get(`/orders?society=${society?.value}&page=${page}`).then(res => {
+      customAxios.get(`/orders?society=${society?.value}&page=${page}${search && `&search=${search}`}`).then(res => {
         const ods = res.data?.map(order => {
           let articlesString = ""
           const articlesForString = order?.articles?.filter(a => a)
@@ -36,11 +37,12 @@ const Orders = () => {
         setFilterOrders(ods)
       })
     }
-  }, [society, page])
+  }, [society, page, search])
 
 
   const onChangeSearch = (e) => {
-    setFilterOrders(orders.filter(order => order.client?.name?.toLowerCase().includes(e?.target?.value) || order.articlesString?.toLowerCase().includes(e?.target?.value)))
+    setSearch(e?.target?.value)
+    //setFilterOrders(orders.filter(order => order.client?.name?.toLowerCase().includes(e?.target?.value) || order.articlesString?.toLowerCase().includes(e?.target?.value)))
   }
 
   return (
