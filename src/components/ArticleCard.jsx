@@ -19,7 +19,7 @@ const ArticleCard = ({ article, articles = [], setArticles = () => { }, classNam
 
   const changeQuantity = (qty, direct = false, property = "quantity") => {
     const newQuantity = !direct ? (articleCard?.[property] || 0) + qty : (qty || 0)
-    const articleIndex = articles.findIndex(a => a?._id == articleCard?._id || a?.article?._id == articleCard?.article?._id)
+    const articleIndex = articles.findIndex(a => a?._id == articleCard?._id || (a?.article?._id ? a?.article?._id == articleCard?.article?._id : false))
     articles.splice(articleIndex, 1)
     const newArticleCard = { ...articleCard, [property]: newQuantity }
     const newArticles = [...articles, newArticleCard]
@@ -52,7 +52,7 @@ const ArticleCard = ({ article, articles = [], setArticles = () => { }, classNam
         {articleCard?.quantity ? <div className="flex gap-2 sm:gap-6 flex-col sm:flex-row sm:items-center">
           <div className="flex gap-2 items-center">
             <p>Cantidad: {quantityLocalNoControl && articleCard?.quantity}</p>
-            {!quantityLocalNoControl && <Input onClick={e => e.stopPropagation()} onChange={e => (e.stopPropagation(), changeQuantity(parseInt(e?.target?.value), true))} step="1" type="number" value={articleCard?.quantity} className={"text-sm w-[50px] !px-1 !py-1 "} containerClassName={"rounded-none"} />}
+            {!quantityLocalNoControl && <Input id={(articleCard?._id || articleCard?.article?._id) + "quant"} onClick={e => e.stopPropagation()} onChange={e => (e.stopPropagation(), changeQuantity(parseInt(e?.target?.value), true))} step="1" type="number" value={articleCard?.quantity} className={"text-sm w-[50px] !px-1 !py-1 "} containerClassName={"rounded-none"} />}
           </div>
           {!quantityNoControl && <div className="flex gap-4">
             <FaMinusCircle onClick={(e) => (e.stopPropagation(), changeQuantity(-1))} />
@@ -62,7 +62,7 @@ const ArticleCard = ({ article, articles = [], setArticles = () => { }, classNam
         {(articleCard?.received || !receivingNoControl) ? <div className="flex gap-2 sm:gap-6 flex-col sm:flex-row sm:items-center">
           <div className="flex gap-2 items-center">
             <p>Recibido: {receivingNoControl ? articleCard?.received : null}</p>
-            {!receivingNoControl && <Input onClick={e => e.stopPropagation()} onChange={e => (e.stopPropagation(), changeQuantity(parseInt(e?.target?.value), true, "receiving"))} step="1" type="number" value={articleCard?.receiving || 0} className={"text-sm w-[50px] !px-1 !py-1 "} containerClassName={"rounded-none"} />}
+            {!receivingNoControl && <Input id={(articleCard?._id || articleCard?.article?._id) + "reci"} onClick={e => e.stopPropagation()} onChange={e => (e.stopPropagation(), changeQuantity(parseInt(e?.target?.value), true, "receiving"))} step="1" type="number" value={articleCard?.receiving || 0} className={"text-sm w-[50px] !px-1 !py-1 "} containerClassName={"rounded-none"} />}
           </div>
           {!receivingNoControl && <div className="flex gap-4">
             <FaMinusCircle onClick={(e) => (e.stopPropagation(), changeQuantity(-1, false, "receiving"))} />

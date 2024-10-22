@@ -20,10 +20,22 @@ const Orders = () => {
   const [society, setSociety] = useState(societies[0])
   const [search, setSearch] = useState("")
   const [page, setPage] = useState(1)
+  const [choseColors, setChoseColors] = useState([])
+ 
+  const colors = [
+    {text: "En corte", color: "bg-red-600", value: 1, param: "one"},
+    {text: "En taller", color: "bg-orange-600", value: 2, param: "two"},
+    {text: "Para separar", color: "bg-amber-300 text-black", value: 3, param: "three"},
+    {text: "Separado", color: "bg-sky-600", value: 4, param: "four"},
+    {text: "Facturado", color: "bg-green-600", value: 5, param: "five"},
+    {text: "Pedido agrupado", color: "bg-purple-700", value: 6, param: "six"}
+  ]
 
   useEffect(() => {
     if (society) {
-      customAxios.get(`/orders?society=${society?.value}&page=${page}${search && `&search=${search}`}`).then(res => {
+      const choseColorsStrArray = choseColors.map((col, i) => `&${colors?.find(c => c.value == col)?.param}=${col}`).toString().replaceAll(",", "")
+      console.log(choseColorsStrArray)
+      customAxios.get(`/orders?society=${society?.value}&page=${page}${search && `&search=${search}`}${choseColorsStrArray}`).then(res => {
         const ods = res.data?.map(order => {
           let articlesString = ""
           const articlesForString = order?.articles?.filter(a => a)
@@ -37,7 +49,7 @@ const Orders = () => {
         setFilterOrders(ods)
       })
     }
-  }, [society, page, search])
+  }, [society, page, search, choseColors])
 
 
   const onChangeSearch = (e) => {
@@ -55,12 +67,10 @@ const Orders = () => {
         <Input placeholder={"Buscar..."} className={"w-full"} onChange={onChangeSearch}/>
         <Link to={"/orders/new"} className="justify-self-end"><Button className={"text-xl font-bold px-4 flex gap-x-4 items-center"}>Nuevo Pedido <FaCartPlus /></Button></Link>
         <div className="flex gap-4 flex-wrap justify-center md:justify-between text-white lg:col-span-3 text-xl">
-          <p className="bg-red-600 px-4 py-2">En corte</p>
-          <p className="bg-orange-600 px-4 py-2">En taller</p>
-          <p className="bg-amber-300 text-black px-4 py-2">Para separar</p>
-          <p className="bg-sky-600 px-4 py-2">Separado</p>
-          <p className="bg-green-600 px-4 py-2">Facturado</p>
-          <p className="bg-purple-700 px-4 py-2">Pedido agrupado</p>
+          {colors.map(col => {
+            const isChose = choseColors?.some(c => c == col?.value)
+            return <p className={`${col?.color} px-4 py-2 cursor-pointer duration-300 ${isChose ? "brightness-150" : ""}`} onClick={() => isChose ? setChoseColors(choseColors.filter(c => c != col?.value)) : setChoseColors([...choseColors, col?.value])} key={col?.text}>{col?.text}</p>
+          })}
         </div>
       </section>
       <section className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-auto content-start grid-flow-row">
