@@ -34,7 +34,6 @@ const Orders = () => {
   useEffect(() => {
     if (society) {
       const choseColorsStrArray = choseColors.map((col, i) => `&${colors?.find(c => c.value == col)?.param}=${col}`).toString().replaceAll(",", "")
-      console.log(choseColorsStrArray)
       customAxios.get(`/orders?society=${society?.value}&page=${page}${search && `&search=${search}`}${choseColorsStrArray}`).then(res => {
         const ods = res.data?.map(order => {
           let articlesString = ""
