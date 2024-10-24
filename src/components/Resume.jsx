@@ -27,7 +27,7 @@ ChartJS.register(
   Legend 
 );
 
-const Resume = ({ title, week = true, month = false, controls = false }) => {
+const Resume = ({ title = "Ultima semana", week = true, month = false, controls = false }) => {
   const [resume, setResume] = useState(null)
   const [error, setError] = useState(false)
   const [labels, setLabels] = useState([])
@@ -146,7 +146,7 @@ const Resume = ({ title, week = true, month = false, controls = false }) => {
   return resume ? (
     <>
       <motion.section initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} transition={{ duration: 0.5 }} className="bg-third rounded-xl row-span-2 shadow-[0_0px_10px_1px_rgba(0,255,255,0.2)] p-4 flex flex-col gap-y-8 text-white">
-        {!controls ? <h2 className="text-xl text-white font-bold mb-2">Ultimo mes</h2> : (
+        {!controls ? <h2 className="text-xl text-white font-bold mb-2">{title}</h2> : (
           <div className="flex flex-wrap gap-4 items-center">
             <div className="flex items-center gap-4">
               <p className="text-lg font-bold">Desde:</p>
