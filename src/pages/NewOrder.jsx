@@ -95,17 +95,17 @@ const NewOrder = () => {
   const onSubmit = handleSubmit(async data => {
     if (client?._id) {
       const items = []
-
+      let uploadedCustomArticles
       if (!suborders?.length) {
         const finalCustomArticles = customArticles.filter(c => c.quantity > 0)
         const result = await customAxios.post("/articles/custom", finalCustomArticles?.map(c => {
           return { detail: c.detail, quantity: c?.quantity, details: c?.details, size: c?.size, ubicacion: c?.ubicacion, bordado: c?.bordado, bordadoType: c?.bordadoType?.value || "Bordado" }
         }))
-        const uploadedCustomArticles = result?.data
+        uploadedCustomArticles = result?.data
 
         await Promise.all(uploadedCustomArticles.map(async c => {
           const customArticle = finalCustomArticles.find(cs => cs?.detail == c?.detail)
-          items.push({ booked: 0, quantity: customArticle?.quantity, common: false, customArticle: c?._id, hasToBeCut: true })
+          items.push({ booked: 0, quantity: customArticle?.quantity, common: false, customArticle: c?._id, hasToBeCut: false })
 
           if (customArticle.file[0]) {
             const filePath = `/articles/custom/${c?._id}`
@@ -155,8 +155,8 @@ const NewOrder = () => {
       let count = 0
       const resultOrder = await (await customAxios.post("/orders", order)).data
       resultOrder.articles = resultOrder.articles?.map(a => {
-        if (a.common && a.quantity > a.booked) {
-          a.article = articles.find(art => art._id == a?.article)
+        if (a.quantity > a.booked) {
+          a.article = !a?.customArticle ? articles.find(art => art._id == a?.article) : uploadedCustomArticles.find(art => art?._id == a?.customArticle)
           count++
           return {
             cutQuantity: a.quantity - a.booked,
@@ -189,7 +189,7 @@ const NewOrder = () => {
       newSuborderRef.current.value = ""
     }
   }
-
+  console.log(order)
   return (
     <Main className={"grid auto-rows-max px-2 sm:px-8 gap-8"}>
       {!order ?
@@ -336,7 +336,7 @@ const NewOrder = () => {
         </>) : (
           <>
             <div className="grid md:grid-cols-2 gap-y-8 justify-between items-center">
-              <h2 className="text-4xl font-bold text-white text-center md:text-start">Confirmar corte de articulos de linea</h2>
+              <h2 className="text-4xl font-bold text-white text-center md:text-start">Confirmar corte de articulos</h2>
               <div className="flex flex-col sm:flex-row gap-6 justify-self-center md:justify-self-end">
                 <Button onClick={onConfirmCutOrder}>Confirmar corte</Button>
                 <Button className={"bg-red-600 hover:bg-red-800"} onClick={() => navigate("/orders")}>Cancelar corte</Button>
@@ -345,7 +345,7 @@ const NewOrder = () => {
             <div className="flex flex-col gap-4 text-white">
               {order?.length ? order.map(article => {
                 const cutQuantity = article?.cutQuantity
-                article = article.article
+                article = article.article || article?.customArticle
                 article.quantity = cutQuantity
                 return (
                   <ArticleRow article={article} key={"cutrow" + article?._id} />

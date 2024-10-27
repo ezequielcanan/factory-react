@@ -77,10 +77,6 @@ const Order = () => {
     navigate(`/prices/order/${oid}`)
   }
 
-  const onPricingOrder = async () => {
-    await customAxios.put(`/orders/${oid}?property=inPricing&value=true`)
-    setReload(!reload)
-  }
 
   const deleteOrder = async () => {
     Swal.fire({
@@ -99,6 +95,29 @@ const Order = () => {
       if (result.isConfirmed) {
         await customAxios.delete(`/orders/${oid}`)
         navigate("/orders")
+      }
+    });
+  }
+
+  const onPassToPricing = async () => {
+    Swal.fire({
+      title: "<strong>Bultos:</strong>",
+      icon: "info",
+      input: "number",
+      showCloseButton: true,
+      showCancelButton: true,
+      focusConfirm: false,
+      confirmButtonText: `
+        Confirmar
+      `,
+      cancelButtonText: `
+        Cancelar
+      `,
+    }).then(async (result) => {
+      if (result.isConfirmed && result?.value) {
+        await customAxios.put(`/orders/${oid}?property=inPricing&value=true`)
+        await customAxios.put(`/orders/${oid}?property=packages&value=${result?.value || 0}`)
+        setReload(!reload)
       }
     });
   }
@@ -161,6 +180,11 @@ const Order = () => {
     setReload(!reload)
   }
 
+  const onChangeDeliveryDate = async (e) => {
+    await customAxios.put(`/orders/${oid}?property=deliveryDate&value=${moment(e?.target?.value, "YYYY-MM-DD")}`)
+    setReload(!reload)
+  }
+
   return (
     <Main className={"grid lg:grid-cols-2 gap-y-8 md:gap-y-16 gap-x-16 overflow-x-hidden content-start text-white"}>
       {(order) ? (
@@ -168,11 +192,15 @@ const Order = () => {
           <h2 className="text-4xl justify-self-center lg:justify-self-start font-bold">Pedido N° {order?.orderNumber}</h2>
           <div className="flex gap-8 flex-wrap items-center justify-center lg:justify-end">
             <FaTrashAlt className="text-2xl cursor-pointer" onClick={deleteOrder} />
-            <Button className={`justify-self-center lg:justify-self-end ${!order?.finished && (order?.inPricing ? "bg-green-700 hover:bg-green-800" : "bg-sky-600 hover:bg-sky-700")}`} onClick={!order?.finished ? (order?.inPricing ? onFinishOrder : onPricingOrder) : () => navigate(`/prices/order/${oid}`)}>{order?.finished ? "Finalizado" : (!order?.inPricing ? "Pasar a facturacion" : "Facturar")}</Button>
+            <Button className={`justify-self-center lg:justify-self-end ${!order?.finished && (order?.inPricing ? "bg-green-700 hover:bg-green-800" : "bg-sky-600 hover:bg-sky-700")}`} onClick={!order?.finished ? (order?.inPricing ? onFinishOrder : onPassToPricing) : () => navigate(`/prices/order/${oid}`)}>{order?.finished ? "Finalizado" : (!order?.inPricing ? "Pasar a facturacion" : "Facturar")}</Button>
           </div>
           <section className="flex flex-col gap-16">
             <div className="flex flex-col gap-8">
               <h3 className="text-3xl">Cliente: {order?.client?.name}</h3>
+              <div className="flex items-center gap-4">
+                <Label>Fecha de entrega:</Label>
+                <Input defaultValue={moment(order?.deliveryDate).format("YYYY-MM-DD")} type={"date"} onChange={onChangeDeliveryDate}/>
+              </div>
               <p className="text-xl">Telefono: {order?.client?.phone}</p>
               <p className="text-xl">Email: {order?.client?.email}</p>
               <p className="text-xl">Cuit: {order?.client?.cuit}</p>

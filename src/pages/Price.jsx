@@ -68,6 +68,7 @@ const Price = () => {
           <section className="grid gap-8 max-w-full text-white">
             <div className="flex flex-col gap-8">
               <h3 className="text-2xl">Total: ${order?.articles?.reduce((acc, art) => acc + ((art?.price ? (art?.price * art?.quantity) : 0) * multiply), 0)}</h3>
+              <p className="text-xl">Bultos: {order?.packages}</p>
             </div>
             <div className="flex flex-wrap justify-between items-center gap-8">
               <h3 className="text-xl">Detalles del pedido</h3>
