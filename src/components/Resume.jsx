@@ -145,7 +145,7 @@ const Resume = ({ title = "Ultima semana", week = true, month = false, controls 
 
   return resume ? (
     <>
-      <motion.section initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} transition={{ duration: 0.5 }} className="bg-third rounded-xl row-span-2 shadow-[0_0px_10px_1px_rgba(0,255,255,0.2)] p-4 grid gap-y-8 content-start text-white">
+      <motion.section initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} transition={{ duration: 0.5 }} className="bg-third rounded-xl shadow-[0_0px_10px_1px_rgba(0,255,255,0.2)] p-4 grid gap-y-8 content-start text-white">
         {!controls ? <h2 className="text-xl text-white font-bold mb-2">{title}</h2> : (
           <div className="flex flex-wrap gap-4 items-center">
             <div className="flex items-center gap-4">

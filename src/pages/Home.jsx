@@ -26,7 +26,7 @@ const Home = () => {
   }, [])
 
   return (
-    <Main className={"grid grid-cols-1 content-start md:grid-cols-2 lg:grid-cols-3 md:grid-rows-3 gap-8"}>
+    <Main className={"grid grid-cols-1 content-start md:grid-cols-2 lg:grid-cols-3 gap-8"}>
       <Resume />
       <Resume month title="Ultimo mes" />
       <Resume controls />
