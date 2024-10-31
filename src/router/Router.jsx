@@ -29,6 +29,7 @@ import Price from "../pages/Price"
 import NewCut from "../pages/NewCut"
 import ClientPayments from "../pages/ClientPayments"
 import Logistics from "../pages/Logistics"
+import NewActivity from "../pages/NewActivity"
 
 
 const Router = () => {
@@ -86,6 +87,7 @@ const Router = () => {
             </> : null}
             {userIncludesRoles(userData, "logistics") ? <>
               <Route path="/logistics" element={<Logistics />} />
+              <Route path="/logistics/new" element={<NewActivity />} />
             </> : null}
           </>
         )}

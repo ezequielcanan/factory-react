@@ -3,7 +3,7 @@ import { BiCross } from "react-icons/bi"
 import { MdClose } from "react-icons/md"
 import { Link } from "react-router-dom"
 
-const OrderCard = ({ order, articles = order?.articles, cross = false, crossAction = () => { }, text = "N°", pink = false, green = false, orange = false, red=false, name = true, link = `/orders/${order?._id}`, forCut = false }) => {
+const OrderCard = ({ order, articles = order?.articles, cross = false, crossAction = () => { }, text = "N°", pink = false, green = false, orange = false, red=false, name = true, link = `/orders/${order?._id}`, className = "", forCut = false }) => {
   let articlesString = ""
   const articlesForString = articles?.filter(a => forCut ? (order ? a.hasToBeCut && a.quantity > a.booked : true) : a)
   articlesForString?.forEach((article, i) => {
@@ -29,7 +29,7 @@ const OrderCard = ({ order, articles = order?.articles, cross = false, crossActi
   if (pink) color = "bg-pink-500"
 
   return (
-    <div className="relative">
+    <div className={"relative " + className}>
       <Link to={link}>
         <div className={`flex flex-col gap-2 ${color} ${color != "bg-amber-300" ? "text-white" : "text-black"} p-6 rounded`}>
           <div className="flex gap-x-2 items-center justify-between">

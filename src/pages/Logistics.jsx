@@ -5,6 +5,10 @@ import moment from "moment"
 import 'moment/locale/es'
 import customAxios from "../config/axios.config"
 import Date from "../components/Date"
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa6"
+import { Link } from "react-router-dom"
+import Button from "../components/Button"
+import { FaCalendar, FaCalendarAlt } from "react-icons/fa"
 
 moment.updateLocale('es', {
   months: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
@@ -17,13 +21,14 @@ moment.updateLocale('es', {
 const Logistics = () => {
   const [from, setFrom] = useState(moment().startOf('week').add(1, 'day'))
   const [to, setTo] = useState(moment().endOf("week").add(1, "day"))
-  const [activities, setActivities] = useState(null) 
+  const [activities, setActivities] = useState(null)
+  const [reload, setReload] = useState(false)
 
   useEffect(() => {
     customAxios.get(`/activities?from=${from.format("YYYY-MM-DD")}&to=${to.format("YYYY-MM-DD")}`).then(res => {
       setActivities(res?.data)
     })
-  }, [])
+  }, [reload, to])
   
   const getDatesBetween = (start, end) => {
     const dates = [];
@@ -37,29 +42,42 @@ const Logistics = () => {
     return dates;
   };
 
+  console.log("asdasd", to)
+  const changeWeek = (weeks = 1) => {
+    setFrom(f => f.clone().add(weeks, "week"))
+    setTo(t => t.clone().add(weeks, "week"))
+  }
+
   return (
     <Main className={"grid gap-y-8 content-start"}>
-      <Title text={"Logistica"}/>
+      <section className="grid items-center justify-center gap-8 md:items-start md:grid-cols-2 md:justify-between">
+        <Title text={"Logistica"} className={"text-center md:text-start"}/>
+        <Link className="justify-between justify-self-center md:justify-self-end font-bold" to={`/logistics/new`}><Button className={"flex gap-4 items-center px-4 py-2"}>Nueva tarea <FaCalendarAlt/></Button></Link>
+      </section>
       <section className="grid xl:grid-cols-7 lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-4">
         {activities && getDatesBetween(from, to).map(date => {
-          const dateActivities = [
-            ...activities["activities"].map(activity => {
-              if (moment(activity.date).isSameOrAfter(from) && moment(activity.date).isSameOrBefore(to)) {
+          const dateActivities = {
+            activities: activities["activities"].map(activity => {
+              if (moment(activity.date).isSame(moment(date?.date, "YYYY-MM-DD"), "day")) {
                 return {type: "activity", data: activity}
               } else {
                 return false
               }
             }).filter(a => a),
-            ...activities["orders"].map(activity => {
-              if (moment(activity.date).isSameOrAfter(from) && moment(activity.date).isSameOrBefore(to)) {
+            orders: activities["orders"].map(activity => {
+              if (moment(activity.deliveryDate).isSame(moment(date?.date, "YYYY-MM-DD"), "day")) {
                 return {type: "order", data: activity}
               } else {
                 return false
               }
             }).filter(a => a)
-          ]
-          return <Date date={date}/>
+          }
+          return <Date date={date} activities={dateActivities} key={date?.date} setReload={setReload}/>
         })}
+      </section>
+      <section className="flex justify-between items-center gap-8 text-white text-3xl">
+        <FaChevronLeft className="cursor-pointer" onClick={() => changeWeek(-1)}/>
+        <FaChevronRight className="cursor-pointer" onClick={() => changeWeek()}/>
       </section>
     </Main>
   )

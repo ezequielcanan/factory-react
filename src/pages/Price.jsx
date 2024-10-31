@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from "react"
 import customAxios from "../config/axios.config"
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import Main from "../containers/Main"
 import Table from "../components/Table"
 import { Oval } from "react-loader-spinner"
@@ -17,6 +17,7 @@ const Price = () => {
   const [order, setOrder] = useState(null)
   const [reload, setReload] = useState(false)
   const [edit, setEdit] = useState(false)
+  const navigate = useNavigate()
   const { oid } = useParams()
 
   useEffect(() => {
@@ -57,11 +58,21 @@ const Price = () => {
     setReload(!reload)
   }
 
+  const backToOrders = async () => {
+    await customAxios.put(`/orders/${oid}?property=inPricing&value=false`)
+    await customAxios.put(`/orders/${oid}?property=bultos&value=0`)
+    await customAxios.put(`/orders/${oid}?property=finished&value=false`)
+    navigate(`/orders/${oid}`)
+  }
+
   return (
     <Main className={"grid gap-8 content-start"}>
       <section className="grid md:grid-cols-2 content-start gap-8">
         <Title text={`Facturacion: N° ${order?.orderNumber} - ${order?.client?.name}`} className={"md:text-start text-center text-3xl"} />
-        <Button className={"md:justify-self-end self-start px-4 py-2"} onClick={toggleMode}>Modo: {order?.mode ? "Cuenta 1" : "Cuenta 2"}</Button>
+        <div className="grid gap-y-8">
+          <Button className={"md:justify-self-end self-start px-4 py-2"} onClick={toggleMode}>Modo: {order?.mode ? "Cuenta 1" : "Cuenta 2"}</Button>
+          <Button className={"md:justify-self-end self-start px-4 py-2 bg-amber-300 hover:bg-amber-500 rounded-none border-2 border-black !text-black"} onClick={backToOrders}>Pasar a pedidos</Button>
+        </div>
       </section>
       {order ? (
         <>
