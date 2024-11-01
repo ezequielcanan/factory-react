@@ -24,6 +24,7 @@ const Logistics = () => {
   const [activities, setActivities] = useState(null)
   const [reload, setReload] = useState(false)
 
+
   useEffect(() => {
     customAxios.get(`/activities?from=${from.format("YYYY-MM-DD")}&to=${to.format("YYYY-MM-DD")}`).then(res => {
       setActivities(res?.data)
@@ -42,7 +43,6 @@ const Logistics = () => {
     return dates;
   };
 
-  console.log("asdasd", to)
   const changeWeek = (weeks = 1) => {
     setFrom(f => f.clone().add(weeks, "week"))
     setTo(t => t.clone().add(weeks, "week"))

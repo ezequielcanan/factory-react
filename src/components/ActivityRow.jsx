@@ -6,10 +6,16 @@ import { BiExit } from "react-icons/bi"
 import Input from "./Input"
 import moment from "moment"
 import customAxios from "../config/axios.config"
+import { useForm } from "react-hook-form"
+import ActivityForm from "./ActivityForm"
 
 const ActivityRow = ({className, title, activity, isOrder = false, setReload}) => {
   const [expanded, setExpanded] = useState(false)
   const [newDate, setNewDate] = useState(moment(activity?.deliveryDate || activity?.date).add(1, "day"))
+  const [error, setError] = useState(false)
+  const {register, handleSubmit} = useForm()
+
+
 
   useEffect(() => {
     if (expanded) {
@@ -30,6 +36,8 @@ const ActivityRow = ({className, title, activity, isOrder = false, setReload}) =
   const handleDelivered = async () => {
     if (isOrder) {
       await customAxios.put(`/orders/${activity?._id}?property=delivered&value=${activity?.delivered ? "false" : "true"}`)
+    } else {
+      await customAxios.put(`/activities/${activity?._id}`, {delivered: activity?.delivered ? false : true})
     }
     setExpanded(false)
     setReload(r => !r)
@@ -38,13 +46,31 @@ const ActivityRow = ({className, title, activity, isOrder = false, setReload}) =
   const handleDateChange = async () => {
     if (isOrder) {
       await customAxios.put(`/orders/${activity?._id}?property=deliveryDate&value=${newDate}`)
+    } else {
+      await customAxios.put(`/activities/${activity?._id}`, {date: newDate})
     }
     setExpanded(false)
     setReload(r => !r)
   }
 
+  const onConfirmChanges = handleSubmit(async data => {
+    try {
+      const result = await customAxios.put(`/activities/${activity?._id}`, {...data, date: data?.date ? moment(data?.date).add(1, "day").subtract(1, "day") : activity?.date})
+      setExpanded(false)
+      setReload(r => !r)
+    } catch (e) {
+      setError(true)
+    }
+  })
+
   return <>
-    <div className={`p-4 text-sm ${activity?.delivered ? "bg-green-700 hover:bg-green-800" : "hover:bg-blue-500 bg-blue-700"} duration-300 text-white ${className} cursor-pointer`} onClick={() => setExpanded(true)}><p>{title}</p></div>
+    <div className={`p-4 text-sm ${activity?.delivered ? "bg-green-700 hover:bg-green-800" : "hover:bg-blue-500 bg-blue-700"} break-words whitespace-normal max-w-full duration-300 text-white ${className} cursor-pointer`}style={{
+    maxWidth: "100%",
+    whiteSpace: "normal",
+    wordBreak: "break-word",
+    overflow: "hidden", // Asegura que nada sobresalga
+    textOverflow: "ellipsis", // Opción adicional si quieres que corte el texto con puntos suspensivos
+  }} onClick={() => setExpanded(true)}><p className="max-w-full break-words">{title}</p></div>
     {expanded && <Screen className={"!bg-black/90 min-h-full h-full"}>
       <div className="flex flex-col gap-y-8 items-center overflow-y-auto max-h-[80%] py-6 px-2 w-full">
         {isOrder ? (
@@ -63,8 +89,8 @@ const ActivityRow = ({className, title, activity, isOrder = false, setReload}) =
             <p className="text-lg">Direccion de expreso: {activity?.client?.expresoAddress}</p>
             <p className="text-lg">Informacion extra / Anotaciones: {activity?.extraInfo}</p>
           </>
-        ) : null}
-        <Button className={"flex items-center gap-4"} onClick={() => setExpanded(false)}>Salir <BiExit/></Button>
+        ) : <ActivityForm onSubmit={onConfirmChanges} activity={activity} register={register} error={error} buttonClassName="justify-self-center" date={false}/>}
+        <Button className={"flex items-center gap-4 bg-orange-600 hover:bg-orange-700"} onClick={() => setExpanded(false)}>Salir <BiExit/></Button>
         <Button className={`flex items-center gap-4 ${!activity?.delivered ? "bg-green-700 hover:!bg-green-800" : "bg-red-600 hover:bg-red-800"}`} onClick={handleDelivered}>{!activity?.delivered ? "Realizado" : "Deshacer"}</Button>
         <div className="flex flex-wrap items-center gap-4 justify-center">
           <Button className={"flex items-center gap-4 bg-red-600 hover:bg-red-800"} onClick={handleDateChange}>Posponer</Button>
