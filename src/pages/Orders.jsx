@@ -12,7 +12,7 @@ import { userIncludesRoles } from "../utils/utils"
 import { UserContext } from "../context/UserContext"
 import Input from "../components/Input"
 
-const Orders = () => {
+const Orders = ({budgets = false}) => {
   const { userData } = useContext(UserContext)
   const societies = userIncludesRoles(userData, "cattown") ? [{ value: "Cattown" }] : [{ value: "Arcan" }, { value: "Cattown" }]
   const [orders, setOrders] = useState(null)
@@ -34,7 +34,7 @@ const Orders = () => {
   useEffect(() => {
     if (society) {
       const choseColorsStrArray = choseColors.map((col, i) => `&${colors?.find(c => c.value == col)?.param}=${col}`).toString().replaceAll(",", "")
-      customAxios.get(`/orders?society=${society?.value}&page=${page}${search && `&search=${search}`}${choseColorsStrArray}`).then(res => {
+      customAxios.get(`/orders?society=${society?.value}&page=${page}${search && `&search=${search}`}${budgets ? "&budgets=true" : ""}${choseColorsStrArray}`).then(res => {
         const ods = res.data?.map(order => {
           let articlesString = ""
           const articlesForString = order?.articles?.filter(a => a)
@@ -48,7 +48,7 @@ const Orders = () => {
         setFilterOrders(ods)
       })
     }
-  }, [society, page, search, choseColors])
+  }, [society, page, search, choseColors, budgets])
 
 
   const onChangeSearch = (e) => {
@@ -59,18 +59,18 @@ const Orders = () => {
   return (
     <Main className={"grid gap-6 gap-y-16 items-start content-start"}>
       <section className="grid items-center justify-center gap-8 md:items-start lg:grid-cols-3 md:justify-between">
-        <div className="grid md:grid-cols-2 gap-6 items-center">
-          <Title text={"Pedidos"} className={"text-center md:text-start"} />
+        <div className={`${!budgets ? "grid md:grid-cols-2" : "flex flex-wrap"} gap-6 items-center`}>
+          <Title text={!budgets ? "Pedidos" : "Presupuestos"} className={"text-center md:text-start"} />
           <SelectInput selectedOption={society} setSelectedOption={setSociety} options={societies} className={"!py-2"} />
         </div>
         <Input placeholder={"Buscar..."} className={"w-full"} onChange={onChangeSearch}/>
-        <Link to={"/orders/new"} className="justify-self-end"><Button className={"text-xl font-bold px-4 flex gap-x-4 items-center"}>Nuevo Pedido <FaCartPlus /></Button></Link>
-        <div className="flex gap-4 flex-wrap justify-center md:justify-between text-white lg:col-span-3 text-xl">
+        <Link to={"/orders/new"} className="justify-self-end"><Button className={"text-xl font-bold px-4 flex gap-x-4 items-center"}>Nuevo {!budgets ? "Pedido" : "Presupuesto"} <FaCartPlus /></Button></Link>
+        {!budgets && <div className="flex gap-4 flex-wrap justify-center md:justify-between text-white lg:col-span-3 text-xl">
           {colors.map(col => {
             const isChose = choseColors?.some(c => c == col?.value)
             return <p className={`${col?.color} px-4 py-2 cursor-pointer duration-300 ${isChose ? "brightness-150" : ""}`} onClick={() => isChose ? setChoseColors(choseColors.filter(c => c != col?.value)) : setChoseColors([...choseColors, col?.value])} key={col?.text}>{col?.text}</p>
           })}
-        </div>
+        </div>}
       </section>
       <section className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-auto content-start grid-flow-row">
         {filterOrders?.length ? (
@@ -78,7 +78,7 @@ const Orders = () => {
             return <OrderCard key={o?._id} order={o} />
           })
         ) : (
-          <p className="text-white text-2xl">No hay pedidos</p>
+          <p className="text-white text-2xl">No hay {!budgets ? "pedidos" : "presupuestos"}</p>
         )}
       </section>
       <div className="flex gap-x-16 justify-center self-end items-center text-white">
