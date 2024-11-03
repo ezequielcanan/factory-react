@@ -16,8 +16,9 @@ import { useForm } from "react-hook-form"
 import SelectInput from "../components/SelectInput"
 import OrderCard from "../components/OrderCard"
 import { UserContext } from "../context/UserContext"
+import ConfirmCut from "../containers/ConfirmCut"
 
-const NewOrder = () => {
+const NewOrder = ({budgets = false}) => {
   const [client, setClient] = useState(null)
   const { userData } = useContext(UserContext)
   const societies = userIncludesRoles(userData, "cattown") ? [{ value: "Cattown" }] : [{ value: "Arcan" }, { value: "Cattown" }]
@@ -126,7 +127,7 @@ const NewOrder = () => {
           const stockDifference = (stock - booked)
 
           items.push({
-            booked: (stockDifference >= article?.quantity) ? article?.quantity : stockDifference,
+            booked: !budgets ? ((stockDifference >= article?.quantity) ? article?.quantity : stockDifference) : 0,
             quantity: article?.quantity,
             common: true,
             article: article?._id,
@@ -146,6 +147,7 @@ const NewOrder = () => {
         hasToBeCut: false,
         extraInfo: data?.extraInfo,
         society: society?.value,
+        budget: budgets
       }
 
       if (suborders?.length) {
@@ -165,11 +167,11 @@ const NewOrder = () => {
         }
       })
 
-      if (count && !suborders?.length) {
+      if (count && !suborders?.length && !budgets) {
         setOrderId(resultOrder?._id)
         setOrder(resultOrder.articles.filter(a => a))
       } else {
-        navigate("/orders")
+        navigate(!budgets ? "/orders" : "/budgets")
       }
     }
   })
@@ -189,7 +191,7 @@ const NewOrder = () => {
       newSuborderRef.current.value = ""
     }
   }
-  console.log(order)
+
   return (
     <Main className={"grid auto-rows-max px-2 sm:px-8 gap-8"}>
       {!order ?
@@ -207,12 +209,17 @@ const NewOrder = () => {
                     <Label>Negocio</Label>
                     <SelectInput selectedOption={society} setSelectedOption={setSociety} options={societies} className={"!py-2"} />
 
-                    <Label>Fecha de entrega</Label>
-                    <Input type="date" register={register("date", { required: true })} className={"w-full"} containerClassName={"sm:justify-self-end"} />
+                    {!budgets && (
+                      <>
+                        <Label>Fecha de entrega</Label>
+                        <Input type="date" register={register("date", { required: true })} className={"w-full"} containerClassName={"sm:justify-self-end"} />
+                      </>
+                    )}
 
                     <Label className={"self-start"}>Informacion extra / Anotaciones</Label>
                     <Input textarea cols="50" rows="5" register={register("extraInfo")} className={"w-full"} containerClassName={"sm:justify-self-end"} />
-                    <div className="grid sm:col-span-2 lg:grid-cols-2 gap-4 text-white">
+                    
+                    {!budgets && (<div className="grid sm:col-span-2 lg:grid-cols-2 gap-4 text-white">
                       <h3 className="text-xl lg:col-span-2">Parciales</h3>
                       {suborders?.map(s => {
                         return <OrderCard order={s} key={s?._id} cross crossAction={(s) => (suborders.splice(suborders?.findIndex(so => so?._id == s?._id), 1), setSuborders([...suborders]))} />
@@ -221,7 +228,8 @@ const NewOrder = () => {
                         <Input placeholder="N° de pedido" ref={newSuborderRef} className={"w-full"} />
                         <Button className={"px-4 py-2"} onClick={onClickAddSuborder}>Agregar</Button>
                       </div>
-                    </div>
+                    </div>)}
+
                   </div>
                   <div className="flex flex-col gap-8 self-start">
                     <div className="flex gap-x-2 sm:gap-x-8 justify-between items-center">
@@ -286,13 +294,13 @@ const NewOrder = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-y-16 gap-4  sm:px-16 md:gap-16 md:p-8 self-start text-white">
                 <div className="flex flex-col gap-y-8">
-                  {(client?._id && getValues("date")) ? <>
+                  {(client?._id && (!budgets ? getValues("date") : true)) ? <>
                     <h4 className={"text-xl sm:text-3xl font-semibold"}>Cliente: {client?.name}</h4>
                     <p className="text-xl">Direccion: {client?.address}</p>
                     <p className="text-xl">Instrucciones de entrega: {client?.detail}</p>
                     <p className="text-xl">Expreso: {client?.expreso}</p>
                     <p className="text-xl">Direccion de expreso: {client?.expresoAddress}</p>
-                    <p className="text-xl">Fecha de entrega: {moment(getValues("date")).format("DD-MM-YYYY")}</p>
+                    {!budgets && <p className="text-xl">Fecha de entrega: {moment(getValues("date")).format("DD-MM-YYYY")}</p>}
                   </> : (
                     <h4 className="text-3xl font-semibold text-red-600">Faltan datos iniciales</h4>
                   )}
@@ -329,29 +337,13 @@ const NewOrder = () => {
                     })}
                   </div>
                 )}
-                {client?._id && <Button className={"md:col-span-2 justify-self-end flex gap-4 items-center"} type={"submit"}>Confirmar Pedido <FaCheck /></Button>}
+                {client?._id && <Button className={"md:col-span-2 justify-self-end flex gap-4 items-center"} type={"submit"}>Confirmar {!budgets ? "Pedido" : "Presupuesto"} <FaCheck /></Button>}
               </div>
             )}
           </form>
         </>) : (
           <>
-            <div className="grid md:grid-cols-2 gap-y-8 justify-between items-center">
-              <h2 className="text-4xl font-bold text-white text-center md:text-start">Confirmar corte de articulos</h2>
-              <div className="flex flex-col sm:flex-row gap-6 justify-self-center md:justify-self-end">
-                <Button onClick={onConfirmCutOrder}>Confirmar corte</Button>
-                <Button className={"bg-red-600 hover:bg-red-800"} onClick={() => navigate("/orders")}>Cancelar corte</Button>
-              </div>
-            </div>
-            <div className="flex flex-col gap-4 text-white">
-              {order?.length ? order.map(article => {
-                const cutQuantity = article?.cutQuantity
-                article = article.article || article?.customArticle
-                article.quantity = cutQuantity
-                return (
-                  <ArticleRow article={article} key={"cutrow" + article?._id} />
-                )
-              }) : null}
-            </div>
+            <ConfirmCut onConfirmCutOrder={onConfirmCutOrder} order={order}/>
           </>
         )}
     </Main>

@@ -64,7 +64,7 @@ const Orders = ({budgets = false}) => {
           <SelectInput selectedOption={society} setSelectedOption={setSociety} options={societies} className={"!py-2"} />
         </div>
         <Input placeholder={"Buscar..."} className={"w-full"} onChange={onChangeSearch}/>
-        <Link to={"/orders/new"} className="justify-self-end"><Button className={"text-xl font-bold px-4 flex gap-x-4 items-center"}>Nuevo {!budgets ? "Pedido" : "Presupuesto"} <FaCartPlus /></Button></Link>
+        <Link to={`/${!budgets ? "orders" : "budgets"}/new`} className="justify-self-end"><Button className={"text-xl font-bold px-4 flex gap-x-4 items-center"}>Nuevo {!budgets ? "Pedido" : "Presupuesto"} <FaCartPlus /></Button></Link>
         {!budgets && <div className="flex gap-4 flex-wrap justify-center md:justify-between text-white lg:col-span-3 text-xl">
           {colors.map(col => {
             const isChose = choseColors?.some(c => c == col?.value)

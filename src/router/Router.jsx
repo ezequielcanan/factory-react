@@ -62,6 +62,7 @@ const Router = () => {
               <Route path="/orders/:oid" element={<Order />} />
               <Route path="/orders/new" element={<NewOrder />} />
               <Route path="/budgets" element={<Orders budgets/>} />
+              <Route path="/budgets/new" element={<NewOrder budgets/>} />
             </> : null}
             {userIncludesRoles(userData, "clients") ? <>
               <Route path="/clients" element={<Clients />} />

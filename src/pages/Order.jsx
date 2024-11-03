@@ -19,6 +19,8 @@ import { UserContext } from "../context/UserContext"
 import { useForm } from "react-hook-form"
 import moment from "moment"
 import SelectInput from "../components/SelectInput"
+import { FaListCheck } from "react-icons/fa6"
+import ConfirmCut from "../containers/ConfirmCut"
 
 const Order = () => {
   const {userData} = useContext(UserContext)
@@ -29,6 +31,7 @@ const Order = () => {
   const {register, handleSubmit, reset} = useForm()
   const [reload, setReload] = useState(false)
   const [lastReload, setLastReload] = useState(false)
+  const [cutArticles, setCutArticles] = useState(null)
   const [pricesList, setPricesList] = useState([])
   const [bordadoType, setBordadoType] = useState({value: "Bordado"})
   const [edit, setEdit] = useState(false)
@@ -185,14 +188,56 @@ const Order = () => {
     setReload(!reload)
   }
 
+  const onPassToOrder = async () => {
+    await customAxios.put(`/orders/${oid}?property=budget&value=false`)
+
+    const commonArticles = order?.articles?.map(a => a?.common || a?.article)
+    let newOrder = order
+
+    await Promise.all(commonArticles.map(async article => {
+      const booked = article?.bookedQuantity
+      const stock = article?.stock
+      const stockDifference = (stock - booked)
+
+      const result = await customAxios.put(`/orders/booked/${oid}/${article?._id}/${(stockDifference >= article?.quantity) ? article?.quantity : stockDifference}`)
+      newOrder = result?.data
+    }))
+
+    let count = 0
+    console.log(newOrder)
+    const arts = newOrder?.articles?.map(a => {
+      if (a.quantity > a.booked) {
+        a.article = a 
+        count++
+        return {
+          cutQuantity: a.quantity - a.booked,
+          ...a
+        }
+      }
+    })
+
+    if (count) {
+      setCutArticles(arts.filter(a => a))
+    } else {
+      setReload(!reload)
+    }
+  }
+
+  const onConfirmCutOrder = async () => {
+    await customAxios.put(`/orders/articles/${oid}`)
+
+    navigate(`/orders/${oid}`)
+  }
+
   return (
     <Main className={"grid lg:grid-cols-2 gap-y-8 md:gap-y-16 gap-x-16 overflow-x-hidden content-start text-white"}>
-      {(order) ? (
+      {(order && !cutArticles) ? (
         <>
           <h2 className="text-4xl justify-self-center lg:justify-self-start font-bold">Pedido N° {order?.orderNumber}</h2>
           <div className="flex gap-8 flex-wrap items-center justify-center lg:justify-end">
             <FaTrashAlt className="text-2xl cursor-pointer" onClick={deleteOrder} />
-            <Button className={`justify-self-center lg:justify-self-end ${!order?.finished && (order?.inPricing ? "bg-green-700 hover:bg-green-800" : "bg-sky-600 hover:bg-sky-700")}`} onClick={!order?.finished ? (order?.inPricing ? onFinishOrder : onPassToPricing) : () => navigate(`/prices/order/${oid}`)}>{order?.finished ? "Finalizado" : (!order?.inPricing ? "Pasar a facturacion" : "Facturar")}</Button>
+            {order?.budget && <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/2/${oid}`} download className="text-2xl"><FaListCheck /></a>}
+            <Button className={`justify-self-center lg:justify-self-end ${!order?.budget && (!order?.finished && (order?.inPricing ? "bg-green-700 hover:bg-green-800" : "bg-sky-600 hover:bg-sky-700"))}`} onClick={!order.budget ? (!order?.finished ? (order?.inPricing ? onFinishOrder : onPassToPricing) : () => navigate(`/prices/order/${oid}`)) : onPassToOrder}>{!order?.budget ? (order?.finished ? "Finalizado" : (!order?.inPricing ? "Pasar a facturacion" : "Facturar")) : "Confirmar pedido"}</Button>
           </div>
           <section className="flex flex-col gap-16">
             <div className="flex flex-col gap-8">
@@ -275,7 +320,11 @@ const Order = () => {
           </section>
         </>
       ) : (
-        <Oval className="text-3xl" />
+        !cutArticles ? (
+          <Oval className="text-3xl" />
+        ) : (
+          <ConfirmCut order={cutArticles} onConfirmCutOrder={onConfirmCutOrder}/>
+        )
       )}
     </Main>
   )
