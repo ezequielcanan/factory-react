@@ -159,7 +159,7 @@ const Resume = ({ title = "Ultima semana", week = true, month = false, controls 
             <Button className={"text-sm"} onClick={() => setSearch(s => !s)}>Buscar</Button>
           </div>
         )}
-        <p className={textClassName}>Ganancia: ${resume?.profits}</p>
+        <p className={textClassName}>Ganancia: ${parseFloat(resume?.profits)?.toFixed(2)}</p>
         <p className={textClassName}>Pedidos facturados: {resume?.ordersLength}</p>
         <p className={textClassName}>Articulos diferentes: {resume?.articles?.length}</p>
         <Line key={JSON.stringify(resume?.articles)} data={data} options={options} className="text-sm mt-auto"/>

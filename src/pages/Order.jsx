@@ -33,6 +33,10 @@ const Order = () => {
   const [lastReload, setLastReload] = useState(false)
   const [cutArticles, setCutArticles] = useState(null)
   const [pricesList, setPricesList] = useState([])
+  const [dateOne, setDateOne] = useState("")
+  const [dateTwo, setDateTwo] = useState("")
+  const [info, setInfo] = useState("")
+  const [transfer, setTransfer] = useState("")
   const [bordadoType, setBordadoType] = useState({value: "Bordado"})
   const [edit, setEdit] = useState(false)
   const newSuborderRef = useRef(null)
@@ -161,7 +165,7 @@ const Order = () => {
   const tableFields = [
     { value: "description" },
     { value: "quantity", controls: true, onClickControls: onClickControls },
-    { value: "bookedQuantity", controls: true, onClickControls: onClickControls },
+    { value: "bookedQuantity", controls: !order?.budget, onClickControls: onClickControls },
     { value: "hasToBeCut", showsFunc: true, shows: (val) => val ? "Si" : "No", clickeable: true, onClick: onClickHasToBeCut },
     {
       value: "price", showsFunc: true, param: true, shows: (val, row) => {
@@ -191,23 +195,23 @@ const Order = () => {
   const onPassToOrder = async () => {
     await customAxios.put(`/orders/${oid}?property=budget&value=false`)
 
-    const commonArticles = order?.articles?.map(a => a?.common || a?.article)
-    let newOrder = order
+    const commonArticles = order?.articles?.filter(a => a?.common || a?.article)
 
+    let newOrder = {...order}
     await Promise.all(commonArticles.map(async article => {
-      const booked = article?.bookedQuantity
+      const booked = article?.totalBooked
       const stock = article?.stock
       const stockDifference = (stock - booked)
+      const bookedQuantity = (stockDifference >= article?.quantity) ? article?.quantity : stockDifference
 
-      const result = await customAxios.put(`/orders/booked/${oid}/${article?._id}/${(stockDifference >= article?.quantity) ? article?.quantity : stockDifference}`)
+      const result = await customAxios.put(`/orders/booked/${oid}/${article?._id}/${bookedQuantity}`)
       newOrder = result?.data
     }))
+    
 
     let count = 0
-    console.log(newOrder)
     const arts = newOrder?.articles?.map(a => {
       if (a.quantity > a.booked) {
-        a.article = a 
         count++
         return {
           cutQuantity: a.quantity - a.booked,
@@ -226,18 +230,36 @@ const Order = () => {
   const onConfirmCutOrder = async () => {
     await customAxios.put(`/orders/articles/${oid}`)
 
-    navigate(`/orders/${oid}`)
+    setCutArticles(null)
+    setReload(!reload)
+  }
+
+  const cancelCut = async () => {
+    setCutArticles(null)
+    setReload(!reload)
+  }
+
+  const setInputState = (e, setState) => {
+    setState(e?.target?.value)
   }
 
   return (
     <Main className={"grid lg:grid-cols-2 gap-y-8 md:gap-y-16 gap-x-16 overflow-x-hidden content-start text-white"}>
       {(order && !cutArticles) ? (
         <>
-          <h2 className="text-4xl justify-self-center lg:justify-self-start font-bold">Pedido N° {order?.orderNumber}</h2>
+          <h2 className="text-4xl justify-self-center lg:justify-self-start font-bold">{!order?.budget ? "Pedido" : "Presupuesto"} N° {order?.orderNumber}</h2>
           <div className="flex gap-8 flex-wrap items-center justify-center lg:justify-end">
-            <FaTrashAlt className="text-2xl cursor-pointer" onClick={deleteOrder} />
-            {order?.budget && <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/2/${oid}`} download className="text-2xl"><FaListCheck /></a>}
-            <Button className={`justify-self-center lg:justify-self-end ${!order?.budget && (!order?.finished && (order?.inPricing ? "bg-green-700 hover:bg-green-800" : "bg-sky-600 hover:bg-sky-700"))}`} onClick={!order.budget ? (!order?.finished ? (order?.inPricing ? onFinishOrder : onPassToPricing) : () => navigate(`/prices/order/${oid}`)) : onPassToOrder}>{!order?.budget ? (order?.finished ? "Finalizado" : (!order?.inPricing ? "Pasar a facturacion" : "Facturar")) : "Confirmar pedido"}</Button>
+            <div className="flex items-center self-start gap-8">
+              <FaTrashAlt className="text-2xl cursor-pointer" onClick={deleteOrder} />
+              {order?.budget && <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/budget/${oid}?dateOne=${dateOne}&dateTwo=${dateTwo}&transfer=${transfer}&info=${info}`} download className="text-2xl"><FaListCheck /></a>}
+              <Button className={`justify-self-center lg:justify-self-end ${!order?.budget && (!order?.finished && (order?.inPricing ? "bg-green-700 hover:bg-green-800" : "bg-sky-600 hover:bg-sky-700"))}`} onClick={!order.budget ? (!order?.finished ? (order?.inPricing ? onFinishOrder : onPassToPricing) : () => navigate(`/prices/order/${oid}`)) : onPassToOrder}>{!order?.budget ? (order?.finished ? "Finalizado" : (!order?.inPricing ? "Pasar a facturacion" : "Facturar")) : "Confirmar pedido"}</Button>
+            </div>
+            {order?.budget && <div className="flex flex-col gap-4">
+              <Input type="number" value={transfer} onChange={e => setInputState(e, setTransfer)} placeholder="% TRANSFERENCIA"/>
+              <Input type="number" value={dateOne} onChange={e => setInputState(e, setDateOne)} placeholder="PLAZO 1"/>
+              <Input type="number" value={dateTwo} onChange={e => setInputState(e, setDateTwo)} placeholder="PLAZO 2"/>
+              <Input placeholder="INFO EXTRA" value={info} onChange={e => setInputState(e, setInfo)} textarea className="w-full resize-none"/>
+            </div>} 
           </div>
           <section className="flex flex-col gap-16">
             <div className="flex flex-col gap-8">
@@ -323,7 +345,7 @@ const Order = () => {
         !cutArticles ? (
           <Oval className="text-3xl" />
         ) : (
-          <ConfirmCut order={cutArticles} onConfirmCutOrder={onConfirmCutOrder}/>
+          <ConfirmCut order={cutArticles} onConfirmCutOrder={onConfirmCutOrder} cancelFunc={cancelCut}/>
         )
       )}
     </Main>

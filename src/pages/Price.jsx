@@ -71,7 +71,7 @@ const Price = () => {
         <Title text={`Facturacion: N° ${order?.orderNumber} - ${order?.client?.name}`} className={"md:text-start text-center text-3xl"} />
         <div className="grid gap-y-8">
           <Button className={"md:justify-self-end self-start px-4 py-2"} onClick={toggleMode}>Modo: {order?.mode ? "Cuenta 1" : "Cuenta 2"}</Button>
-          <Button className={"md:justify-self-end self-start px-4 py-2 bg-amber-300 hover:bg-amber-500 rounded-none border-2 border-black !text-black"} onClick={backToOrders}>Pasar a pedidos</Button>
+          <Button className={"md:justify-self-end self-start px-4 py-2 bg-amber-300 hover:bg-amber-500 hover:!text-white rounded-none border-2 border-black !text-black"} onClick={backToOrders}>Pasar a pedidos</Button>
         </div>
       </section>
       {order ? (

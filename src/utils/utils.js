@@ -50,6 +50,7 @@ export const roles = [
   { value: "cuts", text: "Cortes" },
   { value: "workshops", text: "Talleres" },
   { value: "logistics", text: "Logistica" },
+  { value: "budgets", text: "Presupuestos" },
   { value: "admin", text: "Administrador" },
 ]
 
