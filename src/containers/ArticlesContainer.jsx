@@ -12,7 +12,7 @@ import Button from "../components/Button"
 import { UserContext } from "../context/UserContext"
 import { useForm } from "react-hook-form"
 
-const ArticlesContainer = ({ containerClassName, societyState, setSocietyState, filterClassName = "", filterCClassName = "", pageClassName = "", quantities = [], setQuantities = () => { }, onClickArticle = null, stockNoControl = false }) => {
+const ArticlesContainer = ({ containerClassName, societyState, setSocietyState, materials = false, filterClassName = "", filterCClassName = "", pageClassName = "", quantities = [], setQuantities = () => { }, onClickArticle = null, stockNoControl = false }) => {
   const { userData } = useContext(UserContext)
   const [articles, setArticles] = useState(null)
   const [filteredArticles, setFilteredArticles] = useState(null)
