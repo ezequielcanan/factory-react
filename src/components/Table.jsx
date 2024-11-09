@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { FaPlusCircle, FaMinusCircle } from "react-icons/fa"
 
-const Table = ({ headers, rows, fields, containerClassName = "", colorScale = false, colorProperty = "balance", maxValue = 0, minValue = 0 }) => {
+const Table = ({ headers, rows, fields, containerClassName = "", stylesFunc, colorScale = false, colorProperty = "balance", maxValue = 0, minValue = 0 }) => {
   const [width, setWidth] = useState(window.innerWidth)
   const widthClass = `max-w-[${width}px]`
   window.addEventListener("resize", () => {
@@ -19,6 +19,10 @@ const Table = ({ headers, rows, fields, containerClassName = "", colorScale = fa
         </thead>
         <tbody>
           {rows?.map((row, i) => {
+            let style = ""
+            if (stylesFunc) {
+              style = stylesFunc(row)
+            }
             return (
               <tr key={"row" + i}>
                 {fields.map((f, j) => {
@@ -33,7 +37,7 @@ const Table = ({ headers, rows, fields, containerClassName = "", colorScale = fa
                   const finalColor = `rgb(${red}, ${finalGreen}, ${blue})`;
 
                   return (
-                    <td style={{ backgroundColor: finalColor, color: finalGreen > 150 ? "black" : "white" }} className={`py-2 px-4 whitespace-nowrap ${!colorScale ? (i % 2 ? "!bg-secondary" : "!bg-third") : ""} ${f.clickeable ? "cursor-pointer" : ""}`} onClick={() => f.clickeable ? f.onClick(row) : {}} key={f.value+i+j}>
+                    <td style={{ backgroundColor: finalColor, color: finalGreen > 150 ? "black" : "white" }} className={`py-2 px-4 whitespace-nowrap ${(!colorScale && !style) ? (i % 2 ? "!bg-secondary" : "!bg-third") : style} ${f.clickeable ? "cursor-pointer" : ""}`} onClick={() => f.clickeable ? f.onClick(row) : {}} key={f.value+i+j}>
                       <div className="flex items-center gap-x-2">
                         {!f.showsFunc ? (f.value == "description" ? (row[f?.value] || row["detail"]) : row[f?.value]) : (f?.param ? f?.shows(row[f?.value], row) : f?.shows(row[f?.value]))}
                         {f.controls && (

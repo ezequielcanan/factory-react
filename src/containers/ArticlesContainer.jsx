@@ -74,9 +74,9 @@ const ArticlesContainer = ({ containerClassName, societyState, setSocietyState, 
         <Oval />
       )}
       <div className={"flex gap-x-16 justify-center self-end items-center text-white md:col-span-2 lg:col-span-3 xl:col-span-6 " + pageClassName}>
-        {page > 1 && <Button className={"px-4 py-4"} onClick={() => setPage(p => p - 1)}><FaChevronLeft /></Button>}
+        {page > 1 && <Button className={"px-4 py-4"} onClick={() => setPage(p => p - 1)} type={"button"}><FaChevronLeft /></Button>}
         <p className="text-2xl">{page}</p>
-        {articles?.length ? <Button className={"px-4 py-4"} onClick={() => setPage(p => p + 1)}><FaChevronRight /></Button> : null}
+        {articles?.length ? <Button className={"px-4 py-4"} onClick={() => setPage(p => p + 1)} type={"button"}><FaChevronRight /></Button> : null}
       </div>
     </ItemsContainer>
   )

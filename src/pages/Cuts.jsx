@@ -7,21 +7,26 @@ import { AnimatePresence, motion } from "framer-motion"
 import customAxios from "../config/axios.config"
 import moment from "moment"
 import OrderCard from "../components/OrderCard"
-import { FaChevronDown, FaChevronUp, FaPlus } from "react-icons/fa"
+import { FaArrowRight, FaChevronDown, FaChevronUp, FaPlus } from "react-icons/fa"
 import Input from "../components/Input"
+import Table from "../components/Table"
+import { LuPin, LuPinOff } from "react-icons/lu"
 
 const Cuts = () => {
   const [cuts, setCuts] = useState(null)
   const [finishedCuts, setFinishedCuts] = useState(null)
   const [filteredCuts, setFilteredCuts] = useState(null)
   const [showFinished, setShowFinished] = useState(false)
+  const [reload, setReload] = useState(false)
   const [search, setSearch] = useState(null)
 
   useEffect(() => {
     customAxios.get("/cuts").then(res => {
       const ods = res.data?.map(cut => {
         let articlesString = ""
-        const articlesForString = (cut?.items?.length ? cut?.items : (cut?.order ? cut?.order?.articles : cut?.manualItems))?.filter(a => a)
+        let articlesForString = (cut?.items?.length ? cut?.items : (cut?.order ? cut?.order?.articles : cut?.manualItems))?.filter(a => a)
+        articlesForString = articlesForString?.filter(a => cut?.order ? a.hasToBeCut && a.quantity > a.booked : true)
+        console.log(cut?.order)
         articlesForString?.forEach((article, i) => {
           articlesString += `${(article?.article?.description || article?.customArticle?.detail)?.toUpperCase()}${i != (articlesForString?.length - 1) ? " ///// " : ""}`
         })
@@ -31,7 +36,7 @@ const Cuts = () => {
       setCuts(ods)
       setFilteredCuts(ods)
     })
-  }, [])
+  }, [reload])
 
   const onChangeSearch = e => {
     setFilteredCuts(cuts.filter(cut => cut.articlesString?.toLowerCase().includes(e?.target?.value?.toLowerCase())))
@@ -39,30 +44,88 @@ const Cuts = () => {
 
   useEffect(() => {
     customAxios.get("/cuts/finished").then(res => {
-      setFinishedCuts(res.data)
+      setFinishedCuts(res.data.map(cut => {
+        let articlesString = ""
+        const articlesForString = cut?.workshopArticles?.filter(a => a)
+        articlesForString?.forEach((article, i) => {
+          articlesString += `${(article?.article?.description || article?.customArticle?.detail)?.toUpperCase()}${i != (articlesForString?.length - 1) ? " ///// " : ""}`
+        })
+        return { ...cut, articlesString }
+      }))
     })
   }, [])
+
+  const ordersFields = [
+    { value: "razon", showsFunc: true, param: true, shows: (val, cut) => cut?.order ? "CORTE N°" + cut?.order?.orderNumber : cut?.detail },
+    { value: "articlesString" },
+    { value: "order", showsFunc: true, shows: (val) => val?.date ? moment.utc(val?.date).format("DD-MM-YYYY") : "" },
+    { value: "order", showsFunc: true, shows: (val) => val?.deliveryDate ? moment.utc(val?.deliveryDate).format("DD-MM-YYYY") : "" },
+    { value: "ver", showsFunc: true, param: true, shows: (val, row) => <Link to={`/cuts/${row?._id}`}><FaArrowRight className="text-xl cursor-pointer" /></Link> },
+    {
+      value: "priority", showsFunc: true, param: true, shows: (val, row) => {
+        return val ? (
+          <LuPin className="cursor-pointer text-xl" onClick={async () => {
+            await customAxios.put(`/cuts/${row?._id}?property=priority&value=0`)
+            setReload(!reload)
+          }} />
+        ) : (
+          <LuPinOff className="cursor-pointer text-xl" onClick={async () => {
+            await customAxios.put(`/cuts/${row?._id}?property=priority&value=1`)
+            setReload(!reload)
+          }} />
+        )
+      }
+    },
+  ]
 
   return <Main className={"grid gap-6 items-start content-start"}>
     <section className="grid items-center justify-center gap-8 md:items-start md:grid-cols-3 md:justify-between">
       <Title text={"Ordenes de corte"} className={"text-center md:text-start"} />
-      <Input onChange={onChangeSearch} className="w-full" placeholder="Buscar..."/>
-      <Link className="justify-between justify-self-center md:justify-self-end font-bold" to={`/cuts/new`}><Button className={"flex gap-4 items-center px-4 py-2"}>Nuevo corte <FaPlus/></Button></Link>
+      <Input onChange={onChangeSearch} className="w-full" placeholder="Buscar..." />
+      <Link className="justify-between justify-self-center md:justify-self-end font-bold" to={`/cuts/new`}><Button className={"flex gap-4 items-center px-4 py-2"}>Nuevo corte <FaPlus /></Button></Link>
     </section>
     <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-auto my-8">
-      {filteredCuts?.length ? filteredCuts.map(cut => {
+      {filteredCuts?.length ? /*filteredCuts.map(cut => {
         return <OrderCard name={false} order={cut?.order && {...cut.order, workshop: cut?.workshopOrder}} pink={(cut?.cut && !cut?.workshopOrders?.length) ? true : false} orange={cut?.workshopOrders?.length ? true : false} articles={cut?.items?.length ? cut?.items : (cut?.order ? cut?.order?.articles : cut?.manualItems)} link={`/cuts/${cut?._id}`} text={cut?.order ? "CORTE N°" : cut?.detail} forCut />
-      }) : (
-        <p className="text-white text-2xl">No hay ordenes de corte</p>
-      )}
+      })*/
+        <Table fields={ordersFields} headers={["Razon", "Articulos", "Fecha de pedido", "Fecha de entrega", "Ver", "Fijar"]} rows={filteredCuts} containerClassName="lg:col-span-4 md:col-span-2 col-span-1 text-white" stylesFunc={(cut) => {
+          const order = cut?.order
+          let articles = cut?.items?.length ? cut?.items : (cut?.order ? cut?.order?.articles : cut?.manualItems)
+          const needsStock = articles?.some(art => art?.booked != art?.quantity)
+          let pink = cut?.cut && !cut?.workshopOrders?.length ? true : false
+          let orange = cut?.workshopOrders?.length ? true : false
+          let color = ""
+          if (order?.suborders?.length) {
+            color = "bg-purple-700"
+          } else if (order?.finished) {
+            color = "bg-green-600"
+          } else if (order?.inPricing) {
+            color = "bg-sky-600"
+          } else if (!needsStock) {
+            color = "bg-amber-300 !text-black"
+          } else if (orange || order?.workshop || order?.workshopOrder || order?.workshopOrders) {
+            color = "bg-orange-600"
+          } else {
+            color = "bg-red-600"
+          }
+
+          if (pink) color = "bg-pink-500"
+
+
+          return color
+        }} />
+        : (
+          <p className="text-white text-2xl">No hay ordenes de corte</p>
+        )}
     </section>
-    <Button className="text-white mb-0 mt-0 justify-self-start flex items-center gap-4" onClick={() => setShowFinished(a => !a)}>Ordenes de corte finalizadas {!showFinished ? <FaChevronDown /> : <FaChevronUp/>}</Button>
+    <Button className="text-white mb-0 mt-0 justify-self-start flex items-center gap-4" onClick={() => setShowFinished(a => !a)}>Ordenes de corte finalizadas {!showFinished ? <FaChevronDown /> : <FaChevronUp />}</Button>
     <AnimatePresence>
       {(showFinished) ? (
         <motion.section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-auto overflow-hidden" initial={{ height: 0 }} transition={{ duration: 0.5 }} exit={{ height: 0 }} animate={{ height: "auto" }}>
-          {finishedCuts.length ? finishedCuts.map(cut => {
+          {finishedCuts.length ? /*finishedCuts.map(cut => {
             return <OrderCard name={false} order={cut.order} green articles={cut?.workshopArticles} link={`/cuts/${cut?._id}`} text={cut?.order ? "CORTE N°" : cut?.detail} forCut />
-          }) : <p className="text-white text-2xl">No hay ordenes de corte finalizadas</p>}
+          })*/
+         <Table fields={ordersFields} headers={["Razon", "Articulos", "Fecha de pedido", "Fecha de entrega", "Ver", "Fijar"]} rows={finishedCuts} containerClassName="lg:col-span-4 md:col-span-2 col-span-1 text-white" stylesFunc={() => "bg-green-600"}/> : <p className="text-white text-2xl">No hay ordenes de corte finalizadas</p>}
         </motion.section>
       ) : null}
     </AnimatePresence>
