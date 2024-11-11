@@ -18,15 +18,15 @@ const Cuts = () => {
   const [filteredCuts, setFilteredCuts] = useState(null)
   const [showFinished, setShowFinished] = useState(false)
   const [reload, setReload] = useState(false)
-  const [search, setSearch] = useState(null)
+  const [choseColors, setChoseColors] = useState([])
 
   useEffect(() => {
-    customAxios.get("/cuts").then(res => {
+    const choseColorsStrArray = choseColors.map((col, i) => `${!i ? "?" : "&"}${colors?.find(c => c.value == col)?.param}=${col}`).toString().replaceAll(",", "")
+    customAxios.get(`/cuts${choseColorsStrArray}`).then(res => {
       const ods = res.data?.map(cut => {
         let articlesString = ""
         let articlesForString = (cut?.items?.length ? cut?.items : (cut?.order ? cut?.order?.articles : cut?.manualItems))?.filter(a => a)
         articlesForString = articlesForString?.filter(a => cut?.order ? a.hasToBeCut && a.quantity > a.booked : true)
-        console.log(cut?.order)
         articlesForString?.forEach((article, i) => {
           articlesString += `${(article?.article?.description || article?.customArticle?.detail)?.toUpperCase()}${i != (articlesForString?.length - 1) ? " ///// " : ""}`
         })
@@ -36,7 +36,7 @@ const Cuts = () => {
       setCuts(ods)
       setFilteredCuts(ods)
     })
-  }, [reload])
+  }, [reload, choseColors])
 
   const onChangeSearch = e => {
     setFilteredCuts(cuts.filter(cut => cut.articlesString?.toLowerCase().includes(e?.target?.value?.toLowerCase())))
@@ -54,6 +54,12 @@ const Cuts = () => {
       }))
     })
   }, [])
+
+  const colors = [
+    { text: "Pendiente", color: "bg-red-600", value: 1, param: "one" },
+    { text: "Cortado", color: "bg-pink-500", value: 2, param: "two" },
+    { text: "En taller", color: "bg-orange-600", value: 3, param: "three" },
+  ]
 
   const ordersFields = [
     { value: "razon", showsFunc: true, param: true, shows: (val, cut) => cut?.order ? "CORTE N°" + cut?.order?.orderNumber : cut?.detail },
@@ -83,6 +89,12 @@ const Cuts = () => {
       <Title text={"Ordenes de corte"} className={"text-center md:text-start"} />
       <Input onChange={onChangeSearch} className="w-full" placeholder="Buscar..." />
       <Link className="justify-between justify-self-center md:justify-self-end font-bold" to={`/cuts/new`}><Button className={"flex gap-4 items-center px-4 py-2"}>Nuevo corte <FaPlus /></Button></Link>
+      <div className="flex gap-4 flex-wrap justify-center md:justify-between text-white lg:col-span-3 text-xl md:col-span-3">
+        {colors.map(col => {
+          const isChose = choseColors?.some(c => c == col?.value)
+          return <p className={`${col?.color} px-4 py-2 cursor-pointer duration-300 ${isChose ? "brightness-150" : ""}`} onClick={() => isChose ? setChoseColors(choseColors.filter(c => c != col?.value)) : setChoseColors([...choseColors, col?.value])} key={col?.text}>{col?.text}</p>
+        })}
+      </div>
     </section>
     <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-auto my-8">
       {filteredCuts?.length ? /*filteredCuts.map(cut => {
@@ -125,7 +137,7 @@ const Cuts = () => {
           {finishedCuts.length ? /*finishedCuts.map(cut => {
             return <OrderCard name={false} order={cut.order} green articles={cut?.workshopArticles} link={`/cuts/${cut?._id}`} text={cut?.order ? "CORTE N°" : cut?.detail} forCut />
           })*/
-         <Table fields={ordersFields} headers={["Razon", "Articulos", "Fecha de pedido", "Fecha de entrega", "Ver", "Fijar"]} rows={finishedCuts} containerClassName="lg:col-span-4 md:col-span-2 col-span-1 text-white" stylesFunc={() => "bg-green-600"}/> : <p className="text-white text-2xl">No hay ordenes de corte finalizadas</p>}
+            <Table fields={ordersFields} headers={["Razon", "Articulos", "Fecha de pedido", "Fecha de entrega", "Ver", "Fijar"]} rows={finishedCuts} containerClassName="lg:col-span-4 md:col-span-2 col-span-1 text-white" stylesFunc={() => "bg-green-600"} /> : <p className="text-white text-2xl">No hay ordenes de corte finalizadas</p>}
         </motion.section>
       ) : null}
     </AnimatePresence>
