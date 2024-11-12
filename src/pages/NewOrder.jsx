@@ -105,7 +105,8 @@ const NewOrder = ({budgets = false}) => {
         uploadedCustomArticles = result?.data
 
         await Promise.all(uploadedCustomArticles.map(async c => {
-          const customArticle = finalCustomArticles.find(cs => cs?.detail == c?.detail)
+          const [customArticle, customArticleIndex] = [finalCustomArticles.find(cs => cs?.detail == c?.detail), finalCustomArticles.findIndex(cs => cs?.detail == c?.detail )]
+          finalCustomArticles.splice(customArticleIndex, 1)
           items.push({ booked: 0, quantity: customArticle?.quantity, common: false, customArticle: c?._id, hasToBeCut: false })
 
           if (customArticle.file[0]) {

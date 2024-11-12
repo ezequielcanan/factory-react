@@ -27,7 +27,7 @@ ChartJS.register(
   Legend 
 );
 
-const Resume = ({ title = "Ultima semana", week = true, month = false, controls = false }) => {
+const Resume = ({ title = "Ultima semana", week = true, month = false, controls = false, society }) => {
   const [resume, setResume] = useState(null)
   const [error, setError] = useState(false)
   const [labels, setLabels] = useState([])
@@ -37,12 +37,14 @@ const Resume = ({ title = "Ultima semana", week = true, month = false, controls 
   const [search, setSearch] = useState(false)
 
   useEffect(() => {
-    customAxios.get(`/orders/recent${controls ? `?from=${from.format("DD-MM-YYYY")}&to=${to.format("DD-MM-YYYY")}` : ((month) ? `?from=${moment().subtract(31, "days").format("DD-MM-YYYY")}` : "")}`).then(res => {
+    console.log(society?.value)
+    customAxios.get(`/orders/recent?society=${society?.value}${controls ? `&from=${from.format("DD-MM-YYYY")}&to=${to.format("DD-MM-YYYY")}` : ((month) ? `&from=${moment().subtract(31, "days").format("DD-MM-YYYY")}` : "")}`).then(res => {
       setResume(res?.data)
     }).catch(e => {
       setError(true)
     })
-  }, [search])
+  }, [search, society])
+
 
   useEffect(() => {
     const generateLabels = () => {

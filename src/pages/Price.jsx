@@ -33,7 +33,9 @@ const Price = () => {
   const multiply = (order?.mode ? 1.21 : 1)
 
   const tableFields = [
-    { value: "description" },
+    { value: "description", showsFunc: true, param: true, shows: (val,row) => {
+      return (row?.description || row?.detail) + " - " + row?.size
+    } },
     { value: "quantity" },
     {
       value: "price", showsFunc: true, param: true, shows: (val, row) => {

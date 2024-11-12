@@ -24,7 +24,7 @@ const WorkshopOrders = () => {
   }, [reload])
 
   const ordersFields = [
-    { value: "razon", showsFunc: true, param: true, shows: (val, order) => order?.cut?.order ? `${order?.workshop?.name} CORTE N°` : order?.cut?.detail },
+    { value: "razon", showsFunc: true, param: true, shows: (val, order) => order?.cut?.order ? `${order?.workshop?.name} CORTE N°${order?.cut?.order?.orderNumber}` : order?.cut?.detail },
     {
       value: "articlesString", showsFunc: true, param: true, shows: (val, order) => {
         let articlesString = ""
