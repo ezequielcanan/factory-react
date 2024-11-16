@@ -51,6 +51,8 @@ export const roles = [
   { value: "workshops", text: "Talleres" },
   { value: "logistics", text: "Logistica" },
   { value: "budgets", text: "Presupuestos" },
+  { value: "materials", text: "Insumos" },
+  { value: "suppliers", text: "Proveedores" },
   { value: "admin", text: "Administrador" },
 ]
 

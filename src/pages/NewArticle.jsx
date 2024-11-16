@@ -12,7 +12,7 @@ import customAxios from "../config/axios.config"
 import { useNavigate } from "react-router-dom"
 import ArticleForm from "../components/ArticleForm"
 
-const NewArticle = () => {
+const NewArticle = ({materials = false}) => {
   const { register, handleSubmit } = useForm()
   const [file, setFile] = useState(null)
   const navigate = useNavigate()
@@ -31,10 +31,14 @@ const NewArticle = () => {
   }
 
   const onSubmit = handleSubmit(async data => {
-    data.category = category.value
-    data.size = size.value
-    data.color = color.value
-    data.society = society.value
+    if (!materials) {
+      data.category = category.value
+      data.size = size.value
+      data.color = color.value
+      data.society = society.value
+    }
+
+    data.material = materials
     data.stock = Number(data.stock)
     data.price = Number(data?.price)
     const result = await customAxios.post("/articles", data)
@@ -49,7 +53,7 @@ const NewArticle = () => {
       await uploadFile(sendFile, filePath, "thumbnail.png")
     }
       
-    navigate("/articles")
+    navigate(!materials ? "/articles" : "/materials")
   })
 
   return (
@@ -67,6 +71,7 @@ const NewArticle = () => {
         setCategory={setCategory}
         society={society}
         setSociety={setSociety}
+        materials={materials}
       />
     </Main>
   )

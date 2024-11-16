@@ -28,7 +28,7 @@ const ArticlesContainer = ({ containerClassName, societyState, setSocietyState, 
 
 
   useEffect(() => {
-    customAxios.get(`/articles?page=${page}${!color?.all ? `&color=${color?.value}` : ""}${!size?.all ? `&size=${size?.value}` : ""}${!category?.all ? `&category=${category?.value}` : ""}${!society?.all ? `&society=${society?.value}` : ""}${search?.length ? `&search=${search?.toLowerCase()}` : ""}`).then(res => {
+    customAxios.get(`/articles?page=${page}${materials ? "&materials=true" : ""}${!color?.all ? `&color=${color?.value}` : ""}${!size?.all ? `&size=${size?.value}` : ""}${!category?.all ? `&category=${category?.value}` : ""}${!society?.all ? `&society=${society?.value}` : ""}${search?.length ? `&search=${search?.toLowerCase()}` : ""}`).then(res => {
       const updatedArticles = quantities.forEach(a => {
         const articleIndex = res.data?.findIndex(article => article?._id == a?._id)
         if (articleIndex != -1) {
@@ -38,7 +38,7 @@ const ArticlesContainer = ({ containerClassName, societyState, setSocietyState, 
       setArticles(res.data)
       setFilteredArticles(res.data)
     })
-  }, [category, society, color, size, reload, page])
+  }, [category, society, color, size, reload, page, materials])
 
   const onSubmit = handleSubmit(async data => {
     const updatedSearches = [search, ...recentSearches.filter(s => s !== search)].slice(0, 3)
@@ -54,22 +54,24 @@ const ArticlesContainer = ({ containerClassName, societyState, setSocietyState, 
       <form className={`md:col-span-2 lg:col-span-3 xl:col-span-6 flex flex-col xl:flex-row items-center gap-8 justify-between ${filterClassName}`}>
         <FaFilter className="text-white text-3xl cursor-pointer" onClick={onSubmit} />
         <div className={`grid md:grid-cols-3 xl:grid-cols-5 items-center gap-8 text-xl w-full ${filterCClassName}`}>
-          <Input placeholder="Buscar..." className={"w-full"} register={register("search")} onChange={(e) => setSearch(e?.target?.value)} list="recentSearches"/>
+          <Input placeholder="Buscar..." className={"w-full"} containerClassName={materials && "xl:col-span-5 md:col-span-3 col-span-1"} register={register("search")} onChange={(e) => setSearch(e?.target?.value)} list="recentSearches"/>
           <datalist id="recentSearches">
             {recentSearches.map((s, index) => (
               <option key={index} value={s} />
             ))}
           </datalist>
-          <SelectInput selectedOption={society} setSelectedOption={setSociety} options={finalSocieties} className={"!py-"} />
-          <SelectInput selectedOption={category} setSelectedOption={setCategory} options={[{ value: "Todas las categorias", all: true }, ...categories]} className={"!py-2"} />
-          <SelectInput selectedOption={color} setSelectedOption={setColor} options={[{ value: "Todos los colores", all: true }, ...colors]} className={"!py-2"} />
-          <SelectInput selectedOption={size} setSelectedOption={setSize} options={[{ value: "Todos los tamaños", all: true }, ...sizes]} text className={"!py-2"} />
+          {!materials && <>
+            <SelectInput selectedOption={society} setSelectedOption={setSociety} options={finalSocieties} className={"!py-"} />
+            <SelectInput selectedOption={category} setSelectedOption={setCategory} options={[{ value: "Todas las categorias", all: true }, ...categories]} className={"!py-2"} />
+            <SelectInput selectedOption={color} setSelectedOption={setColor} options={[{ value: "Todos los colores", all: true }, ...colors]} className={"!py-2"} />
+            <SelectInput selectedOption={size} setSelectedOption={setSize} options={[{ value: "Todos los tamaños", all: true }, ...sizes]} text className={"!py-2"} />
+          </>}
         </div>
       </form>
       {(articles && filteredArticles) ? filteredArticles?.length ? filteredArticles.map((article) => {
         return <ArticleCard article={article} articles={quantities} setArticles={setQuantities} key={article?._id} onClickArticle={onClickArticle} stockNoControl={stockNoControl} />
       }) : (
-        <p className="text-white text-4xl col-span-6 text-center my-16">No hay articulos que coincidan con los filtros</p>
+        <p className="text-white text-4xl col-span-6 text-center my-16">No hay {!materials ? "articulos" : "insumos"} que coincidan con los filtros</p>
       ) : (
         <Oval />
       )}

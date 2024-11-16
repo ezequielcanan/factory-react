@@ -8,15 +8,15 @@ import customAxios from "../config/axios.config"
 import { useState } from "react"
 import ClientForm from "../components/ClientForm"
 
-const NewClient = () => {
+const NewClient = ({suppliers = false}) => {
   const {register, handleSubmit} = useForm()
   const [error, setError] = useState(false)
   const navigate = useNavigate()
 
   const onSubmit = handleSubmit(async data => {
     try {
-      const result = await customAxios.post("/clients", {...data, discount: data?.discount / 100})
-      navigate("/clients")
+      const result = await customAxios.post("/clients", {...data, supplier: suppliers, discount: data?.discount / 100})
+      navigate(!suppliers ? "/clients" : "/suppliers")
     } catch (e) {
       setError(true)
     }

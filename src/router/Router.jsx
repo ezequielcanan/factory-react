@@ -95,8 +95,13 @@ const Router = () => {
             </> : null}
             {userIncludesRoles(userData, "materials") ? <>
               <Route path="/materials" element={<Articles materials/>} />
-              <Route path="/materials/new" element={<NewArticle />} />
-              <Route path="/materials/:aid" element={<EditArticle />} />
+              <Route path="/materials/new" element={<NewArticle materials/>} />
+              <Route path="/materials/:aid" element={<EditArticle materials/>} />
+            </> : null}
+            {userIncludesRoles(userData, "suppliers") ? <>
+              <Route path="/suppliers" element={<Clients suppliers/>} />
+              <Route path="/suppliers/new" element={<NewClient suppliers/>} />
+              <Route path="/suppliers/:cid" element={<EditClient suppliers/>} />
             </> : null}
           </>
         )}

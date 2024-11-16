@@ -6,7 +6,7 @@ import Main from "../containers/Main"
 import ClientForm from "../components/ClientForm"
 import { Oval } from "react-loader-spinner"
 
-const EditClient = () => {
+const EditClient = ({suppliers = false}) => {
   const [client, setClient] = useState(null)
   const {register, handleSubmit} = useForm()
   const navigate = useNavigate()
@@ -19,8 +19,8 @@ const EditClient = () => {
   }, [])
 
   const onSubmit = handleSubmit(async data => {
-    const result = await customAxios.put(`/clients/${cid}`, {...data, discount: data?.discount / 100})
-    navigate("/clients")
+    const result = await customAxios.put(`/clients/${cid}`, {...data, supplier: suppliers, discount: data?.discount / 100})
+    navigate(!suppliers ? "/clients" : "/suppliers")
   })
 
   return (

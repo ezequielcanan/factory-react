@@ -6,18 +6,18 @@ import ClientCard from "../components/ClientCard"
 import { FaFilter } from "react-icons/fa"
 import Input from "../components/Input"
 
-const ClientsContainer = ({ containerClassName, onClickClient }) => {
+const ClientsContainer = ({ containerClassName, onClickClient, suppliers = false }) => {
   const [clients, setClients] = useState(null)
   const [filteredClients, setFilteredClients] = useState(null)
   const [search, setSearch] = useState("")
 
 
   useEffect(() => {
-    customAxios.get("/clients").then(res => {
+    customAxios.get(`/clients${suppliers ? "?suppliers=true" : ""}`).then(res => {
       setClients(res?.data)
       setFilteredClients(res?.data)
     })
-  }, [])
+  }, [suppliers])
 
   useEffect(() => {
     if (clients) {
@@ -40,7 +40,7 @@ const ClientsContainer = ({ containerClassName, onClickClient }) => {
       {(clients && filteredClients) ? filteredClients?.length ? filteredClients.map((client) => {
         return <ClientCard client={client} key={client?._id} onClickClient={onClickClient}/>
       }) : (
-        <p className="text-white text-4xl col-span-6 text-center my-16">No hay clientes</p>
+        <p className="text-white text-4xl col-span-6 text-center my-16">No hay {!suppliers ? "clientes" : "proveedores"}</p>
       ) : (
         <Oval />
       )}

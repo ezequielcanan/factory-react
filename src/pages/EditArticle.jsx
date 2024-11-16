@@ -8,7 +8,7 @@ import { useEffect, useState } from "react"
 import customAxios from "../config/axios.config"
 import { Oval } from "react-loader-spinner"
 
-const EditArticle = () => {
+const EditArticle = ({materials=false}) => {
   const { register, handleSubmit } = useForm()
   const {aid} = useParams()
   const [file, setFile] = useState(null)
@@ -41,10 +41,14 @@ const EditArticle = () => {
   }
 
   const onSubmit = handleSubmit(async data => {
-    data.category = category.value
-    data.size = size.value
-    data.color = color.value
-    data.society = society.value
+    if (!materials) {
+      data.category = category.value
+      data.size = size.value
+      data.color = color.value
+      data.society = society.value
+    }
+
+    data.material = materials
     data.stock = Number(data.stock)
     data.price = Number(data?.price)
     const result = await customAxios.put(`/articles/${aid}`, data)
@@ -61,7 +65,7 @@ const EditArticle = () => {
       await uploadFile(sendFile, filePath, "thumbnail.png")
     }
       
-    navigate("/articles")
+    navigate(!materials ? "/articles" : "/materials")
   })
 
   return (
@@ -80,6 +84,7 @@ const EditArticle = () => {
         setCategory={setCategory}
         society={society}
         setSociety={setSociety}
+        materials={materials}
       /> : (
         <Oval/>
       )}
