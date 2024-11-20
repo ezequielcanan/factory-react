@@ -21,6 +21,7 @@ import moment from "moment"
 import SelectInput from "../components/SelectInput"
 import { FaListCheck } from "react-icons/fa6"
 import ConfirmCut from "../containers/ConfirmCut"
+import { HiDuplicate } from "react-icons/hi"
 
 const Order = () => {
   const {userData} = useContext(UserContext)
@@ -234,6 +235,31 @@ const Order = () => {
     setReload(!reload)
   }
 
+  const duplicateOrder = async () => {
+    const newOrder = {...order}
+    newOrder.articles = newOrder?.articles?.map(art => {
+      if (art?.custom) {
+        art.customArticle = art?.customArticle?._id
+      } else {
+        art.article = art?.article?._id
+      }
+      return art
+    })
+
+    if (newOrder.suborders) {
+      newOrder.suborders = newOrder.suborders?.map(o => {
+        o = o?._id
+        return o
+      })
+    }
+
+    newOrder.client = newOrder.client?._id
+    delete newOrder._id
+    delete newOrder.orderNumber
+    const result = await customAxios.post("/orders", newOrder)
+    navigate(`/orders/${result?.data?._id}`)
+  }
+
   const cancelCut = async () => {
     setCutArticles(null)
     setReload(!reload)
@@ -250,6 +276,7 @@ const Order = () => {
           <h2 className="text-4xl justify-self-center lg:justify-self-start font-bold">{!order?.budget ? "Pedido" : "Presupuesto"} N° {order?.orderNumber}</h2>
           <div className="flex gap-8 flex-wrap items-center justify-center lg:justify-end">
             <div className="flex items-center self-start gap-8">
+              <HiDuplicate className="text-2xl cursor-pointer" onClick={duplicateOrder}/>
               <FaTrashAlt className="text-2xl cursor-pointer" onClick={deleteOrder} />
               {order?.budget && <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/budget/${oid}?dateOne=${dateOne}&dateTwo=${dateTwo}&transfer=${transfer}&info=${info}`} download className="text-2xl"><FaListCheck /></a>}
               <Button className={`justify-self-center lg:justify-self-end ${!order?.budget && (!order?.finished && (order?.inPricing ? "bg-green-700 hover:bg-green-800" : "bg-sky-600 hover:bg-sky-700"))}`} onClick={!order.budget ? (!order?.finished ? (order?.inPricing ? onFinishOrder : onPassToPricing) : () => navigate(`/prices/order/${oid}`)) : onPassToOrder}>{!order?.budget ? (order?.finished ? "Finalizado" : (!order?.inPricing ? "Pasar a facturacion" : "Facturar")) : "Confirmar pedido"}</Button>
