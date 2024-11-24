@@ -30,6 +30,7 @@ import NewCut from "../pages/NewCut"
 import ClientPayments from "../pages/ClientPayments"
 import Logistics from "../pages/Logistics"
 import NewActivity from "../pages/NewActivity"
+import NewBuyOrder from "../pages/NewBuyOrder"
 
 
 const Router = () => {
@@ -102,6 +103,10 @@ const Router = () => {
               <Route path="/suppliers" element={<Clients suppliers/>} />
               <Route path="/suppliers/new" element={<NewClient suppliers/>} />
               <Route path="/suppliers/:cid" element={<EditClient suppliers/>} />
+            </> : null}
+            {userIncludesRoles(userData, "buy-orders") ? <>
+              <Route path="/buy-orders" element={<Orders buys/>} />
+              <Route path="/buy-orders/new" element={<NewBuyOrder />} />
             </> : null}
           </>
         )}

@@ -2,13 +2,13 @@ import Label from "./Label"
 import Input from "./Input"
 import Button from "./Button"
 import { FaFileUpload } from "react-icons/fa"
-import { colors, sizes, categories, societies } from "../utils/utils"
+import { colors, sizes, categories, societies, measurements } from "../utils/utils"
 import SelectInput from "./SelectInput"
 import customAxios from "../config/axios.config"
 import Swal from "sweetalert2"
 import { useNavigate } from "react-router-dom"
 
-const ArticleForm = ({materials=false, onSubmit, register, file, article, handleFileChange, color, setColor, size, setSize, category, setCategory, society, setSociety}) => {
+const ArticleForm = ({materials=false, onSubmit, measurement, setMeasurement, register, file, article, handleFileChange, color, setColor, size, setSize, category, setCategory, society, setSociety}) => {
   const navigate = useNavigate()
   const deleteArticle = async () => {
     Swal.fire({
@@ -37,7 +37,7 @@ const ArticleForm = ({materials=false, onSubmit, register, file, article, handle
         <Label>Descripcion</Label>
         <Input register={register("description", { required: true })} defaultValue={article?.description || ""} className={"!py-2 w-full"} />
 
-        {!materials && <>
+        {!materials ? <>
           <Label>Negocio</Label>
           <SelectInput selectedOption={society} setSelectedOption={setSociety} options={societies} className={"!py-2"} />
 
@@ -49,6 +49,9 @@ const ArticleForm = ({materials=false, onSubmit, register, file, article, handle
 
           <Label>Talle</Label>
           <SelectInput selectedOption={size} setSelectedOption={setSize} text options={sizes} className={"!py-2"} />
+        </> : <>
+          <Label>Unidad de medida</Label>
+          <SelectInput selectedOption={measurement} setSelectedOption={setMeasurement} options={measurements} className="!py-2" />
         </>}
 
         <Label>Stock</Label>

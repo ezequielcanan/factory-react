@@ -2,7 +2,7 @@ import Main from "../containers/Main"
 import ArticleForm from "../components/ArticleForm"
 import { useForm } from "react-hook-form"
 import { useNavigate, useParams } from "react-router-dom"
-import { colors, sizes, categories, societies, getArticleImg } from "../utils/utils"
+import { colors, sizes, categories, societies, getArticleImg, measurements } from "../utils/utils"
 import { uploadFile } from "../utils/utils.js"
 import { useEffect, useState } from "react"
 import customAxios from "../config/axios.config"
@@ -18,6 +18,7 @@ const EditArticle = ({materials=false}) => {
   const [size, setSize] = useState(null)
   const [society, setSociety] = useState(null)
   const [article, setArticle] = useState(null)
+  const [measurement, setMeasurement] = useState(null)
 
   useEffect(() => {
     customAxios.get(`/articles/${aid}`).then(res => {
@@ -27,6 +28,7 @@ const EditArticle = ({materials=false}) => {
       setCategory(categories.find(c => c.value == result?.category))
       setSize(sizes.find(s => s.value == result?.size) || {value: res?.data?.size})
       setSociety(societies.find(s => s.value == result?.society))
+      setMeasurement(measurements.find(s => s.value == result?.measurement))
       setFile([null, getArticleImg(result?._id)])
     })
   }, [])
@@ -46,6 +48,8 @@ const EditArticle = ({materials=false}) => {
       data.size = size.value
       data.color = color.value
       data.society = society.value
+    } else {
+      data.measurement = measurement.value
     }
 
     data.material = materials
@@ -54,15 +58,17 @@ const EditArticle = ({materials=false}) => {
     const result = await customAxios.put(`/articles/${aid}`, data)
     const id = result?.data?._id
 
-    if (file[0]) {
-      const formData = new FormData();
-      const filePath = `/articles/${id}`
-      const sendFile = file[0]
-      let ext = sendFile.name?.split(".")
-      ext = ext[ext.length - 1]
-      formData.append('file', sendFile);
-      
-      await uploadFile(sendFile, filePath, "thumbnail.png")
+    if (file) {
+      if (file[0]) {
+        const formData = new FormData();
+        const filePath = `/articles/${id}`
+        const sendFile = file[0]
+        let ext = sendFile.name?.split(".")
+        ext = ext[ext.length - 1]
+        formData.append('file', sendFile);
+        
+        await uploadFile(sendFile, filePath, "thumbnail.png")
+      }
     }
       
     navigate(!materials ? "/articles" : "/materials")
@@ -84,6 +90,8 @@ const EditArticle = ({materials=false}) => {
         setCategory={setCategory}
         society={society}
         setSociety={setSociety}
+        measurement={measurement}
+        setMeasurement={setMeasurement}
         materials={materials}
       /> : (
         <Oval/>

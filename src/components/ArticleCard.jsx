@@ -53,6 +53,7 @@ const ArticleCard = ({ article, articles = [], setArticles = () => { }, classNam
           <div className="flex gap-2 items-center">
             <p>Cantidad: {quantityLocalNoControl && articleCard?.quantity}</p>
             {!quantityLocalNoControl && <Input id={(articleCard?._id || articleCard?.article?._id) + "quant"} onClick={e => e.stopPropagation()} onChange={e => (e.stopPropagation(), changeQuantity(parseInt(e?.target?.value), true))} step="1" type="number" value={articleCard?.quantity} className={"text-sm w-[50px] !px-1 !py-1 "} containerClassName={"rounded-none"} />}
+            {articleCard?.measurement && <p>{articleCard?.measurement}</p>}
           </div>
           {!quantityNoControl && <div className="flex gap-4">
             <FaMinusCircle onClick={(e) => (e.stopPropagation(), changeQuantity(-1))} />

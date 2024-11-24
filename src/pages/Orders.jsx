@@ -14,7 +14,7 @@ import Input from "../components/Input"
 import Table from "../components/Table"
 import { LuPin, LuPinOff } from "react-icons/lu"
 
-const Orders = ({ budgets = false }) => {
+const Orders = ({ budgets = false, buys = false }) => {
   const { userData } = useContext(UserContext)
   const societies = userIncludesRoles(userData, "cattown") ? [{ value: "Cattown" }] : [{ value: "Arcan" }, { value: "Cattown" }]
   const [orders, setOrders] = useState(null)
@@ -34,10 +34,18 @@ const Orders = ({ budgets = false }) => {
     { text: "Pedido agrupado", color: "bg-purple-700", value: 6, param: "six" }
   ]
 
+  const modeOption = budgets ? "budgets" : (buys ? "buys" : "normal")
+
+  const modeOptions = {
+    normal: [`orders?society=${society?.value}`, "", "grid md:grid-cols-2", "Pedidos", "orders", "Nuevo Pedido"],
+    budgets: [`orders?society=${society?.value}`, "&budgets=true", "flex flex-wrap", "Presupuestos", "budgets", "Nuevo Presupuesto"],
+    buys: ["buy-orders", "", "grid md:grid-cols-2", "Compras", "buy-orders", "Nueva Compra"]
+  }
+
   useEffect(() => {
     if (society) {
       const choseColorsStrArray = choseColors.map((col, i) => `&${colors?.find(c => c.value == col)?.param}=${col}`).toString().replaceAll(",", "")
-      customAxios.get(`/orders?society=${society?.value}&page=${page}${search && `&search=${search}`}${budgets ? "&budgets=true" : ""}${choseColorsStrArray}`).then(res => {
+      customAxios.get(`/${modeOptions[modeOption][0]}&page=${page}${search && `&search=${search}`}${modeOptions[modeOption][1]}${choseColorsStrArray}`).then(res => {
         const ods = res.data?.map(order => {
           let articlesString = ""
           const articlesForString = order?.articles?.filter(a => a)
@@ -51,7 +59,7 @@ const Orders = ({ budgets = false }) => {
         setFilterOrders(ods)
       })
     }
-  }, [society, page, search, choseColors, budgets, reload])
+  }, [society, page, search, choseColors, budgets, buys, reload])
 
 
   const onChangeSearch = (e) => {
@@ -87,13 +95,13 @@ const Orders = ({ budgets = false }) => {
   return (
     <Main className={"grid gap-6 gap-y-16 items-start content-start"}>
       <section className="grid items-center justify-center gap-8 md:items-start lg:grid-cols-3 md:justify-between">
-        <div className={`${!budgets ? "grid md:grid-cols-2" : "flex flex-wrap"} gap-6 items-center`}>
-          <Title text={!budgets ? "Pedidos" : "Presupuestos"} className={"text-center md:text-start"} />
-          <SelectInput selectedOption={society} setSelectedOption={setSociety} options={societies} className={"!py-2"} />
+        <div className={`${modeOptions[modeOption][2]} gap-6 items-center`}>
+          <Title text={modeOptions[modeOption][3]} className={"text-center md:text-start"} />
+          {!buys && <SelectInput selectedOption={society} setSelectedOption={setSociety} options={societies} className={"!py-2"} />}
         </div>
         <Input placeholder={"Buscar..."} className={"w-full"} onChange={onChangeSearch} />
-        <Link to={`/${!budgets ? "orders" : "budgets"}/new`} className="justify-self-end"><Button className={"text-xl font-bold px-4 flex gap-x-4 items-center"}>Nuevo {!budgets ? "Pedido" : "Presupuesto"} <FaCartPlus /></Button></Link>
-        {!budgets && <div className="flex gap-4 flex-wrap justify-center md:justify-between text-white lg:col-span-3 text-xl">
+        <Link to={`/${modeOptions[modeOption][4]}/new`} className="justify-self-end"><Button className={"text-xl font-bold px-4 flex gap-x-4 items-center"}>{modeOptions[modeOption][5]} <FaCartPlus /></Button></Link>
+        {(!budgets && !buys) && <div className="flex gap-4 flex-wrap justify-center md:justify-between text-white lg:col-span-3 text-xl">
           {colors.map(col => {
             const isChose = choseColors?.some(c => c == col?.value)
             return <p className={`${col?.color} px-4 py-2 cursor-pointer duration-300 ${isChose ? "brightness-150" : ""}`} onClick={() => isChose ? setChoseColors(choseColors.filter(c => c != col?.value)) : setChoseColors([...choseColors, col?.value])} key={col?.text}>{col?.text}</p>
@@ -122,7 +130,7 @@ const Orders = ({ budgets = false }) => {
             return color
           }} />
         ) : (
-          <p className="text-white text-2xl">No hay {!budgets ? "pedidos" : "presupuestos"}</p>
+          <p className="text-white text-2xl">No hay {modeOptions[modeOption][3].toLowerCase()}</p>
         )}
       </section>
       <div className="flex gap-x-16 justify-center self-end items-center text-white">

@@ -41,6 +41,13 @@ export const categories = [
   { value: "Otros" }
 ]
 
+export const measurements = [
+  { value: "Unidades" },
+  { value: "kg" },
+  { value: "cm2" },
+  { value: "mt2" }
+]
+
 export const roles = [
   { value: "prices", text: "Facturacion" },
   { value: "articles", text: "Stock" },
@@ -53,6 +60,7 @@ export const roles = [
   { value: "budgets", text: "Presupuestos" },
   { value: "materials", text: "Insumos" },
   { value: "suppliers", text: "Proveedores" },
+  { value: "buys", text: "Compras" },
   { value: "admin", text: "Administrador" },
 ]
 

@@ -1,7 +1,7 @@
 import Input from "../components/Input"
 import Label from "../components/Label"
 import Main from "../containers/Main"
-import { colors, sizes, categories, societies } from "../utils/utils"
+import { colors, sizes, categories, societies, measurements } from "../utils/utils"
 import { useForm } from "react-hook-form"
 import SelectInput from "../components/SelectInput"
 import { useState } from "react"
@@ -20,6 +20,7 @@ const NewArticle = ({materials = false}) => {
   const [category, setCategory] = useState(categories[0])
   const [size, setSize] = useState(sizes[0])
   const [society, setSociety] = useState(societies[0])
+  const [measurement, setMeasurement] = useState(measurements[0])
 
   const handleFileChange = (event) => {
     const uploadedFile = event.target.files[0]
@@ -36,6 +37,8 @@ const NewArticle = ({materials = false}) => {
       data.size = size.value
       data.color = color.value
       data.society = society.value
+    } else {
+      data.measurement = measurement.value
     }
 
     data.material = materials
@@ -71,6 +74,8 @@ const NewArticle = ({materials = false}) => {
         setCategory={setCategory}
         society={society}
         setSociety={setSociety}
+        measurement={measurement}
+        setMeasurement={setMeasurement}
         materials={materials}
       />
     </Main>
