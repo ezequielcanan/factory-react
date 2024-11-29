@@ -35,6 +35,23 @@ const NewBuyOrder = () => {
     }
   }
 
+  const onChangePrice = (price, article) => {
+    
+  }
+
+  const tableFields = [
+    { value: "description", showsFunc: true, param: true, shows: (val,row) => {
+      return (row?.description || row?.detail) + " - " + row?.size
+    } },
+    { value: "quantity" },
+    {
+      value: "price", showsFunc: true, param: true, shows: (val, row) => {
+        return (<Input type="number" key={row?._id + "price"} defaultValue={val || 0} disabled={!edit} onChange={(e) => onChangePrice(e?.target?.value, row)} className={"!py-0 !px-0 rounded-none focus:!bg-transparent w-[100px]"} containerClassName={"!border-0 rounded-none"} />)
+      }
+    },
+    { value: "subtotal", showsFunc: true, param: true, shows: (val, row) => ((row?.price * row?.quantity) || 0) },
+  ]
+
   return (
     <Main className={"grid auto-rows-max px-2 sm:px-8 gap-8"}>
       <div className="flex justify-between self-start gap-x-4 items-center text-white text-3xl">
@@ -51,6 +68,11 @@ const NewBuyOrder = () => {
       {step == 2 && (
         <>
           <ArticlesContainer materials setQuantities={setArticles} quantities={articles} containerClassName={"max-h-[600px] overflow-y-auto"} stockControl={false} onClickArticle={onClickArticle} stockNoControl/>
+        </>
+      )}
+      {step == 3 && (
+        <>
+
         </>
       )}
     </Main>
