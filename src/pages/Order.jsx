@@ -23,7 +23,7 @@ import { FaListCheck } from "react-icons/fa6"
 import ConfirmCut from "../containers/ConfirmCut"
 import { HiDuplicate } from "react-icons/hi"
 
-const Order = () => {
+const Order = ({buys = false}) => {
   const {userData} = useContext(UserContext)
   const [order, setOrder] = useState(null)
   const [cut, setCut] = useState(null)
@@ -44,11 +44,17 @@ const Order = () => {
   const navigate = useNavigate()
   const { oid } = useParams()
 
+  const endpoint = !buys ? "orders" : "buy-orders"
+
   useEffect(() => {
-    customAxios.get(`/orders/${oid}`).then((res) => {
-      setOrder({
+    customAxios.get(`/${endpoint}/${oid}`).then((res) => {
+      setOrder(!buys ? {
         ...res?.data?.order, articles: res?.data?.order?.articles?.map(art => {
           return { bookedQuantity: art.booked, custom: art?.customArticle ? true : false, ...art, ...art?.article, ...art?.customArticle, price: art?.price || 0 }
+        })
+      } : {
+        ...res?.data, articles: res?.data?.articles?.map(art => {
+          return { custom: art?.customArticle ? true : false, ...art, ...art?.article, ...art?.customArticle, price: art?.price || 0 }
         })
       })
       setCut(res?.data?.cut)
@@ -72,7 +78,7 @@ const Order = () => {
   }
 
   const onChangePrice = async (price, article) => {
-    await customAxios.put(`/orders/price/${oid}/${article?._id}?price=${price}${article?.custom ? "&custom=true" : ""}`)
+    await customAxios.put(`/${endpoint}/price/${oid}/${article?._id}?price=${price}${article?.custom ? "&custom=true" : ""}`)
   }
 
   const onConfirmPrices = async () => {
@@ -269,11 +275,12 @@ const Order = () => {
     setState(e?.target?.value)
   }
 
+  console.log(order)
   return (
     <Main className={"grid lg:grid-cols-2 gap-y-8 md:gap-y-16 gap-x-16 overflow-x-hidden content-start text-white"}>
       {(order && !cutArticles) ? (
         <>
-          <h2 className="text-4xl justify-self-center lg:justify-self-start font-bold">{!order?.budget ? "Pedido" : "Presupuesto"} N° {order?.orderNumber}</h2>
+          <h2 className="text-4xl justify-self-center lg:justify-self-start font-bold">{!buys ? (!order?.budget ? "Pedido" : "Presupuesto") : "Compra"} N° {order?.orderNumber}</h2>
           <div className="flex gap-8 flex-wrap items-center justify-center lg:justify-end">
             <div className="flex items-center self-start gap-8">
               <HiDuplicate className="text-2xl cursor-pointer" onClick={duplicateOrder}/>
@@ -290,11 +297,11 @@ const Order = () => {
           </div>
           <section className="flex flex-col gap-16">
             <div className="flex flex-col gap-8">
-              <h3 className="text-3xl">Cliente: {order?.client?.name}</h3>
-              <div className="flex items-center gap-4">
+              <h3 className="text-3xl">{!buys ? "Cliente" : "Proveedor"}: {order?.client?.name}</h3>
+              {!buys && <div className="flex items-center gap-4">
                 <Label>Fecha de entrega:</Label>
                 <Input defaultValue={moment(order?.deliveryDate).format("YYYY-MM-DD")} type={"date"} onChange={onChangeDeliveryDate}/>
-              </div>
+              </div>}
               <p className="text-xl">Telefono: {order?.client?.phone}</p>
               <p className="text-xl">Email: {order?.client?.email}</p>
               <p className="text-xl">Cuit: {order?.client?.cuit}</p>
@@ -313,7 +320,7 @@ const Order = () => {
                   </div>
                   <Table fields={tableFields} headers={["Articulo", "Cantidad", "Reservado", "Cortar Restantes", "Precio Unitario", "Subtotal", "Borrar"]} rows={order?.articles} />
                 </div>
-                <ArticlesContainer containerClassName={"max-h-[800px] overflow-y-scroll md:!grid-cols-2 text-black auto-rows-auto"} filterClassName="md:!col-span-2 !flex-col md:!flex-col xl:!flex-col" filterCClassName="xl:!grid-cols-1" pageClassName={"md:!col-span-2 lg:!col-span-2 xl:!col-span-2"} stockControl={false} onClickArticle={addArticle} stockNoControl />
+                <ArticlesContainer materials={buys} containerClassName={"max-h-[800px] overflow-y-scroll md:!grid-cols-2 text-black auto-rows-auto"} filterClassName="md:!col-span-2 !flex-col md:!flex-col xl:!flex-col" filterCClassName="xl:!grid-cols-1" pageClassName={"md:!col-span-2 lg:!col-span-2 xl:!col-span-2"} stockControl={false} onClickArticle={addArticle} stockNoControl />
                 <div className="grid grid-cols-1 bg-third p-4 rounded-lg sm:grid-cols-2 w-full gap-4">
                   <Input className={"resize-none w-full h-full"} textarea register={register("detail")} placeholder={"Producto"}/>
                   <Input className={"resize-none w-full h-full"} textarea register={register("size")} placeholder={"Talle"}/>

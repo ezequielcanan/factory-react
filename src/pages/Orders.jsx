@@ -37,15 +37,15 @@ const Orders = ({ budgets = false, buys = false }) => {
   const modeOption = budgets ? "budgets" : (buys ? "buys" : "normal")
 
   const modeOptions = {
-    normal: [`orders?society=${society?.value}`, "", "grid md:grid-cols-2", "Pedidos", "orders", "Nuevo Pedido"],
-    budgets: [`orders?society=${society?.value}`, "&budgets=true", "flex flex-wrap", "Presupuestos", "budgets", "Nuevo Presupuesto"],
-    buys: ["buy-orders", "", "grid md:grid-cols-2", "Compras", "buy-orders", "Nueva Compra"]
+    normal: [`orders?society=${society?.value}&`, "", "grid md:grid-cols-2", "Pedidos", "orders", "Nuevo Pedido"],
+    budgets: [`orders?society=${society?.value}&`, "&budgets=true", "flex flex-wrap", "Presupuestos", "budgets", "Nuevo Presupuesto"],
+    buys: ["buy-orders?", "", "grid md:grid-cols-2", "Compras", "buy-orders", "Nueva Compra"]
   }
 
   useEffect(() => {
     if (society) {
       const choseColorsStrArray = choseColors.map((col, i) => `&${colors?.find(c => c.value == col)?.param}=${col}`).toString().replaceAll(",", "")
-      customAxios.get(`/${modeOptions[modeOption][0]}&page=${page}${search && `&search=${search}`}${modeOptions[modeOption][1]}${choseColorsStrArray}`).then(res => {
+      customAxios.get(`/${modeOptions[modeOption][0]}page=${page}${search && `&search=${search}`}${modeOptions[modeOption][1]}${choseColorsStrArray}`).then(res => {
         const ods = res.data?.map(order => {
           let articlesString = ""
           const articlesForString = order?.articles?.filter(a => a)
@@ -67,6 +67,8 @@ const Orders = ({ budgets = false, buys = false }) => {
     //setFilterOrders(orders.filter(order => order.client?.name?.toLowerCase().includes(e?.target?.value) || order.articlesString?.toLowerCase().includes(e?.target?.value)))
   }
 
+  const ordersHeaders = ["N°", "Cliente", "Articulos", "Fecha de pedido", "Fecha de entrega", "Dias restantes", "Ver", "Fijar"]
+
   const ordersFields = [
     { value: "orderNumber" },
     { value: "client", showsFunc: true, shows: (val) => val?.name.toUpperCase() },
@@ -74,7 +76,7 @@ const Orders = ({ budgets = false, buys = false }) => {
     { value: "date", showsFunc: true, shows: (val) => val ? moment.utc(val).format("DD-MM-YYYY") : "" },
     { value: "deliveryDate", showsFunc: true, shows: (val) => val ? moment.utc(val).format("DD-MM-YYYY") : "" },
     { value: "remainingDays" },
-    { value: "ver", showsFunc: true, param: true, shows: (val, row) => <Link to={`/orders/${row?._id}`}><FaArrowRight className="text-xl cursor-pointer" /></Link> },
+    { value: "ver", showsFunc: true, param: true, shows: (val, row) => <Link to={`/${!buys ? "orders" : "buy-orders"}/${row?._id}`}><FaArrowRight className="text-xl cursor-pointer" /></Link> },
     {
       value: "priority", showsFunc: true, param: true, shows: (val, row) => {
         return val ? (
@@ -91,6 +93,11 @@ const Orders = ({ budgets = false, buys = false }) => {
       }
     },
   ]
+
+  if (buys) {
+    ordersFields.splice(4,2)
+    ordersHeaders.splice(4,2)
+  }
 
   return (
     <Main className={"grid gap-6 gap-y-16 items-start content-start"}>
@@ -110,7 +117,7 @@ const Orders = ({ budgets = false, buys = false }) => {
       </section>
       <section className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-auto content-start grid-flow-row">
         {filterOrders?.length ? (
-          <Table fields={ordersFields} headers={["N°", "Cliente", "Articulos", "Fecha de pedido", "Fecha de entrega", "Dias restantes", "Ver", "Fijar"]} rows={filterOrders} containerClassName="xl:col-span-4 lg:col-span-3 md:col-span-2 col-span-1 text-white" stylesFunc={(order) => {
+          <Table fields={ordersFields} headers={ordersHeaders} rows={filterOrders} containerClassName="xl:col-span-4 lg:col-span-3 md:col-span-2 col-span-1 text-white" stylesFunc={(order) => {
             const needsStock = order?.articles?.some(art => art?.booked != art?.quantity)
             let color = ""
             if (order?.suborders?.length) {
