@@ -5,14 +5,14 @@ import { useNavigate, useParams } from "react-router-dom"
 import { Oval } from "react-loader-spinner"
 import ArticleCard from "../components/ArticleCard"
 import Table from "../components/Table"
-import { FaCross, FaFileUpload, FaMinusCircle, FaPlusCircle, FaTrashAlt } from "react-icons/fa"
+import { FaCross, FaFilePdf, FaFileUpload, FaMinusCircle, FaPlusCircle, FaTrashAlt } from "react-icons/fa"
 import Input from "../components/Input"
 import Button from "../components/Button"
 import Swal from "sweetalert2"
 import { MdClose } from "react-icons/md"
 import ArticlesContainer from "../containers/ArticlesContainer"
 import Label from "../components/Label"
-import { uploadFile, userIncludesRoles } from "../utils/utils"
+import { measurements, uploadFile, userIncludesRoles } from "../utils/utils"
 import OrderCard from "../components/OrderCard"
 import { useContext } from "react"
 import { UserContext } from "../context/UserContext"
@@ -23,13 +23,13 @@ import { FaListCheck } from "react-icons/fa6"
 import ConfirmCut from "../containers/ConfirmCut"
 import { HiDuplicate } from "react-icons/hi"
 
-const Order = ({buys = false}) => {
-  const {userData} = useContext(UserContext)
+const Order = ({ buys = false }) => {
+  const { userData } = useContext(UserContext)
   const [order, setOrder] = useState(null)
   const [cut, setCut] = useState(null)
   const [file, setFile] = useState(null)
   const [bordadoFile, setBordadoFile] = useState(null)
-  const {register, handleSubmit, reset} = useForm()
+  const { register, handleSubmit, reset } = useForm()
   const [reload, setReload] = useState(false)
   const [lastReload, setLastReload] = useState(false)
   const [cutArticles, setCutArticles] = useState(null)
@@ -38,7 +38,8 @@ const Order = ({buys = false}) => {
   const [dateTwo, setDateTwo] = useState("")
   const [info, setInfo] = useState("")
   const [transfer, setTransfer] = useState("")
-  const [bordadoType, setBordadoType] = useState({value: "Bordado"})
+  const [bordadoType, setBordadoType] = useState({ value: "Bordado" })
+  const [measurement, setMeasurement] = useState(measurements[0])
   const [edit, setEdit] = useState(false)
   const newSuborderRef = useRef(null)
   const navigate = useNavigate()
@@ -64,7 +65,7 @@ const Order = ({buys = false}) => {
 
   const onClickControls = async (article, property, qty) => {
     if (property == "quantity" && (Number(article?.quantity) + Number(qty)) >= 0) {
-      await customAxios.put(`/orders/quantity/${oid}/${article?._id}/${Number(article?.quantity) + Number(qty)}${article?.custom ? "?custom=true" : ""}`)
+      await customAxios.put(`/${endpoint}/quantity/${oid}/${article?._id}/${Number(article?.quantity) + Number(qty)}${article?.custom ? "?custom=true" : ""}`)
       setReload(!reload)
     } else if (property == "bookedQuantity" && (Number(article?.bookedQuantity) + Number(qty)) >= 0) {
       await customAxios.put(`/orders/booked/${oid}/${article?._id}/${Number(article?.bookedQuantity) + Number(qty)}${article?.custom ? "?custom=true" : ""}`)
@@ -79,6 +80,7 @@ const Order = ({buys = false}) => {
 
   const onChangePrice = async (price, article) => {
     await customAxios.put(`/${endpoint}/price/${oid}/${article?._id}?price=${price}${article?.custom ? "&custom=true" : ""}`)
+    setReload(!reload)
   }
 
   const onConfirmPrices = async () => {
@@ -94,7 +96,7 @@ const Order = ({buys = false}) => {
 
   const deleteOrder = async () => {
     Swal.fire({
-      title: "<strong>CUIDADO: Vas a borrar el pedido</strong>",
+      title: `<strong>CUIDADO: Vas a borrar ${!buys ? "el pedido" : "la compra"}</strong>`,
       icon: "warning",
       showCloseButton: true,
       showCancelButton: true,
@@ -107,8 +109,8 @@ const Order = ({buys = false}) => {
       `,
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await customAxios.delete(`/orders/${oid}`)
-        navigate("/orders")
+        await customAxios.delete(`/${endpoint}/${oid}`)
+        navigate(`/${endpoint}`)
       }
     });
   }
@@ -137,24 +139,24 @@ const Order = ({buys = false}) => {
   }
 
   const deleteArticle = async (article) => {
-    await customAxios.delete(`/orders/articles/${oid}/${article?.article ? article?.article?._id : article?.customArticle?._id}${article?.custom ? "?custom=true" : ""}`)
+    await customAxios.delete(`/${endpoint}/articles/${oid}/${article?.article ? article?.article?._id : article?.customArticle?._id}${article?.custom ? "?custom=true" : ""}`)
     setReload(!reload)
   }
 
   const addArticle = async (article, custom) => {
     if (article) {
-      await customAxios.post(`/orders/articles/${oid}/${article?._id}`)
+      await customAxios.post(`/${endpoint}/articles/${oid}/${article?._id}`)
       setReload(!reload)
     } else {
       await handleSubmit(async data => {
-        const result = await customAxios.post("/articles/custom", [{ ...data, quantity: 0, common: false, bordadoType: bordadoType?.value || "Bordado" }])
+        const result = await customAxios.post("/articles/custom", [!buys ? { ...data, quantity: 0, common: false, bordadoType: bordadoType?.value || "Bordado" } : { ...data, quantity: 0, measurement: measurement?.value }])
         const cid = result?.data[0]?._id
         const filePath = `/articles/custom/${cid}`
         reset()
         file && await uploadFile(file[1], filePath, "thumbnail.png")
         bordadoFile && await uploadFile(bordadoFile[1], filePath, "bordado.png")
-        
-        await customAxios.post(`/orders/articles/${oid}/${cid}?custom=true`)
+
+        await customAxios.post(`/${endpoint}/articles/${oid}/${cid}?custom=true`)
       })()
       setReload(!reload)
     }
@@ -176,7 +178,7 @@ const Order = ({buys = false}) => {
     { value: "hasToBeCut", showsFunc: true, shows: (val) => val ? "Si" : "No", clickeable: true, onClick: onClickHasToBeCut },
     {
       value: "price", showsFunc: true, param: true, shows: (val, row) => {
-        return (userIncludesRoles(userData, "prices") ? <Input type="number" defaultValue={val || ""} disabled={!edit} onChange={(e) => onChangePrice(e?.target?.value, row)} className={"!py-0 !px-0 rounded-none focus:!bg-transparent w-[100px]"} containerClassName={"!border-0 rounded-none"} /> : null)
+        return (userIncludesRoles(userData, "prices") ? <Input type="number" value={row?.price || ""} disabled={!edit} id={"tablePrice" + row?._id} onChange={(e) => onChangePrice(e?.target?.value, row)} className={"!py-0 !px-0 rounded-none focus:!bg-transparent w-[100px]"} containerClassName={"!border-0 rounded-none"} /> : null)
       }
     },
     { value: "subtotal", showsFunc: true, param: true, shows: (val, row) => userIncludesRoles(userData, "prices") ? ((row?.price * row?.quantity) || 0) : null },
@@ -204,7 +206,7 @@ const Order = ({buys = false}) => {
 
     const commonArticles = order?.articles?.filter(a => a?.common || a?.article)
 
-    let newOrder = {...order}
+    let newOrder = { ...order }
     await Promise.all(commonArticles.map(async article => {
       const booked = article?.totalBooked
       const stock = article?.stock
@@ -214,7 +216,7 @@ const Order = ({buys = false}) => {
       const result = await customAxios.put(`/orders/booked/${oid}/${article?._id}/${bookedQuantity}`)
       newOrder = result?.data
     }))
-    
+
 
     let count = 0
     const arts = newOrder?.articles?.map(a => {
@@ -242,7 +244,7 @@ const Order = ({buys = false}) => {
   }
 
   const duplicateOrder = async () => {
-    const newOrder = {...order}
+    const newOrder = { ...order }
     newOrder.articles = newOrder?.articles?.map(art => {
       if (art?.custom) {
         art.customArticle = art?.customArticle?._id
@@ -275,32 +277,49 @@ const Order = ({buys = false}) => {
     setState(e?.target?.value)
   }
 
-  console.log(order)
+  const toggleMode = async () => {
+    await customAxios.put(`/${endpoint}/${order?._id}?property=mode&value=${!order?.mode}`)
+    setReload(!reload)
+  }
+
+  const headerText = buys ? "Insumos" : "Articulos"
+  const tableHeaders = ["Articulo", "Cantidad", "Reservado", "Cortar Restantes", "Precio Unitario", "Subtotal", "Borrar"]
+
+  if (buys) {
+    tableHeaders.splice(2, 2)
+    tableHeaders[0] = "Insumo"
+    tableFields.splice(2, 2)
+  }
+
   return (
     <Main className={"grid lg:grid-cols-2 gap-y-8 md:gap-y-16 gap-x-16 overflow-x-hidden content-start text-white"}>
       {(order && !cutArticles) ? (
         <>
           <h2 className="text-4xl justify-self-center lg:justify-self-start font-bold">{!buys ? (!order?.budget ? "Pedido" : "Presupuesto") : "Compra"} N° {order?.orderNumber}</h2>
           <div className="flex gap-8 flex-wrap items-center justify-center lg:justify-end">
-            <div className="flex items-center self-start gap-8">
-              <HiDuplicate className="text-2xl cursor-pointer" onClick={duplicateOrder}/>
+            <div className="flex items-center flex-wrap self-start gap-8">
+              {!buys && <HiDuplicate className="text-2xl cursor-pointer" onClick={duplicateOrder} />}
               <FaTrashAlt className="text-2xl cursor-pointer" onClick={deleteOrder} />
               {order?.budget && <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/budget/${oid}?dateOne=${dateOne}&dateTwo=${dateTwo}&transfer=${transfer}&info=${info}`} download className="text-2xl"><FaListCheck /></a>}
+              {buys && <>
+                <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/2/${oid}?buy=true`} download><FaFilePdf /></a>
+                <Button onClick={toggleMode}>Cuenta {order?.mode ? "1" : "2"}</Button>
+              </>}
               <Button className={`justify-self-center lg:justify-self-end ${!order?.budget && (!order?.finished && (order?.inPricing ? "bg-green-700 hover:bg-green-800" : "bg-sky-600 hover:bg-sky-700"))}`} onClick={!order.budget ? (!order?.finished ? (order?.inPricing ? onFinishOrder : onPassToPricing) : () => navigate(`/prices/order/${oid}`)) : onPassToOrder}>{!order?.budget ? (order?.finished ? "Finalizado" : (!order?.inPricing ? "Pasar a facturacion" : "Facturar")) : "Confirmar pedido"}</Button>
             </div>
             {order?.budget && <div className="flex flex-col gap-4">
-              <Input type="number" value={transfer} onChange={e => setInputState(e, setTransfer)} placeholder="% TRANSFERENCIA"/>
-              <Input type="number" value={dateOne} onChange={e => setInputState(e, setDateOne)} placeholder="PLAZO 1"/>
-              <Input type="number" value={dateTwo} onChange={e => setInputState(e, setDateTwo)} placeholder="PLAZO 2"/>
-              <Input placeholder="INFO EXTRA" value={info} onChange={e => setInputState(e, setInfo)} textarea className="w-full resize-none"/>
-            </div>} 
+              <Input type="number" value={transfer} onChange={e => setInputState(e, setTransfer)} placeholder="% TRANSFERENCIA" />
+              <Input type="number" value={dateOne} onChange={e => setInputState(e, setDateOne)} placeholder="PLAZO 1" />
+              <Input type="number" value={dateTwo} onChange={e => setInputState(e, setDateTwo)} placeholder="PLAZO 2" />
+              <Input placeholder="INFO EXTRA" value={info} onChange={e => setInputState(e, setInfo)} textarea className="w-full resize-none" />
+            </div>}
           </div>
           <section className="flex flex-col gap-16">
             <div className="flex flex-col gap-8">
               <h3 className="text-3xl">{!buys ? "Cliente" : "Proveedor"}: {order?.client?.name}</h3>
               {!buys && <div className="flex items-center gap-4">
                 <Label>Fecha de entrega:</Label>
-                <Input defaultValue={moment(order?.deliveryDate).format("YYYY-MM-DD")} type={"date"} onChange={onChangeDeliveryDate}/>
+                <Input defaultValue={moment(order?.deliveryDate).format("YYYY-MM-DD")} type={"date"} onChange={onChangeDeliveryDate} />
               </div>}
               <p className="text-xl">Telefono: {order?.client?.phone}</p>
               <p className="text-xl">Email: {order?.client?.email}</p>
@@ -318,24 +337,29 @@ const Order = ({buys = false}) => {
                     <h3 className="text-3xl">Detalles del pedido</h3>
                     <Button onClick={edit ? onConfirmPrices : () => setEdit(!edit)} className={"rounded-none border-2 border-white bg-third"}>{!edit ? "Editar precios" : "Actualizar"}</Button>
                   </div>
-                  <Table fields={tableFields} headers={["Articulo", "Cantidad", "Reservado", "Cortar Restantes", "Precio Unitario", "Subtotal", "Borrar"]} rows={order?.articles} />
+                  <Table fields={tableFields} headers={tableHeaders} rows={order?.articles} />
                 </div>
                 <ArticlesContainer materials={buys} containerClassName={"max-h-[800px] overflow-y-scroll md:!grid-cols-2 text-black auto-rows-auto"} filterClassName="md:!col-span-2 !flex-col md:!flex-col xl:!flex-col" filterCClassName="xl:!grid-cols-1" pageClassName={"md:!col-span-2 lg:!col-span-2 xl:!col-span-2"} stockControl={false} onClickArticle={addArticle} stockNoControl />
                 <div className="grid grid-cols-1 bg-third p-4 rounded-lg sm:grid-cols-2 w-full gap-4">
-                  <Input className={"resize-none w-full h-full"} textarea register={register("detail")} placeholder={"Producto"}/>
-                  <Input className={"resize-none w-full h-full"} textarea register={register("size")} placeholder={"Talle"}/>
-                  <SelectInput selectedOption={bordadoType} setSelectedOption={setBordadoType} options={[{value: "Bordado"}, {value: "Estampado"}]} containerClassName={"w-auto text-black"}/>
-                  <Input className={"resize-none w-full h-full"} textarea register={register("bordado")} placeholder={bordadoType?.value}/>
-                  <Input className={"resize-none w-full h-full"} textarea register={register("ubicacion")} placeholder={"Ubicacion"}/>
-                  <Input className={"resize-none w-full h-full"} textarea register={register("details")} placeholder={"Detalle tecnico"} containerClassName={"md:col-span-2"}/>
+                  <Input className={"resize-none w-full h-full"} textarea register={register("detail")} placeholder={"Producto"} />
+                  {!buys ?
+                    <>
+                      <Input className={"resize-none w-full h-full"} textarea register={register("size")} placeholder={"Talle"} />
+                      <SelectInput selectedOption={bordadoType} setSelectedOption={setBordadoType} options={[{ value: "Bordado" }, { value: "Estampado" }]} containerClassName={"w-auto text-black"} />
+                      <Input className={"resize-none w-full h-full"} textarea register={register("bordado")} placeholder={bordadoType?.value} />
+                      <Input className={"resize-none w-full h-full"} textarea register={register("ubicacion")} placeholder={"Ubicacion"} />
+                      <Input className={"resize-none w-full h-full"} textarea register={register("details")} placeholder={"Detalle tecnico"} containerClassName={"md:col-span-2"} />
+                    </> : <>
+                      <SelectInput selectedOption={measurement} setSelectedOption={setMeasurement} options={[...measurements]} containerClassName={"w-auto text-black"} />
+                    </>}
                   <Label htmlFor={"file"} className={`${file ? "max-h-[150px] border-4 border-nav" : "w-full h-full border-dashed rounded-lg border-nav border-4 py-8"} col-span-1 flex items-center overflow-hidden self-center justify-center `}>
                     {!file ? <FaFileUpload className="text-7xl" /> : <img src={file[0]} alt="Seleccionar imagen" className="w-full h-full object-cover" />}
                     <Input type="file" className="hidden" id={"file"} accept="image/*" name={"file"} onChange={e => changeCustomArticleFile(e?.target?.files[0])} containerClassName={"hidden"} />
                   </Label>
-                  <Label htmlFor={"bfile"} className={`${bordadoFile ? "max-h-[150px] border-4 border-nav" : "w-full h-full border-dashed rounded-lg border-nav border-4 py-8"} col-span-1 flex items-center overflow-hidden self-center justify-center `}>
+                  {!buys && <Label htmlFor={"bfile"} className={`${bordadoFile ? "max-h-[150px] border-4 border-nav" : "w-full h-full border-dashed rounded-lg border-nav border-4 py-8"} col-span-1 flex items-center overflow-hidden self-center justify-center `}>
                     {!bordadoFile ? <FaFileUpload className="text-7xl" /> : <img src={bordadoFile[0]} alt="Seleccionar imagen" className="w-full h-full object-cover" />}
                     <Input type="file" className="hidden" id={"bfile"} accept="image/*" name={"bfile"} onChange={e => changeCustomArticleFile(e?.target?.files[0], true)} containerClassName={"hidden"} />
-                  </Label>
+                  </Label>}
                   <div className="md:col-span-2">
                     <Button onClick={() => addArticle(false, true)}>Agregar</Button>
                   </div>
@@ -346,14 +370,14 @@ const Order = ({buys = false}) => {
           <section className="grid lg:grid-cols-2 gap-6 content-start">
             {!order?.suborders?.length ? (
               <>
-                <h3 className="lg:col-span-2 text-xl self-start">Articulos de linea</h3>
+                <h3 className="lg:col-span-2 text-xl self-start">{headerText} de linea</h3>
                 {order?.articles?.filter(a => a.article)?.length && lastReload == reload ? order?.articles?.filter(a => a.article)?.map(article => {
                   return <ArticleCard key={article?._id + reload} article={article} customArticle={article?.customArticle} onClickArticle={(a, b) => { }} hoverEffect={false} bookedQuantity quantityLocalNoControl quantityNoControl stockNoControl />
-                }) : <p>No hay articulos de linea</p>}
-                <h3 className="lg:col-span-2 mt-16 text-xl">Articulos personalizados</h3>
+                }) : <p>No hay {headerText.toLowerCase()} de linea</p>}
+                <h3 className="lg:col-span-2 mt-16 text-xl">{headerText} personalizados</h3>
                 {order?.articles?.filter(a => a.customArticle)?.length && lastReload == reload ? order?.articles?.filter(a => a.customArticle)?.map(article => {
                   return <ArticleCard key={article?._id + reload} article={article} customArticle={article?.customArticle} onClickArticle={(a, b) => { }} hoverEffect={false} bookedQuantity quantityLocalNoControl quantityNoControl stockNoControl />
-                }) : <p>No hay articulos personalizados</p>}
+                }) : <p>No hay {headerText.toLowerCase()} personalizados</p>}
               </>
             ) : (
               <>
@@ -379,7 +403,7 @@ const Order = ({buys = false}) => {
         !cutArticles ? (
           <Oval className="text-3xl" />
         ) : (
-          <ConfirmCut order={cutArticles} onConfirmCutOrder={onConfirmCutOrder} cancelFunc={cancelCut}/>
+          <ConfirmCut order={cutArticles} onConfirmCutOrder={onConfirmCutOrder} cancelFunc={cancelCut} />
         )
       )}
     </Main>
