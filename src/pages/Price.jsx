@@ -16,6 +16,7 @@ const Price = () => {
   const { userData } = useContext(UserContext)
   const [order, setOrder] = useState(null)
   const [reload, setReload] = useState(false)
+  const [billNumber, setBillNumber] = useState("")
   const [edit, setEdit] = useState(false)
   const navigate = useNavigate()
   const { oid } = useParams()
@@ -27,6 +28,7 @@ const Price = () => {
           return { bookedQuantity: art.booked, custom: art?.customArticle ? true : false, ...art, ...art?.article, ...art?.customArticle, price: art?.price || 0 }
         })
       })
+      setBillNumber(res?.data?.order?.billNumber || "")
     })
   }, [reload])
 
@@ -67,18 +69,29 @@ const Price = () => {
     navigate(`/orders/${oid}`)
   }
 
+  const changeBillNumber = async () => {
+    await customAxios.put(`/orders/${oid}?property=billNumber&value=${billNumber}`)
+    setReload(!reload)
+  }
+
   return (
     <Main className={"grid gap-8 content-start"}>
-      <section className="grid md:grid-cols-2 content-start gap-8">
-        <Title text={`Facturacion: N° ${order?.orderNumber} - ${order?.client?.name}`} className={"md:text-start text-center text-3xl"} />
-        <div className="grid gap-y-8">
-          <Button className={"md:justify-self-end self-start px-4 py-2"} onClick={toggleMode}>Modo: {order?.mode ? "Cuenta 1" : "Cuenta 2"}</Button>
-          <Button className={"md:justify-self-end self-start px-4 py-2 bg-amber-300 hover:bg-amber-500 hover:!text-white rounded-none border-2 border-black !text-black"} onClick={backToOrders}>Pasar a pedidos</Button>
+      <section className="grid md:grid-cols-2 content-start gap-8 max-w-screen">
+        <div className="grid gap-y-8 max-w-full">
+          <Title text={`Facturacion: N° ${order?.orderNumber} - ${order?.client?.name}`} className={"md:text-start w-full text-center break-normal !text-4xl"} />
+          <div className="grid md:grid-cols-2 items-center gap-4 items-center md:justify-start md:justify-items-start justify-center w-full">
+            <Input placeholder={"Número de factura"} defaultValue={billNumber} containerClassName={"justify-self-start max-w-full"} onChange={(e) => setBillNumber(e?.target?.value)}/>
+            <Button onClick={changeBillNumber}>Confirmar</Button>
+          </div>
+        </div>
+        <div className="grid gap-y-8 w-full max-w-full">
+          <Button className={"md:justify-self-end justify-self-center self-start px-4 py-2"} onClick={toggleMode}>Modo: {order?.mode ? "Cuenta 1" : "Cuenta 2"}</Button>
+          <Button className={"md:justify-self-end justify-self-center self-start px-4 py-2 bg-amber-300 hover:bg-amber-500 hover:!text-white rounded-none border-2 border-black !text-black"} onClick={backToOrders}>Pasar a pedidos</Button>
         </div>
       </section>
       {order ? (
         <>
-          <section className="grid gap-8 max-w-full text-white">
+          <section className="grid gap-8 max-w-full w-full text-white">
             <div className="flex flex-col gap-8">
               <h3 className="text-2xl">Total: ${order?.articles?.reduce((acc, art) => acc + ((art?.price ? (art?.price * art?.quantity) : 0) * multiply), 0)}</h3>
               <p className="text-xl">Bultos: {order?.packages}</p>
@@ -87,7 +100,7 @@ const Price = () => {
               <h3 className="text-xl">Detalles del pedido</h3>
               {!order?.suborders?.length && <Button onClick={edit ? onConfirmPrices : () => setEdit(!edit)} className={"rounded-none border-2 border-white bg-third"}>{!edit ? "Editar precios" : "Actualizar"}</Button>}
             </div>
-            <Table fields={tableFields} headers={["Articulo", "Cantidad", "Precio Unitario", "Iva", "Subtotal"]} rows={order?.articles} />
+            <Table fields={tableFields} headers={["Articulo", "Cantidad", "Precio Unitario", "Iva", "Subtotal"]} rows={order?.articles}  />
             <div className="flex flex-wrap items-center gap-4">
               <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/${order?.mode ? "1" : "2"}/${oid}`} download><Button className={"flex items-center gap-x-6"}>Cuenta <FaFilePdf /></Button></a>
             </div>

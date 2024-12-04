@@ -18,12 +18,14 @@ import { MdClose } from "react-icons/md"
 const ClientPayments = () => {
   const [client, setClient] = useState(null)
   const [reload, setReload] = useState(false)
+  const [paymentsInfo, setPaymentsInfo] = useState("")
   const { register, handleSubmit, reset } = useForm()
   const { cid } = useParams()
 
   useEffect(() => {
     customAxios.get(`/payments/balance/${cid}`).then(res => {
       setClient(res.data)
+      setPaymentsInfo(res?.data?.paymentsInfo)
     })
   }, [reload])
 
@@ -45,24 +47,33 @@ const ClientPayments = () => {
     { value: "delete", showsFunc: true, param: true, shows: (val, row) => <MdClose className="text-xl cursor-pointer" onClick={() => deletePayment(row)} /> },
   ]
 
+  const onChangePaymentsInfo = async () => {
+    await customAxios.put(`/clients/${cid}`, {paymentsInfo})
+    setReload(!reload)
+  }
+
   return (
     <Main className={"grid gap-6 gap-y-16 items-start content-start text-white"}>
       <section className="grid items-center justify-center gap-8 md:items-start md:grid-cols-2 md:justify-between">
-        <Title text={`Facturacion ${client ? client?.name : ""}`} className={"text-center md:text-start"} />
+        <Title text={`Facturacion ${client ? client?.name : ""}`} className={"text-center md:text-start !text-4xl"} />
         <a className="md:justify-self-end justify-self-center" href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/cc/${client?._id}`} download><Button className={"flex items-center gap-x-6"}>Cuenta Corriente <FaFileExcel /></Button></a>
       </section>
       {client ? (
         <>
-          <section className="flex flex-col gap-8">
+          <section className="grid gap-8">
             <p className="text-3xl text-center md:text-start">Deuda a favor: ${client?.balance}</p>
-            <form className="flex flex-wrap items-center gap-4" onSubmit={onSubmit}>
+            <form className="grid sm:flex flex-wrap items-center gap-4" onSubmit={onSubmit}>
               <Label>Agregar Pago</Label>
               <Input register={register("amount")} type="number" placeholder={"Monto"} step={0.01}/>
               <Input register={register("detail")} type="string" placeholder={"Observaciones"} />
               <Input register={register("date")} type="date" />
-              <Button><TiTick /></Button>
+              <Button className={"justify-self-start"}><TiTick /></Button>
             </form>
-            <Table fields={tableFields} headers={["Fecha", "Observaciones", "Monto", "Borrar"]} rows={client?.payments} containerClassName="max-h-[500px]" />
+            <div className="grid md:flex items-center flex-wrap gap-4">
+              <Input textarea placeholder="Observaciones" defaultValue={paymentsInfo} containerClassName="md:justify-self-start" className="resize-none h-[100px] min-w-[300px]" onChange={e => setPaymentsInfo(e?.target?.value)}/>
+              <Button onClick={onChangePaymentsInfo}>Confirmar</Button>
+            </div>
+            <Table fields={tableFields} headers={["Fecha", "Observaciones", "Monto", "Borrar"]} rows={client?.payments} containerClassName="max-h-[500px] w-full" />
           </section>
           <section className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-auto content-start grid-flow-row">
             {client?.orders?.length ? (
