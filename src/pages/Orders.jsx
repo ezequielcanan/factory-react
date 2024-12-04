@@ -67,15 +67,9 @@ const Orders = ({ budgets = false, buys = false }) => {
     //setFilterOrders(orders.filter(order => order.client?.name?.toLowerCase().includes(e?.target?.value) || order.articlesString?.toLowerCase().includes(e?.target?.value)))
   }
 
-  const ordersHeaders = ["N°", "Cliente", "Articulos", "Fecha de pedido", "Fecha de entrega", "Dias restantes", "Ver", "Fijar"]
+  const ordersHeaders = [ "Ver", "Fijar", "N°", "Cliente", "Articulos", "Fecha de pedido", "Fecha de entrega", "Dias restantes"]
 
   const ordersFields = [
-    { value: "orderNumber" },
-    { value: "client", showsFunc: true, shows: (val) => val?.name.toUpperCase() },
-    { value: "articlesString", showsFunc: true, shows: (val) => val?.toUpperCase() },
-    { value: "date", showsFunc: true, shows: (val) => val ? moment.utc(val).format("DD-MM-YYYY") : "" },
-    { value: "deliveryDate", showsFunc: true, shows: (val) => val ? moment.utc(val).format("DD-MM-YYYY") : "" },
-    { value: "remainingDays" },
     { value: "ver", showsFunc: true, param: true, shows: (val, row) => <Link to={`/${!buys ? "orders" : "buy-orders"}/${row?._id}`}><FaArrowRight className="text-xl cursor-pointer" /></Link> },
     {
       value: "priority", showsFunc: true, param: true, shows: (val, row) => {
@@ -92,6 +86,12 @@ const Orders = ({ budgets = false, buys = false }) => {
         )
       }
     },
+    { value: "orderNumber" },
+    { value: "client", showsFunc: true, shows: (val) => val?.name.toUpperCase() },
+    { value: "articlesString", showsFunc: true, shows: (val) => val?.toUpperCase() },
+    { value: "date", showsFunc: true, shows: (val) => val ? moment.utc(val).format("DD-MM-YYYY") : "" },
+    { value: "deliveryDate", showsFunc: true, shows: (val) => val ? moment.utc(val).format("DD-MM-YYYY") : "" },
+    { value: "remainingDays" },
   ]
 
   if (buys) {

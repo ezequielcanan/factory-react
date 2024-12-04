@@ -302,7 +302,7 @@ const Order = ({ buys = false }) => {
               <FaTrashAlt className="text-2xl cursor-pointer" onClick={deleteOrder} />
               {order?.budget && <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/budget/${oid}?dateOne=${dateOne}&dateTwo=${dateTwo}&transfer=${transfer}&info=${info}`} download className="text-2xl"><FaListCheck /></a>}
               {buys && <>
-                <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/2/${oid}?buy=true`} download><FaFilePdf /></a>
+                <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/2/${oid}?buy=true`} download className="text-2xl"><FaFilePdf /></a>
                 <Button onClick={toggleMode}>Cuenta {order?.mode ? "1" : "2"}</Button>
               </>}
               <Button className={`justify-self-center lg:justify-self-end ${!order?.budget && (!order?.finished && (order?.inPricing ? "bg-green-700 hover:bg-green-800" : "bg-sky-600 hover:bg-sky-700"))}`} onClick={!order.budget ? (!order?.finished ? (order?.inPricing ? onFinishOrder : onPassToPricing) : () => navigate(`/prices/order/${oid}`)) : onPassToOrder}>{!order?.budget ? (order?.finished ? "Finalizado" : (!order?.inPricing ? "Pasar a facturacion" : "Facturar")) : "Confirmar pedido"}</Button>

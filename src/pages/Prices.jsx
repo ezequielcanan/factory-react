@@ -54,9 +54,9 @@ const Prices = () => {
   }, [search, filterMode, amountFilter])
 
   const tableFields = [
+    { value: "excel", showsFunc: true, param: true, shows: (val, row) => <Link to={`/prices/${row?._id}`}><FaArrowRight className="text-xl cursor-pointer" /></Link> },
     { value: "name", showsFunc: true, shows: (val) => val.toUpperCase() },
     { value: "balance", showsFunc: true, shows: (val) => val.toFixed(2) },
-    { value: "excel", showsFunc: true, param: true, shows: (val, row) => <Link to={`/prices/${row?._id}`}><FaArrowRight className="text-xl cursor-pointer" /></Link> },
   ]
 
   return (
@@ -69,8 +69,9 @@ const Prices = () => {
           <Input placeholder={"Monto"} type={"number"} onChange={(e) => onChangeFilter(e, false)} className={"w-full"} />
         </div>
       </section>
+      <h3 className="text-2xl font-bold md:justify-self-start justify-self-center">Deuda a favor total: {clients?.reduce((acc,client) => acc+client?.balance,0)?.toFixed(2)}</h3>
       {(clients && colorValues) ? (
-        <Table fields={tableFields} headers={["Cliente", "Deuda", "Ver"]} rows={filterClients} containerClassName="min-w-[250]" colorScale minValue={colorValues[1]} maxValue={colorValues[0]}/>
+        <Table fields={tableFields} headers={["Ver", "Cliente", "Deuda"]} rows={filterClients} containerClassName="min-w-[250]" colorScale minValue={colorValues[1]} maxValue={colorValues[0]}/>
       ) : (
         <Oval className="text-3xl" />
       )}

@@ -24,19 +24,6 @@ const WorkshopOrders = () => {
   }, [reload])
 
   const ordersFields = [
-    { value: "razon", showsFunc: true, param: true, shows: (val, order) => order?.cut?.order ? `${order?.workshop?.name} CORTE N°${order?.cut?.order?.orderNumber}` : order?.cut?.detail },
-    {
-      value: "articlesString", showsFunc: true, param: true, shows: (val, order) => {
-        let articlesString = ""
-        const articlesForString = order?.articles?.filter(a => order?.cut?.order ? a.hasToBeCut && a.quantity > a.booked : true)
-        articlesForString?.forEach((article, i) => {
-          articlesString += `${(article?.article?.description || article?.customArticle?.detail)?.toUpperCase()}${i != (articlesForString?.length - 1) ? " ///// " : ""}`
-        })
-        return articlesString
-      }
-    },
-    { value: "order", showsFunc: true, param: true, shows: (x, val) => val?.cut?.order?.date ? moment.utc(val?.cut?.order?.date).format("DD-MM-YYYY") : "" },
-    { value: "order", showsFunc: true, param: true, shows: (x, val) => val?.cut?.order?.deliveryDate ? moment.utc(val?.cut?.order?.deliveryDate).format("DD-MM-YYYY") : "" },
     { value: "ver", showsFunc: true, param: true, shows: (val, row) => <Link to={`/workshop-orders/${row?._id}`}><FaArrowRight className="text-xl cursor-pointer" /></Link> },
     {
       value: "priority", showsFunc: true, param: true, shows: (val, row) => {
@@ -53,6 +40,19 @@ const WorkshopOrders = () => {
         )
       }
     },
+    { value: "razon", showsFunc: true, param: true, shows: (val, order) => order?.cut?.order ? `${order?.workshop?.name} CORTE N°${order?.cut?.order?.orderNumber}` : order?.cut?.detail },
+    {
+      value: "articlesString", showsFunc: true, param: true, shows: (val, order) => {
+        let articlesString = ""
+        const articlesForString = order?.articles?.filter(a => order?.cut?.order ? a.hasToBeCut && a.quantity > a.booked : true)
+        articlesForString?.forEach((article, i) => {
+          articlesString += `${(article?.article?.description || article?.customArticle?.detail)?.toUpperCase()}${i != (articlesForString?.length - 1) ? " ///// " : ""}`
+        })
+        return articlesString
+      }
+    },
+    { value: "order", showsFunc: true, param: true, shows: (x, val) => val?.cut?.order?.date ? moment.utc(val?.cut?.order?.date).format("DD-MM-YYYY") : "" },
+    { value: "order", showsFunc: true, param: true, shows: (x, val) => val?.cut?.order?.deliveryDate ? moment.utc(val?.cut?.order?.deliveryDate).format("DD-MM-YYYY") : "" },
   ]
 
   const finishedOrders = workshopOrders?.filter(order => order?.articles?.every(art => Number(art?.quantity || 0) - Number(art?.booked || 0) == (art?.received || 0)))
@@ -66,7 +66,7 @@ const WorkshopOrders = () => {
       {notFinished?.length ? /*notFinished?.map(order => {
         return <OrderCard name={false} red order={order?.cut?.order} articles={order?.articles} link={`/workshop-orders/${order?._id}`} text={order?.cut?.order ? `${order?.workshop?.name} CORTE N°` : order?.cut?.detail} forCut/>
       })*/
-        <Table fields={ordersFields} headers={["Razon", "Articulos", "Fecha de pedido", "Fecha de entrega", "Ver", "Fijar"]} rows={notFinished} containerClassName="lg:col-span-4 md:col-span-2 col-span-1 text-white" stylesFunc={() => "bg-red-600"} /> : (
+        <Table fields={ordersFields} headers={["Ver", "Fijar", "Razon", "Articulos", "Fecha de pedido", "Fecha de entrega"]} rows={notFinished} containerClassName="lg:col-span-4 md:col-span-2 col-span-1 text-white" stylesFunc={() => "bg-red-600"} /> : (
           <p className="text-white text-2xl">No hay cortes en talleres</p>
         )}
     </section>
@@ -74,7 +74,7 @@ const WorkshopOrders = () => {
     <AnimatePresence>
       {(showFinished) ? (
         <motion.section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-auto overflow-hidden" initial={{ height: 0 }} transition={{ duration: 0.5 }} exit={{ height: 0 }} animate={{ height: "auto" }}>
-          {finishedOrders?.length ? <Table fields={ordersFields} headers={["Razon", "Articulos", "Fecha de pedido", "Fecha de entrega", "Ver", "Fijar"]} rows={finishedOrders} containerClassName="lg:col-span-4 md:col-span-2 col-span-1 text-white" stylesFunc={() => "bg-green-600"} /> : <p className="text-white text-2xl">No hay ordenes de talleres finalizadas</p>}
+          {finishedOrders?.length ? <Table fields={ordersFields} headers={["Ver", "Fijar", "Razon", "Articulos", "Fecha de pedido", "Fecha de entrega"]} rows={finishedOrders} containerClassName="lg:col-span-4 md:col-span-2 col-span-1 text-white" stylesFunc={() => "bg-green-600"} /> : <p className="text-white text-2xl">No hay ordenes de talleres finalizadas</p>}
         </motion.section>
       ) : null}
     </AnimatePresence>

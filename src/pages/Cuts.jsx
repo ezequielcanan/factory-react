@@ -62,10 +62,6 @@ const Cuts = () => {
   ]
 
   const ordersFields = [
-    { value: "razon", showsFunc: true, param: true, shows: (val, cut) => cut?.order ? "CORTE N°" + cut?.order?.orderNumber : cut?.detail },
-    { value: "articlesString" },
-    { value: "order", showsFunc: true, shows: (val) => val?.date ? moment.utc(val?.date).format("DD-MM-YYYY") : "" },
-    { value: "order", showsFunc: true, shows: (val) => val?.deliveryDate ? moment.utc(val?.deliveryDate).format("DD-MM-YYYY") : "" },
     { value: "ver", showsFunc: true, param: true, shows: (val, row) => <Link to={`/cuts/${row?._id}`}><FaArrowRight className="text-xl cursor-pointer" /></Link> },
     {
       value: "priority", showsFunc: true, param: true, shows: (val, row) => {
@@ -82,6 +78,10 @@ const Cuts = () => {
         )
       }
     },
+    { value: "razon", showsFunc: true, param: true, shows: (val, cut) => cut?.order ? "CORTE N°" + cut?.order?.orderNumber : cut?.detail },
+    { value: "articlesString" },
+    { value: "order", showsFunc: true, shows: (val) => val?.date ? moment.utc(val?.date).format("DD-MM-YYYY") : "" },
+    { value: "order", showsFunc: true, shows: (val) => val?.deliveryDate ? moment.utc(val?.deliveryDate).format("DD-MM-YYYY") : "" },
   ]
 
   return <Main className={"grid gap-6 items-start content-start"}>
@@ -100,7 +100,7 @@ const Cuts = () => {
       {filteredCuts?.length ? /*filteredCuts.map(cut => {
         return <OrderCard name={false} order={cut?.order && {...cut.order, workshop: cut?.workshopOrder}} pink={(cut?.cut && !cut?.workshopOrders?.length) ? true : false} orange={cut?.workshopOrders?.length ? true : false} articles={cut?.items?.length ? cut?.items : (cut?.order ? cut?.order?.articles : cut?.manualItems)} link={`/cuts/${cut?._id}`} text={cut?.order ? "CORTE N°" : cut?.detail} forCut />
       })*/
-        <Table fields={ordersFields} headers={["Razon", "Articulos", "Fecha de pedido", "Fecha de entrega", "Ver", "Fijar"]} rows={filteredCuts} containerClassName="lg:col-span-4 md:col-span-2 col-span-1 text-white" stylesFunc={(cut) => {
+        <Table fields={ordersFields} headers={["Ver", "Fijar", "Razon", "Articulos", "Fecha de pedido", "Fecha de entrega"]} rows={filteredCuts} containerClassName="lg:col-span-4 md:col-span-2 col-span-1 text-white" stylesFunc={(cut) => {
           const order = cut?.order
           let articles = cut?.items?.length ? cut?.items : (cut?.order ? cut?.order?.articles : cut?.manualItems)
           const needsStock = articles?.some(art => art?.booked != art?.quantity)

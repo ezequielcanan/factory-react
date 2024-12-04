@@ -57,7 +57,7 @@ const ClientPayments = () => {
             <p className="text-3xl text-center md:text-start">Deuda a favor: ${client?.balance}</p>
             <form className="flex flex-wrap items-center gap-4" onSubmit={onSubmit}>
               <Label>Agregar Pago</Label>
-              <Input register={register("amount")} type="number" placeholder={"Monto"} />
+              <Input register={register("amount")} type="number" placeholder={"Monto"} step={0.01}/>
               <Input register={register("detail")} type="string" placeholder={"Observaciones"} />
               <Input register={register("date")} type="date" />
               <Button><TiTick /></Button>
