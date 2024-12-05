@@ -12,7 +12,6 @@ const Date = ({ date, activities, setReload }) => {
             return <ActivityRow title={order?.data?.client?.name} isOrder activity={order?.data} key={i + date?.date + "o" + order?.data?._id} setReload={setReload} />
           })}
           {activities?.activities?.map((activity, i) => {
-            console.log(activity)
             return <ActivityRow title={activity?.data?.title} activity={activity?.data} key={i + date?.date + "a" + activity?.data?._id} setReload={setReload}/>
           })}
         </>

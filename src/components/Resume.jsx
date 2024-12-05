@@ -27,7 +27,7 @@ ChartJS.register(
   Legend 
 );
 
-const Resume = ({ title = "Ultima semana", week = true, month = false, controls = false, society }) => {
+const Resume = ({ title = "Ultima semana", week = true, month = false, controls = false, buys = false, society }) => {
   const [resume, setResume] = useState(null)
   const [error, setError] = useState(false)
   const [labels, setLabels] = useState([])
@@ -36,9 +36,13 @@ const Resume = ({ title = "Ultima semana", week = true, month = false, controls 
   const [to, setTo] = useState(moment())
   const [search, setSearch] = useState(false)
 
+  const buysUrl = `/buy-orders/recent${controls ? `?from=${from.format("DD-MM-YYYY")}&to=${to.format("DD-MM-YYYY")}` : ((month) ? `?from=${moment().subtract(31, "days").format("DD-MM-YYYY")}` : "")}`
+  const ordersUrl = `/orders/recent?society=${society?.value}${controls ? `&from=${from.format("DD-MM-YYYY")}&to=${to.format("DD-MM-YYYY")}` : ((month) ? `&from=${moment().subtract(31, "days").format("DD-MM-YYYY")}` : "")}`
+
+  const resumeUrl = buys ? buysUrl : ordersUrl
+
   useEffect(() => {
-    console.log(society?.value)
-    customAxios.get(`/orders/recent?society=${society?.value}${controls ? `&from=${from.format("DD-MM-YYYY")}&to=${to.format("DD-MM-YYYY")}` : ((month) ? `&from=${moment().subtract(31, "days").format("DD-MM-YYYY")}` : "")}`).then(res => {
+    customAxios.get(resumeUrl).then(res => {
       setResume(res?.data)
     }).catch(e => {
       setError(true)
@@ -161,9 +165,9 @@ const Resume = ({ title = "Ultima semana", week = true, month = false, controls 
             <Button className={"text-sm"} onClick={() => setSearch(s => !s)}>Buscar</Button>
           </div>
         )}
-        <p className={textClassName}>Ganancia: ${parseFloat(resume?.profits)?.toFixed(2)}</p>
-        <p className={textClassName}>Pedidos facturados: {resume?.ordersLength}</p>
-        <p className={textClassName}>Articulos diferentes: {resume?.articles?.length}</p>
+        <p className={textClassName}>{!buys ? "Ganancia" : "Gasto"}: ${parseFloat(resume?.profits)?.toFixed(2)}</p>
+        <p className={textClassName}>Pedidos {!buys ? "facturados" : "realizados"}: {resume?.ordersLength}</p>
+        <p className={textClassName}>{!buys ? "Articulos" : "Insumos"} diferentes: {resume?.articles?.length}</p>
         <Line key={JSON.stringify(resume?.articles)} data={data} options={options} className="text-sm mt-auto"/>
       </motion.section>
     </>

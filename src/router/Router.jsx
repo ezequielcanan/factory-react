@@ -90,6 +90,11 @@ const Router = () => {
               <Route path="/prices/:cid" element={<ClientPayments />} />
               <Route path="/prices/order/:oid" element={<Price />} />
             </> : null}
+            {userIncludesRoles(userData, "prices") ? <>
+              <Route path="/debts" element={<Prices buys/>} />
+              <Route path="/debts/:cid" element={<ClientPayments buys/>} />
+              <Route path="/debts/order/:oid" element={<Price buys/>} />
+            </> : null}
             {userIncludesRoles(userData, "logistics") ? <>
               <Route path="/logistics" element={<Logistics />} />
               <Route path="/logistics/new" element={<NewActivity />} />

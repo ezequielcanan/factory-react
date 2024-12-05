@@ -282,6 +282,12 @@ const Order = ({ buys = false }) => {
     setReload(!reload)
   }
 
+  const onReceiveBuyOrder = async () => {
+    await customAxios.put(`/${endpoint}/${order?._id}?property=received&value=true`)
+    await customAxios.put(`/${endpoint}/${order?._id}?property=receivedDate&value=${moment()}`)
+    navigate(`/debts/order/${order?._id}`)
+  }
+
   const headerText = buys ? "Insumos" : "Articulos"
   const tableHeaders = ["Articulo", "Cantidad", "Reservado", "Cortar Restantes", "Precio Unitario", "Subtotal", "Borrar"]
 
@@ -290,6 +296,8 @@ const Order = ({ buys = false }) => {
     tableHeaders[0] = "Insumo"
     tableFields.splice(2, 2)
   }
+
+  const greenButton = "bg-green-700 hover:bg-green-800"
 
   return (
     <Main className={"grid lg:grid-cols-2 gap-y-8 md:gap-y-16 gap-x-16 overflow-x-hidden content-start text-white"}>
@@ -305,7 +313,7 @@ const Order = ({ buys = false }) => {
                 <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/2/${oid}?buy=true`} download className="text-2xl"><FaFilePdf /></a>
                 <Button onClick={toggleMode}>Cuenta {order?.mode ? "1" : "2"}</Button>
               </>}
-              <Button className={`justify-self-center lg:justify-self-end ${!order?.budget && (!order?.finished && (order?.inPricing ? "bg-green-700 hover:bg-green-800" : "bg-sky-600 hover:bg-sky-700"))}`} onClick={!order.budget ? (!order?.finished ? (order?.inPricing ? onFinishOrder : onPassToPricing) : () => navigate(`/prices/order/${oid}`)) : onPassToOrder}>{!order?.budget ? (order?.finished ? "Finalizado" : (!order?.inPricing ? "Pasar a facturacion" : "Facturar")) : "Confirmar pedido"}</Button>
+              <Button className={`justify-self-center lg:justify-self-end ${!buys ? (!order?.budget && (!order?.finished && (order?.inPricing ? greenButton : "bg-sky-600 hover:bg-sky-700"))) : (!order?.received && greenButton)}`} onClick={!buys ? (!order.budget ? (!order?.finished ? (order?.inPricing ? onFinishOrder : onPassToPricing) : () => navigate(`/prices/order/${oid}`)) : onPassToOrder) : onReceiveBuyOrder}>{!buys ? (!order?.budget ? (order?.finished ? "Finalizado" : (!order?.inPricing ? "Pasar a facturacion" : "Facturar")) : "Confirmar pedido") : (!order?.received ? "Recibir" : "Recibido")}</Button>
             </div>
             {order?.budget && <div className="flex flex-col gap-4">
               <Input type="number" value={transfer} onChange={e => setInputState(e, setTransfer)} placeholder="% TRANSFERENCIA" />

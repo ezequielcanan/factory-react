@@ -132,7 +132,6 @@ const Cut = () => {
           <div className="grid md:grid-cols-2 gap-4 content-start text-white">
             <h3 className="md:col-span-2 text-2xl text-white">Articulos personalizados</h3>
             {cut?.articles?.filter(a => cut?.order ? !a.common : false)?.length ? cut?.articles?.filter(a => cut?.order ? !a.common : false)?.map(article => {
-              console.log()
               const workshopOrderWithArticle = cut?.workshopOrders?.find(o => o?.articles?.some(art => art?.customArticle == article?.customArticle?._id))
               if (workshopOrderWithArticle) {
                 const wArticle = workshopOrderWithArticle?.articles?.find(art => art?.customArticle == article?.customArticle?._id)

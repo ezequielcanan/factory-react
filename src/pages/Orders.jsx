@@ -75,12 +75,12 @@ const Orders = ({ budgets = false, buys = false }) => {
       value: "priority", showsFunc: true, param: true, shows: (val, row) => {
         return val ? (
           <LuPin className="cursor-pointer text-xl" onClick={async () => {
-            await customAxios.put(`/orders/${row?._id}?property=priority&value=0`)
+            await customAxios.put(`/${!buys ? "orders" : "buy-orders"}/${row?._id}?property=priority&value=0`)
             setReload(!reload)
           }}/>
         ) : (
           <LuPinOff className="cursor-pointer text-xl" onClick={async () => {
-            await customAxios.put(`/orders/${row?._id}?property=priority&value=1`)
+            await customAxios.put(`/${!buys ? "orders" : "buy-orders"}/${row?._id}?property=priority&value=1`)
             setReload(!reload)
           }}/>
         )
@@ -122,7 +122,7 @@ const Orders = ({ budgets = false, buys = false }) => {
             let color = ""
             if (order?.suborders?.length) {
               color = "bg-purple-700"
-            } else if (order?.finished) {
+            } else if (order?.finished || order?.received) {
               color = "bg-green-600"
             } else if (order?.inPricing) {
               color = "bg-sky-600"

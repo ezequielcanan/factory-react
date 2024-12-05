@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from "react"
 import customAxios from "../config/axios.config"
-import { useNavigate, useParams } from "react-router-dom"
+import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import Main from "../containers/Main"
 import Table from "../components/Table"
 import { Oval } from "react-loader-spinner"
@@ -12,7 +12,7 @@ import Input from "../components/Input"
 import { userIncludesRoles } from "../utils/utils"
 import { UserContext } from "../context/UserContext"
 
-const Price = () => {
+const Price = ({buys = false}) => {
   const { userData } = useContext(UserContext)
   const [order, setOrder] = useState(null)
   const [reload, setReload] = useState(false)
@@ -20,15 +20,21 @@ const Price = () => {
   const [edit, setEdit] = useState(false)
   const navigate = useNavigate()
   const { oid } = useParams()
+  const endpoint = !buys ? "orders" : "buy-orders"
+
 
   useEffect(() => {
-    customAxios.get(`/orders/${oid}`).then((res) => {
-      setOrder({
+    customAxios.get(`/${endpoint}/${oid}`).then((res) => {
+      setOrder(!buys ? {
         ...res?.data?.order, articles: res?.data?.order?.articles?.map(art => {
           return { bookedQuantity: art.booked, custom: art?.customArticle ? true : false, ...art, ...art?.article, ...art?.customArticle, price: art?.price || 0 }
         })
+      } : {
+        ...res?.data, articles: res?.data?.articles?.map(art => {
+          return { custom: art?.customArticle ? true : false, ...art, ...art?.article, ...art?.customArticle, price: art?.price || 0 }
+        })
       })
-      setBillNumber(res?.data?.order?.billNumber || "")
+      setBillNumber((!buys ? res?.data?.order?.billNumber : res?.data?.billNumber) || "")
     })
   }, [reload])
 
@@ -36,7 +42,7 @@ const Price = () => {
 
   const tableFields = [
     { value: "description", showsFunc: true, param: true, shows: (val,row) => {
-      return (row?.description || row?.detail) + " - " + row?.size
+      return (row?.description || row?.detail) + (row?.size ? " - " + row?.size : "")
     } },
     { value: "quantity" },
     {
@@ -49,7 +55,7 @@ const Price = () => {
   ]
 
   const onChangePrice = async (price, article) => {
-    await customAxios.put(`/orders/price/${oid}/${article?._id}?price=${price}${article?.custom ? "&custom=true" : ""}`)
+    await customAxios.put(`/${endpoint}/price/${oid}/${article?._id}?price=${price}${article?.custom ? "&custom=true" : ""}`)
   }
 
   const onConfirmPrices = async () => {
@@ -58,19 +64,24 @@ const Price = () => {
   }
 
   const toggleMode = async () => {
-    await customAxios.put(`/orders/mode/${oid}`)
+    //await customAxios.put(`/orders/mode/${oid}`)
+    await customAxios.put(`/${endpoint}/${order?._id}?property=mode&value=${!order?.mode}`)
     setReload(!reload)
   }
 
   const backToOrders = async () => {
-    await customAxios.put(`/orders/${oid}?property=inPricing&value=false`)
-    await customAxios.put(`/orders/${oid}?property=bultos&value=0`)
-    await customAxios.put(`/orders/${oid}?property=finished&value=false`)
-    navigate(`/orders/${oid}`)
+    if (!buys) {
+      await customAxios.put(`/${endpoint}/${oid}?property=inPricing&value=false`)
+      await customAxios.put(`/${endpoint}/${oid}?property=bultos&value=0`)
+      await customAxios.put(`/${endpoint}/${oid}?property=finished&value=false`)
+    } else {
+      await customAxios.put(`/${endpoint}/${oid}?property=received&value=false`)
+    }
+    navigate(`/${endpoint}/${oid}`)
   }
 
   const changeBillNumber = async () => {
-    await customAxios.put(`/orders/${oid}?property=billNumber&value=${billNumber}`)
+    await customAxios.put(`/${endpoint}/${oid}?property=billNumber&value=${billNumber}`)
     setReload(!reload)
   }
 
@@ -78,7 +89,7 @@ const Price = () => {
     <Main className={"grid gap-8 content-start"}>
       <section className="grid md:grid-cols-2 content-start gap-8 max-w-screen">
         <div className="grid gap-y-8 max-w-full">
-          <Title text={`Facturacion: N° ${order?.orderNumber} - ${order?.client?.name}`} className={"md:text-start w-full text-center break-normal !text-4xl"} />
+          <Title text={`${!buys ? "Facturacion" : "Compras"}: N° ${order?.orderNumber} - ${order?.client?.name}`} className={"md:text-start w-full text-center break-normal !text-4xl"} />
           <div className="grid md:grid-cols-2 items-center gap-4 items-center md:justify-start md:justify-items-start justify-center w-full">
             <Input placeholder={"Número de factura"} defaultValue={billNumber} containerClassName={"justify-self-start max-w-full"} onChange={(e) => setBillNumber(e?.target?.value)}/>
             <Button onClick={changeBillNumber}>Confirmar</Button>
@@ -86,7 +97,7 @@ const Price = () => {
         </div>
         <div className="grid gap-y-8 w-full max-w-full">
           <Button className={"md:justify-self-end justify-self-center self-start px-4 py-2"} onClick={toggleMode}>Modo: {order?.mode ? "Cuenta 1" : "Cuenta 2"}</Button>
-          <Button className={"md:justify-self-end justify-self-center self-start px-4 py-2 bg-amber-300 hover:bg-amber-500 hover:!text-white rounded-none border-2 border-black !text-black"} onClick={backToOrders}>Pasar a pedidos</Button>
+          <Button className={"md:justify-self-end justify-self-center self-start px-4 py-2 bg-amber-300 hover:bg-amber-500 hover:!text-white rounded-none border-2 border-black !text-black"} onClick={backToOrders}>Pasar a {!buys ? "pedidos" : "compras"}</Button>
         </div>
       </section>
       {order ? (
@@ -94,15 +105,15 @@ const Price = () => {
           <section className="grid gap-8 max-w-full w-full text-white">
             <div className="flex flex-col gap-8">
               <h3 className="text-2xl">Total: ${order?.articles?.reduce((acc, art) => acc + ((art?.price ? (art?.price * art?.quantity) : 0) * multiply), 0)}</h3>
-              <p className="text-xl">Bultos: {order?.packages}</p>
+              {!buys && <p className="text-xl">Bultos: {order?.packages}</p>}
             </div>
             <div className="flex flex-wrap justify-between items-center gap-8">
-              <h3 className="text-xl">Detalles del pedido</h3>
+              <h3 className="text-xl">Detalles {!buys ? "del pedido" : "de la compra"}</h3>
               {!order?.suborders?.length && <Button onClick={edit ? onConfirmPrices : () => setEdit(!edit)} className={"rounded-none border-2 border-white bg-third"}>{!edit ? "Editar precios" : "Actualizar"}</Button>}
             </div>
-            <Table fields={tableFields} headers={["Articulo", "Cantidad", "Precio Unitario", "Iva", "Subtotal"]} rows={order?.articles}  />
+            <Table fields={tableFields} headers={[!buys ? "Articulo" : "Insumo", "Cantidad", "Precio Unitario", "Iva", "Subtotal"]} rows={order?.articles}  />
             <div className="flex flex-wrap items-center gap-4">
-              <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/${order?.mode ? "1" : "2"}/${oid}`} download><Button className={"flex items-center gap-x-6"}>Cuenta <FaFilePdf /></Button></a>
+              <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/${!buys ? (order?.mode ? "1" : "2") : "2"}/${oid}${buys ? "?buy=true" : ""}`} download><Button className={"flex items-center gap-x-6"}>Cuenta <FaFilePdf /></Button></a>
             </div>
           </section>
         </>

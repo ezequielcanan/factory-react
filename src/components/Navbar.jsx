@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion"
 import { Link, NavLink, useNavigate } from "react-router-dom"
-import { FaBagShopping, FaListCheck, FaMoneyBill, FaScissors } from "react-icons/fa6"
+import { FaArrowTrendDown, FaBagShopping, FaListCheck, FaMoneyBill, FaScissors } from "react-icons/fa6"
 import NavItem from "./NavItem"
 import { MdSell } from "react-icons/md"
 import { FaCalendar, FaCalendarCheck, FaHammer, FaUsers } from "react-icons/fa"
@@ -64,6 +64,7 @@ const Navbar = () => {
           <motion.nav animate={((isOpen) ? "visible" : "hidden")} exit="exit" initial="hidden" variants={navVariants} className={`${(!isOpen) ? "hidden" : "sm:w-auto w-full bg-black/90 absolute sm:right-[30px] top-[100px] sm:top-[120px]"} px-4 sm:px-0 items-center gap-x-8`}>
             <ul className={`${(!isOpen) ? "hidden" : "flex flex-col gap-y-8 sm:h-auto h-screen sm:gap-y-0 items-center"} items-center w-full gap-x-8`}>
               {(userIncludesRoles(userData, "prices")) && <NavItem path={"/prices"} setIsOpen={setIsOpen}>Facturacion <FaMoneyBill /></NavItem>}
+              {(userIncludesRoles(userData, "prices")) && <NavItem path={"/debts"} setIsOpen={setIsOpen}>Deudas <FaArrowTrendDown /></NavItem>}
               {(userIncludesRoles(userData, "articles")) && <NavItem path={"/articles"} setIsOpen={setIsOpen}>Stock <FaBagShopping /></NavItem>}
               {(userIncludesRoles(userData, "orders")) && <NavItem path={"/orders"} setIsOpen={setIsOpen}>Pedidos <MdSell /></NavItem>}
               {(userIncludesRoles(userData, "clients")) && <NavItem path={"/clients"} setIsOpen={setIsOpen}>Clientes <FaUsers /></NavItem>}

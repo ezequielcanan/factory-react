@@ -15,7 +15,7 @@ import moment from "moment"
 import { FaFileExcel } from "react-icons/fa"
 import { MdClose } from "react-icons/md"
 
-const ClientPayments = () => {
+const ClientPayments = ({buys = false}) => {
   const [client, setClient] = useState(null)
   const [reload, setReload] = useState(false)
   const [paymentsInfo, setPaymentsInfo] = useState("")
@@ -23,7 +23,7 @@ const ClientPayments = () => {
   const { cid } = useParams()
 
   useEffect(() => {
-    customAxios.get(`/payments/balance/${cid}`).then(res => {
+    customAxios.get(`/payments/balance/${cid}${buys ? "?buys=true" : ""}`).then(res => {
       setClient(res.data)
       setPaymentsInfo(res?.data?.paymentsInfo)
     })
@@ -40,6 +40,8 @@ const ClientPayments = () => {
     setReload(!reload)
   }
 
+  const endpoint = buys ? "debts" : "prices"
+
   const tableFields = [
     { value: "date", showsFunc: true, shows: (val) => moment.utc(val).format("DD-MM-YYYY") },
     { value: "detail" },
@@ -55,13 +57,13 @@ const ClientPayments = () => {
   return (
     <Main className={"grid gap-6 gap-y-16 items-start content-start text-white"}>
       <section className="grid items-center justify-center gap-8 md:items-start md:grid-cols-2 md:justify-between">
-        <Title text={`Facturacion ${client ? client?.name : ""}`} className={"text-center md:text-start !text-4xl"} />
-        <a className="md:justify-self-end justify-self-center" href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/cc/${client?._id}`} download><Button className={"flex items-center gap-x-6"}>Cuenta Corriente <FaFileExcel /></Button></a>
+        <Title text={`${!buys ? "Facturacion" : "Deuda"} ${client ? client?.name : ""}`} className={"text-center md:text-start !text-4xl"} />
+        <a className="md:justify-self-end justify-self-center" href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/cc/${client?._id}${buys ? "?buys=true" : ""}`} download><Button className={"flex items-center gap-x-6"}>Cuenta Corriente <FaFileExcel /></Button></a>
       </section>
       {client ? (
         <>
           <section className="grid gap-8">
-            <p className="text-3xl text-center md:text-start">Deuda a favor: ${client?.balance}</p>
+            <p className="text-3xl text-center md:text-start">Deuda {!buys ? "a favor" : "en contra"}: ${client?.balance}</p>
             <form className="grid sm:flex flex-wrap items-center gap-4" onSubmit={onSubmit}>
               <Label>Agregar Pago</Label>
               <Input register={register("amount")} type="number" placeholder={"Monto"} step={0.01}/>
@@ -84,7 +86,7 @@ const ClientPayments = () => {
                   articlesString += `${(article?.article?.description || article?.customArticle?.detail)?.toUpperCase()}${i != (articlesForString?.length - 1) ? " ///// " : ""}`
                 })
                 o = { ...o, remainingDays: moment(o?.deliveryDate).diff(moment(), "days"), articlesString }
-                return <OrderCard key={o?._id} order={o} green link={`/prices/order/${o?._id}`} />
+                return <OrderCard key={o?._id} order={o} green link={`/${endpoint}/order/${o?._id}`} />
               })
             ) : (
               <p className="text-white text-2xl">No hay pedidos</p>
