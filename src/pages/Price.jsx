@@ -6,25 +6,29 @@ import Table from "../components/Table"
 import { Oval } from "react-loader-spinner"
 import Title from "../components/Title"
 import Button from "../components/Button"
-import { FaFileExcel, FaFilePdf } from "react-icons/fa"
+import { FaFileExcel, FaFilePdf, FaFileUpload } from "react-icons/fa"
 import Label from "../components/Label"
 import Input from "../components/Input"
-import { userIncludesRoles } from "../utils/utils"
+import { uploadFile, userIncludesRoles } from "../utils/utils"
 import { UserContext } from "../context/UserContext"
+import moment from "moment"
 
-const Price = ({buys = false}) => {
+const Price = ({ buys = false }) => {
   const { userData } = useContext(UserContext)
   const [order, setOrder] = useState(null)
   const [reload, setReload] = useState(false)
   const [billNumber, setBillNumber] = useState("")
+  const [billDate, setBillDate] = useState("")
+  const [billFile, setBillFile] = useState(null)
   const [edit, setEdit] = useState(false)
   const navigate = useNavigate()
   const { oid } = useParams()
   const endpoint = !buys ? "orders" : "buy-orders"
 
+  const filePath = `/${buys ? "buy-orders" : "orders"}/${oid}/bill`
 
   useEffect(() => {
-    customAxios.get(`/${endpoint}/${oid}`).then((res) => {
+    customAxios.get(`/${endpoint}/${oid}`).then(async (res) => {
       setOrder(!buys ? {
         ...res?.data?.order, articles: res?.data?.order?.articles?.map(art => {
           return { bookedQuantity: art.booked, custom: art?.customArticle ? true : false, ...art, ...art?.article, ...art?.customArticle, price: art?.price || 0 }
@@ -35,15 +39,20 @@ const Price = ({buys = false}) => {
         })
       })
       setBillNumber((!buys ? res?.data?.order?.billNumber : res?.data?.billNumber) || "")
+      setBillDate(moment(!buys ? res?.data?.order?.billDate : res?.data?.billDate).format("YYYY-MM-DD") || "")
+      const files = (await customAxios.get(`/upload/check?path=${filePath}`))?.data?.files
+      files?.length && setBillFile(files[0])
     })
   }, [reload])
 
   const multiply = (order?.mode ? 1.21 : 1)
 
   const tableFields = [
-    { value: "description", showsFunc: true, param: true, shows: (val,row) => {
-      return (row?.description || row?.detail) + (row?.size ? " - " + row?.size : "")
-    } },
+    {
+      value: "description", showsFunc: true, param: true, shows: (val, row) => {
+        return (row?.description || row?.detail) + (row?.size ? " - " + row?.size : "")
+      }
+    },
     { value: "quantity" },
     {
       value: "price", showsFunc: true, param: true, shows: (val, row) => {
@@ -80,8 +89,17 @@ const Price = ({buys = false}) => {
     navigate(`/${endpoint}/${oid}`)
   }
 
-  const changeBillNumber = async () => {
+  const changeBillFile = async (e) => {
+    await customAxios.delete(`/upload/clear?path=${filePath}`)
+
+    const sendFile = e?.target?.files[0]
+    await uploadFile(sendFile, filePath, sendFile.name)
+    setReload(!reload)
+  }
+
+  const changeBillInfo = async () => {
     await customAxios.put(`/${endpoint}/${oid}?property=billNumber&value=${billNumber}`)
+    billDate && await customAxios.put(`/${endpoint}/${oid}?property=billDate&value=${moment(billDate, "YYYY-MM-DD")}`)
     setReload(!reload)
   }
 
@@ -90,9 +108,17 @@ const Price = ({buys = false}) => {
       <section className="grid md:grid-cols-2 content-start gap-8 max-w-screen">
         <div className="grid gap-y-8 max-w-full">
           <Title text={`${!buys ? "Facturacion" : "Compras"}: N° ${order?.orderNumber} - ${order?.client?.name}`} className={"md:text-start w-full text-center break-normal !text-4xl"} />
-          <div className="grid md:grid-cols-2 items-center gap-4 items-center md:justify-start md:justify-items-start justify-center w-full">
-            <Input placeholder={"Número de factura"} defaultValue={billNumber} containerClassName={"justify-self-start max-w-full"} onChange={(e) => setBillNumber(e?.target?.value)}/>
-            <Button onClick={changeBillNumber}>Confirmar</Button>
+          <div className="grid  items-center gap-4 items-center md:justify-start md:justify-items-start justify-center w-full">
+            <Input placeholder={"Número de factura"} defaultValue={billNumber} containerClassName={"justify-self-start max-w-full"} onChange={(e) => setBillNumber(e?.target?.value)} />
+            <Input defaultValue={billDate} type="date" containerClassName={"justify-self-start max-w-full"} onChange={(e) => setBillDate(e?.target?.value)} />
+            <Button onClick={changeBillInfo}>Confirmar</Button>
+            <Label className={`${billFile ? "max-h-[150px] border-4 border-nav" : "py-8 border-dashed rounded-lg border-nav border-4 "} px-2 col-span-1 flex items-center overflow-hidden self-center justify-center h-full w-full`}>
+              {!billFile ? <FaFileUpload className="text-2xl" /> : <div className="flex flex-col items-center">
+                <a target="_blank" rel="noopener noreferrer" className="w-full h-full py-4 px-2 text-center border-b-2 border-white" onClick={(e) => e.stopPropagation()} href={`${import.meta.env.VITE_REACT_API_URL}/files${filePath}/${billFile}`}>{billFile}</a>
+                <p className="py-4">Cambiar Archivo</p>
+              </div>}
+              <Input type="file" className="hidden" onChange={changeBillFile} containerClassName={"hidden"} />
+            </Label>
           </div>
         </div>
         <div className="grid gap-y-8 w-full max-w-full">
@@ -111,7 +137,7 @@ const Price = ({buys = false}) => {
               <h3 className="text-xl">Detalles {!buys ? "del pedido" : "de la compra"}</h3>
               {!order?.suborders?.length && <Button onClick={edit ? onConfirmPrices : () => setEdit(!edit)} className={"rounded-none border-2 border-white bg-third"}>{!edit ? "Editar precios" : "Actualizar"}</Button>}
             </div>
-            <Table fields={tableFields} headers={[!buys ? "Articulo" : "Insumo", "Cantidad", "Precio Unitario", "Iva", "Subtotal"]} rows={order?.articles}  />
+            <Table fields={tableFields} headers={[!buys ? "Articulo" : "Insumo", "Cantidad", "Precio Unitario", "Iva", "Subtotal"]} rows={order?.articles} />
             <div className="flex flex-wrap items-center gap-4">
               <a href={`${import.meta.env.VITE_REACT_API_URL}/api/pdf/${!buys ? (order?.mode ? "1" : "2") : "2"}/${oid}${buys ? "?buy=true" : ""}`} download><Button className={"flex items-center gap-x-6"}>Cuenta <FaFilePdf /></Button></a>
             </div>
