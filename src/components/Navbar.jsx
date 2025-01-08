@@ -77,7 +77,7 @@ const Navbar = () => {
               {(userIncludesRoles(userData, "budgets")) && <NavItem path={"/budgets"} setIsOpen={setIsOpen}>Presupuestos <FaListCheck /></NavItem>}
               {(userIncludesRoles(userData, "materials")) && <NavItem path={"/materials"} setIsOpen={setIsOpen}>Insumos <PiNutFill /></NavItem>}
               {(userIncludesRoles(userData, "suppliers")) && <NavItem path={"/suppliers"} setIsOpen={setIsOpen}>Proveedores <RiUser2Fill /></NavItem>}
-              {(userIncludesRoles(userData, "buyOrders")) && <NavItem path={"/buy-orders"} setIsOpen={setIsOpen}>Compras <GiPayMoney /></NavItem>}
+              {(userIncludesRoles(userData, "buys")) && <NavItem path={"/buy-orders"} setIsOpen={setIsOpen}>Compras <GiPayMoney /></NavItem>}
               {(userIncludesRoles(userData)) && <NavItem path={"/users"} setIsOpen={setIsOpen}>Usuarios <FaUsers /></NavItem>}
               <Button className={"bg-red-600 hover:bg-red-700 text-white !rounded-none !w-full px-4 py-2 gap-4 text-lg flex justify-between items-center duration-300"} onClick={() => (setUser(false), customAxios.defaults.headers.common['Authorization'] = "", localStorage.setItem("token", ""), navigate("/"))}>Cerrar sesion <BiLogOut /></Button>
             </ul>
