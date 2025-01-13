@@ -134,6 +134,8 @@ const Orders = ({ budgets = false, buys = false }) => {
               color = "bg-red-600"
             }
 
+            if (buys && order?.ordered && !order?.received) color = "bg-orange-600"
+
             return color
           }} />
         ) : (

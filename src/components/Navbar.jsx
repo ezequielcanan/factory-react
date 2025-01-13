@@ -61,8 +61,12 @@ const Navbar = () => {
       <NavLink to={"/"} className="text-white font-bold text-3xl px-8">Fabrica</NavLink>
       <AnimatePresence>
         {isOpen && (
-          <motion.nav animate={((isOpen) ? "visible" : "hidden")} exit="exit" initial="hidden" variants={navVariants} className={`${(!isOpen) ? "hidden" : "sm:w-auto w-full bg-black/90 absolute sm:right-[30px] top-[100px] sm:top-[120px]"} px-4 sm:px-0 items-center gap-x-8`}>
-            <ul className={`${(!isOpen) ? "hidden" : "flex flex-col gap-y-8 sm:h-auto h-screen sm:gap-y-0 items-center"} items-center w-full gap-x-8`}>
+          <motion.nav animate={((isOpen) ? "visible" : "hidden")} exit="exit" initial="hidden" variants={navVariants} className={`${(!isOpen) ? "hidden" : "sm:w-auto w-full bg-black/90 sm:bg-transparent absolute sm:right-[30px] top-[100px] sm:top-[120px]"} px-4 sm:px-0 items-center gap-x-8`}>
+            <ul className={`${(!isOpen) ? "hidden" : "flex flex-col gap-y-8 sm:h-auto h-screen sm:gap-y-0 items-center"} !bg-transparent overflow-y-auto [&::-webkit-scrollbar]:w-2
+  [&::-webkit-scrollbar-track]:!bg-gray-900
+  [&::-webkit-scrollbar-thumb]:!bg-blue-900
+  dark:[&::-webkit-scrollbar-track]:bg-blue-700
+  dark:[&::-webkit-scrollbar-thumb]:bg-blue-500 items-center w-full gap-x-8 px-2 pb-32`}>
               {(userIncludesRoles(userData, "prices")) && <NavItem path={"/prices"} setIsOpen={setIsOpen}>Facturacion <FaMoneyBill /></NavItem>}
               {(userIncludesRoles(userData, "prices")) && <NavItem path={"/debts"} setIsOpen={setIsOpen}>Deudas <FaArrowTrendDown /></NavItem>}
               {(userIncludesRoles(userData, "articles")) && <NavItem path={"/articles"} setIsOpen={setIsOpen}>Stock <FaBagShopping /></NavItem>}
