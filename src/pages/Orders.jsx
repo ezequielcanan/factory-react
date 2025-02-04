@@ -120,7 +120,9 @@ const Orders = ({ budgets = false, buys = false }) => {
           <Table fields={ordersFields} headers={ordersHeaders} rows={filterOrders} containerClassName="xl:col-span-4 lg:col-span-3 md:col-span-2 col-span-1 text-white" stylesFunc={(order) => {
             const needsStock = order?.articles?.some(art => art?.booked != art?.quantity)
             let color = ""
-            if (order?.suborders?.length) {
+            if (order?.cloned) {
+              color = "bg-lime-700"
+            } else if (order?.suborders?.length) {
               color = "bg-purple-700"
             } else if (order?.finished || order?.received) {
               color = "bg-green-600"
@@ -135,7 +137,6 @@ const Orders = ({ budgets = false, buys = false }) => {
             }
 
             if (buys && order?.ordered && !order?.received) color = "bg-orange-600"
-
             return color
           }} />
         ) : (

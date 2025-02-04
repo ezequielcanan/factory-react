@@ -244,7 +244,7 @@ const Order = ({ buys = false }) => {
   }
 
   const duplicateOrder = async () => {
-    const newOrder = { ...order }
+    const newOrder = { ...order, cloned: true }
     newOrder.articles = newOrder?.articles?.map(art => {
       if (art?.custom) {
         art.customArticle = art?.customArticle?._id
