@@ -99,6 +99,9 @@ const Router = () => {
               <Route path="/logistics" element={<Logistics />} />
               <Route path="/logistics/new" element={<NewActivity />} />
             </> : null}
+            {userIncludesRoles(userData, "cut-logistics") ? <>
+              <Route path="/cut-logistics" element={<Logistics cut/>} />
+            </> : null}
             {userIncludesRoles(userData, "materials") ? <>
               <Route path="/materials" element={<Articles materials/>} />
               <Route path="/materials/new" element={<NewArticle materials/>} />

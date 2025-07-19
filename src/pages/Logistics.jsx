@@ -18,7 +18,7 @@ moment.updateLocale('es', {
   weekdaysMin: ['do', 'lu', 'ma', 'mi', 'ju', 'vi', 'sa']
 });
 
-const Logistics = () => {
+const Logistics = ({cut=false}) => {
   const [from, setFrom] = useState(moment().startOf('week').add(1, 'day'))
   const [to, setTo] = useState(moment().endOf("week").add(1, "day"))
   const [activities, setActivities] = useState(null)
@@ -26,10 +26,10 @@ const Logistics = () => {
 
 
   useEffect(() => {
-    customAxios.get(`/activities?from=${from.format("YYYY-MM-DD")}&to=${to.format("YYYY-MM-DD")}`).then(res => {
+    customAxios.get(`/activities?from=${from.format("YYYY-MM-DD")}&to=${to.format("YYYY-MM-DD")}${cut ? "&cut=true" : ""}`).then(res => {
       setActivities(res?.data)
     })
-  }, [reload, to])
+  }, [reload, to, cut])
   
   const getDatesBetween = (start, end) => {
     const dates = [];
@@ -51,8 +51,8 @@ const Logistics = () => {
   return (
     <Main className={"grid gap-y-8 content-start"}>
       <section className="grid items-center justify-center gap-8 md:items-start md:grid-cols-2 md:justify-between">
-        <Title text={"Logistica"} className={"text-center md:text-start"}/>
-        <Link className="justify-between justify-self-center md:justify-self-end font-bold" to={`/logistics/new`}><Button className={"flex gap-4 items-center px-4 py-2"}>Nueva tarea <FaCalendarAlt/></Button></Link>
+        <Title text={!cut ? "Logistica" : "Calendario de Cortes"} className={"text-center md:text-start"}/>
+        {!cut && <Link className="justify-between justify-self-center md:justify-self-end font-bold" to={`/logistics/new`}><Button className={"flex gap-4 items-center px-4 py-2"}>Nueva tarea <FaCalendarAlt/></Button></Link>}
       </section>
       <section className="grid xl:grid-cols-7 lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-4">
         {activities && getDatesBetween(from, to).map(date => {
@@ -72,7 +72,7 @@ const Logistics = () => {
               }
             }).filter(a => a)
           }
-          return <Date date={date} activities={dateActivities} key={date?.date} setReload={setReload}/>
+          return <Date date={date} activities={dateActivities} key={date?.date + (cut ? "cut" : "normal")} setReload={setReload}/>
         })}
       </section>
       <section className="flex justify-between items-center gap-8 text-white text-3xl">

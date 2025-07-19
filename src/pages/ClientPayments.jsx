@@ -63,7 +63,7 @@ const ClientPayments = ({buys = false}) => {
       {client ? (
         <>
           <section className="grid gap-8">
-            <p className="text-3xl text-center md:text-start">Deuda {!buys ? "a favor" : "en contra"}: ${client?.balance}</p>
+            <p className="text-3xl text-center md:text-start">Deuda {!buys ? "a favor" : "en contra"}: ${client?.balance?.toFixed(2)}</p>
             <form className="grid sm:flex flex-wrap items-center gap-4" onSubmit={onSubmit}>
               <Label>Agregar Pago</Label>
               <Input register={register("amount")} type="number" placeholder={"Monto"} step={0.01}/>

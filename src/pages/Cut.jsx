@@ -22,6 +22,7 @@ const Cut = () => {
   const [edit, setEdit] = useState(false)
   const [reload, setReload] = useState(false)
   const { register, handleSubmit } = useForm()
+  const { register: registerLogistics, handleSubmit: handleSubmitLogistics } = useForm()
   const { cid } = useParams()
   const navigate = useNavigate()
 
@@ -45,6 +46,15 @@ const Cut = () => {
     await customAxios.put(`/cuts/${cid}?property=description&value=${data?.description}`)
     setEdit(!edit)
     setReload(!reload)
+  })
+
+  const onConfirmLogistics = handleSubmitLogistics(async data => {
+    if (data?.date) {      
+      await customAxios.post("/activities", { date: moment(data?.date).add(1, "day").subtract(1, "day"), description: cut?.description, cut: true, title: cut?.order ? "CORTE N°" + cut?.order?.orderNumber : cut?.detail })
+      setEdit(!edit)
+      setReload(!reload)
+      navigate("/cut-logistics")
+    }
   })
 
   const deleteCut = async () => {
@@ -109,9 +119,15 @@ const Cut = () => {
               </div>
             </div>
           ) : null}
-          <div className="flex flex-col xl:col-span-2 gap-8">
+          <div className="flex flex-col xl:col-span-2 gap-4">
             <Input textarea className={"w-full"} register={register("description")} disabled={!edit} defaultValue={cut?.description || ""} />
-            <Button onClick={!edit ? () => setEdit(true) : onConfirmDescription} className={"self-start"}>{edit ? "Confirmar" : "Editar"}</Button>
+            <div className="flex flex-col sm:flex-row w-full justify-between">
+              <Button onClick={!edit ? () => setEdit(true) : onConfirmDescription} className={"self-start"}>{edit ? "Confirmar" : "Editar"}</Button>
+              <div className="flex flex-col gap-4 sm:mt-0 mt-8">
+                <Input type="date" className={"w-full"} register={registerLogistics("date")}/>
+                <Button onClick={onConfirmLogistics}>Agregar al calendario</Button>
+              </div>
+            </div>
           </div>
           {passToWorkshop && <WorkshopsContainer containerClassName={"max-h-[30rem] h-full overflow-y-auto auto-rows-auto xl:col-span-2"} onClickWorkshop={(c) => (onChangeWorkshop(c), setPassToWorkshop(false))} />}
           <div className="grid md:grid-cols-2 gap-4 content-start text-white">
@@ -141,7 +157,7 @@ const Cut = () => {
               let articleCard = { ...article }
               articleCard.quantity = Number(articleCard.quantity) - Number(articleCard.booked)
               articleCard = { ...articleCard, ...articleCard.customArticle, id: articleCard?._id }
-              return <ArticleCard quantityLocalNoControl onClickArticle={() => toggleFromSelectedArticles(articleCard)} article={articleCard} customArticle={articleCard} stockNoShow stockNoControl quantityNoControl forCut bookedQuantity hoverEffect={workshop ? true : false} className={selectedArticles?.some(art => art?._id == articleCard?.id) && `!bg-teal-700`}/>
+              return <ArticleCard quantityLocalNoControl key={articleCard?.id} onClickArticle={() => toggleFromSelectedArticles(articleCard)} article={articleCard} customArticle={articleCard} stockNoShow stockNoControl quantityNoControl forCut bookedQuantity hoverEffect={workshop ? true : false} className={selectedArticles?.some(art => art?._id == articleCard?.id) && `!bg-teal-700`}/>
             }) : <p>No hay articulos personalizados</p>}
           </div>
         </section>

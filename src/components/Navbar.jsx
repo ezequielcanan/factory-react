@@ -78,6 +78,7 @@ const Navbar = () => {
                 <NavItem path={"/workshop-orders"} className={"text-nowrap"} setIsOpen={setIsOpen}>En Taller <FaHammer /></NavItem>
               </>}
               {(userIncludesRoles(userData, "logistics")) && <NavItem path={"/logistics"} setIsOpen={setIsOpen}>Logistica <FaCalendarCheck /></NavItem>}
+              {(userIncludesRoles(userData, "cut-logistics")) && <NavItem path={"/cut-logistics"} setIsOpen={setIsOpen}>Calendario Cortes <FaCalendarCheck /></NavItem>}
               {(userIncludesRoles(userData, "budgets")) && <NavItem path={"/budgets"} setIsOpen={setIsOpen}>Presupuestos <FaListCheck /></NavItem>}
               {(userIncludesRoles(userData, "materials")) && <NavItem path={"/materials"} setIsOpen={setIsOpen}>Insumos <PiNutFill /></NavItem>}
               {(userIncludesRoles(userData, "suppliers")) && <NavItem path={"/suppliers"} setIsOpen={setIsOpen}>Proveedores <RiUser2Fill /></NavItem>}

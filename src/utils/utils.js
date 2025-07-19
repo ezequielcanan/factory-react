@@ -57,6 +57,7 @@ export const roles = [
   { value: "cuts", text: "Cortes" },
   { value: "workshops", text: "Talleres" },
   { value: "logistics", text: "Logistica" },
+  { value: "cut-logistics", text: "Calendario Cortes" },
   { value: "budgets", text: "Presupuestos" },
   { value: "materials", text: "Insumos" },
   { value: "suppliers", text: "Proveedores" },
