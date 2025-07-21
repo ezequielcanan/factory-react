@@ -9,6 +9,7 @@ import customAxios from "../config/axios.config"
 import { useForm } from "react-hook-form"
 import ActivityForm from "./ActivityForm"
 import { FaTrash } from "react-icons/fa"
+import { FaScissors } from "react-icons/fa6"
 
 const ActivityRow = ({className, title, activity, isOrder = false, setReload}) => {
   const [expanded, setExpanded] = useState(false)
@@ -101,6 +102,7 @@ const ActivityRow = ({className, title, activity, isOrder = false, setReload}) =
             <p className="text-lg">Informacion extra / Anotaciones: {activity?.extraInfo}</p>
           </>
         ) : <ActivityForm onSubmit={onConfirmChanges} activity={activity} register={register} error={error} buttonClassName="justify-self-center" date={false}/>}
+        {activity?.cutId ? <Link to={`/cuts/${activity?.cutId}`}><Button className={"flex items-center gap-4 bg-purple-600 hover:bg-purple-700"}>Ir al corte <FaScissors/></Button></Link> : null}
         <Button className={"flex items-center gap-4 bg-orange-600 hover:bg-orange-700"} onClick={() => setExpanded(false)}>Salir <BiExit/></Button>
         <Button className={`flex items-center gap-4 ${!activity?.delivered ? "bg-green-700 hover:!bg-green-800" : "bg-red-600 hover:bg-red-800"}`} onClick={handleDelivered}>{!activity?.delivered ? "Realizado" : "Deshacer"}</Button>
         {!isOrder ? <Button className={"flex items-center gap-4 bg-red-600 hover:bg-red-800"} onClick={onDeleteActivity}>Borrar <FaTrash/></Button> : null}

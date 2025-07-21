@@ -1,6 +1,6 @@
 import ActivityRow from "./ActivityRow"
 
-const Date = ({ date, activities, setReload }) => {
+const Date = ({ date, activities, setReload, cut = false }) => {
   return <div className="grid gap-y-2 bg-secondary content-start text-white border-2">
     <div className="p-4 bg-third border-b-2">
       <p className="text-md text-center">{date?.day}: {date?.date}</p>

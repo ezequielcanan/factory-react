@@ -50,7 +50,7 @@ const Cut = () => {
 
   const onConfirmLogistics = handleSubmitLogistics(async data => {
     if (data?.date) {      
-      await customAxios.post("/activities", { date: moment(data?.date).add(1, "day").subtract(1, "day"), description: cut?.description, cut: true, title: cut?.order ? "CORTE N°" + cut?.order?.orderNumber : cut?.detail })
+      await customAxios.post("/activities", { date: moment(data?.date).add(1, "day").subtract(1, "day"), description: cut?.description, cutId: cid, cut: true, title: cut?.order ? "CORTE N°" + cut?.order?.orderNumber : cut?.detail })
       setEdit(!edit)
       setReload(!reload)
       navigate("/cut-logistics")

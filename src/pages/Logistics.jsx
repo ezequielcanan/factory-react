@@ -72,7 +72,7 @@ const Logistics = ({cut=false}) => {
               }
             }).filter(a => a)
           }
-          return <Date date={date} activities={dateActivities} key={date?.date + (cut ? "cut" : "normal")} setReload={setReload}/>
+          return <Date date={date} activities={dateActivities} cut={cut} key={date?.date + (cut ? "cut" : "normal")} setReload={setReload}/>
         })}
       </section>
       <section className="flex justify-between items-center gap-8 text-white text-3xl">
